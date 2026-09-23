@@ -20,4 +20,19 @@ class PalindromeSuite extends AnyFunSuite {
     assert(!Palindrome.isPalindrom("scala"))
     assert(!Palindrome.isPalindrom("palindrome"))
   }
+
+  test("isPalindrom checks valid sentence palindromes ignoring whitespace") {
+    assert(Palindrome.isPalindrom("never odd or even"))
+    assert(Palindrome.isPalindrom("race car"))
+    assert(Palindrome.isPalindrom("nurses run"))
+    assert(Palindrome.isPalindrom("was it a car or a cat i saw"))
+    assert(Palindrome.isPalindrom("step on no pets"))
+    assert(Palindrome.isPalindrom("live on time emit no evil"))
+  }
+
+  test("isPalindrom checks non-palindrome sentences") {
+    assert(!Palindrome.isPalindrom("this is not a palindrome"))
+    assert(!Palindrome.isPalindrom("hello world from scala"))
+    assert(!Palindrome.isPalindrom("scala is great"))
+  }
 }
