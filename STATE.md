@@ -30,16 +30,16 @@ The point is the *comparison*: keep each variant small, self-contained, and focu
 | `2/11`    | `2.11.12`    | ScalaTest      | `3.2.18`          | Default             | `object Palindrome`, default arguments |
 | `2/12`    | `2.12.21`    | ScalaTest      | `3.2.19`          | Default             | `object Palindrome`, default arguments |
 | `2/13`    | `2.13.18`    | ScalaTest      | `3.2.19`          | Default             | `object Palindrome`, default arguments |
-| `3/0`     | `3.0.2`      | ScalaTest      | `3.2.11`          | `temurin:17`        | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/1`     | `3.1.3`      | ScalaTest      | `3.2.19`          | `temurin:17`        | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/2`     | `3.2.2`      | ScalaTest      | `3.2.19`          | `temurin:17`        | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/3`     | `3.3.8`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/4`     | `3.4.3`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/5`     | `3.5.2`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/6`     | `3.6.4`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/7`     | `3.7.4`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/8`     | `3.8.4`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/9`     | `3.9.0`      | ScalaTest      | `3.2.19`          | Default             | Top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/0`     | `3.0.2`      | ScalaTest      | `3.2.11`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/1`     | `3.1.3`      | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/2`     | `3.2.2`      | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/3`     | `3.3.8`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/4`     | `3.4.3`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/5`     | `3.5.2`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/6`     | `3.6.4`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/7`     | `3.7.4`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/8`     | `3.8.4`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/9`     | `3.9.0`      | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
 
 ---
 
@@ -130,31 +130,27 @@ object Palindrome {
 }
 ```
 
-### Scala 3.0 – 3.9 (Top-Level Extension, Wrapper Object)
-The logic lives in a top-level `extension (s: String)` (`"racecar".isPalindrome`); `object Palindrome` wraps it with overloads that also handle `null` (`Palindrome.isPalindrome(s)`). There are no top-level `def`s besides the extension.
+### Scala 3.0 – 3.9 (Significant Indentation, Top-Level Extension, Wrapper Object)
+Written with significant indentation (optional braces), e.g. `object Palindrome:` and `if … then … else`. The logic lives in a top-level `extension (s: String)` (`"racecar".isPalindrome`); `object Palindrome` wraps it with overloads that also handle `null` (`Palindrome.isPalindrome(s)`). There are no top-level `def`s besides the extension.
 ```scala
 // Scala 3.9.0
-extension (s: String) {
+extension (s: String)
   def isPalindrom: Boolean = isPalindrom(Nil)
-  def isPalindrom(ignore: List[Char]): Boolean = {
-    if (s == null) false
-    else {
+  def isPalindrom(ignore: List[Char]): Boolean =
+    if s == null then false
+    else
       val clean = s.filter(c => !ignore.contains(c))
       clean == clean.reverse
-    }
-  }
 
   def isPalindrome: Boolean = isPalindrom
   def isPalindrome(ignore: List[Char]): Boolean = isPalindrom(ignore)
-}
 
-object Palindrome {
-  def isPalindrom(s: String): Boolean = if (s == null) false else s.isPalindrom
-  def isPalindrom(s: String, ignore: List[Char]): Boolean = if (s == null) false else s.isPalindrom(ignore)
+object Palindrome:
+  def isPalindrom(s: String): Boolean = if s == null then false else s.isPalindrom
+  def isPalindrom(s: String, ignore: List[Char]): Boolean = if s == null then false else s.isPalindrom(ignore)
 
-  def isPalindrome(s: String): Boolean = if (s == null) false else s.isPalindrome
-  def isPalindrome(s: String, ignore: List[Char]): Boolean = if (s == null) false else s.isPalindrome(ignore)
-}
+  def isPalindrome(s: String): Boolean = if s == null then false else s.isPalindrome
+  def isPalindrome(s: String, ignore: List[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)
 ```
 
 ---

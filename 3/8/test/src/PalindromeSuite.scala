@@ -1,6 +1,6 @@
 import org.scalatest.funsuite.AnyFunSuite
 
-class PalindromeSuite extends AnyFunSuite {
+class PalindromeSuite extends AnyFunSuite:
   test("extension method isPalindrome on String checks empty and single character strings") {
     assert("".isPalindrome)
     assert("a".isPalindrome)
@@ -89,4 +89,4 @@ class PalindromeSuite extends AnyFunSuite {
     assert(!Palindrome.isPalindrome("scala is great", ignoreSpaces))
     assert(!Palindrome.isPalindrom("this is not a palindrome", ignoreSpaces))
   }
-}
+
