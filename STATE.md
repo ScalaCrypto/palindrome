@@ -92,7 +92,7 @@ Every `Palindrome.scala` file begins with the Scala version comment at line 1:
 // Scala <version>
 ```
 
-All versions in each group below are identical apart from the header comment. Every variant offers both spellings, `isPalindrom` (the original) and `isPalindrome` (an alias), with an optional `ignore` collection of characters to skip (e.g. a space for sentence palindromes like `"race car"`).
+All versions in each group below are identical apart from the header comment. Every variant implements `isPalindrome`, with an optional `ignore` collection of characters to skip (e.g. a space for sentence palindromes like `"race car"`).
 
 ### Scala 2.5 – 2.7 (No Default Arguments, No Extensions)
 `object Palindrome` only; default arguments arrived in 2.8, so the empty `ignore` default is an overload.
