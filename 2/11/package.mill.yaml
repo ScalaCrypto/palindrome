@@ -1,0 +1,5 @@
+extends: ScalaModule
+scalaVersion: 2.11.12
+object test:
+  extends: [ScalaTests, TestModule.ScalaTest]
+  mvnDeps: [org.scalatest::scalatest:3.2.18]
