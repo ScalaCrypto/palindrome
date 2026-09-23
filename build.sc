@@ -1,10 +1,23 @@
 import mill._, scalalib._
+import mill.define.ModuleRef
+
+// Scala 3.0-3.2 can't read the JDK 25 class files. Compile them against the
+// JDK 17 API and run their tests on JDK 17, which Mill downloads via Coursier.
+// The JDK setting alone isn't enough: Mill 0.12 runs scalac inside its own JVM,
+// so scalac also needs -release 17.
+object jdk17 extends ZincWorkerModule { def jvmId = "temurin:17" }
+
+trait Jdk17 extends ScalaModule {
+  override def zincWorker = ModuleRef(jdk17)
+  override def scalacOptions = Seq("-release", "17")
+}
 
 trait CommonScalaModule extends ScalaModule {
   object test extends ScalaTests with TestModule.ScalaTest {
     def ivyDeps = T {
       val sv = scalaVersion()
-      if (sv.startsWith("3.")) Agg(ivy"org.scalatest::scalatest:3.2.19")
+      if (sv.startsWith("3.0.")) Agg(ivy"org.scalatest::scalatest:3.2.11") // last release built with Scala 3.0
+      else if (sv.startsWith("3.")) Agg(ivy"org.scalatest::scalatest:3.2.19")
       else if (sv.startsWith("2.13.") || sv.startsWith("2.12.")) Agg(ivy"org.scalatest::scalatest:3.2.19")
       else if (sv.startsWith("2.11.")) Agg(ivy"org.scalatest::scalatest:3.2.18")
       else if (sv.startsWith("2.10.")) Agg(ivy"org.scalatest::scalatest:3.0.9")
@@ -29,9 +42,9 @@ object `2` extends Module {
 }
 
 object `3` extends Module {
-  object `0` extends CommonScalaModule { def scalaVersion = "3.0.2" }
-  object `1` extends CommonScalaModule { def scalaVersion = "3.1.3" }
-  object `2` extends CommonScalaModule { def scalaVersion = "3.2.2" }
+  object `0` extends CommonScalaModule with Jdk17 { def scalaVersion = "3.0.2" }
+  object `1` extends CommonScalaModule with Jdk17 { def scalaVersion = "3.1.3" }
+  object `2` extends CommonScalaModule with Jdk17 { def scalaVersion = "3.2.2" }
   object `3` extends CommonScalaModule { def scalaVersion = "3.3.8" }
   object `4` extends CommonScalaModule { def scalaVersion = "3.4.3" }
   object `5` extends CommonScalaModule { def scalaVersion = "3.5.2" }
