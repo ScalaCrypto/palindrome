@@ -1,3 +1,4 @@
+// Scala 2.7.7
 object Palindrome {
   def isPalindrom(s: String): Boolean = isPalindrom(s, Nil)
 

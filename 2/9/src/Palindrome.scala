@@ -1,3 +1,4 @@
+// Scala 2.9.3
 object Palindrome {
   def isPalindrom(s: String, ignore: List[Char] = Nil): Boolean = {
     if (s == null) false

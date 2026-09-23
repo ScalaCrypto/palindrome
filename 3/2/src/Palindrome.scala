@@ -1,3 +1,4 @@
+// Scala 3.2.2
 extension (s: String) {
   def isPalindrom: Boolean = isPalindrom(Nil)
   def isPalindrom(ignore: List[Char]): Boolean = {
