@@ -8,4 +8,7 @@ object Palindrome {
       clean == clean.reverse
     }
   }
+
+  def isPalindrome(s: String): Boolean = isPalindrom(s)
+  def isPalindrome(s: String, ignore: List[Char]): Boolean = isPalindrom(s, ignore)
 }
