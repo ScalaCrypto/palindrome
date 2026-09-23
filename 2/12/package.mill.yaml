@@ -1,0 +1,2 @@
+extends: millbuild.VersionModule
+scalaVersion: 2.12.21

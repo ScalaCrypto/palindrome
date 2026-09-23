@@ -1,0 +1,3 @@
+extends: millbuild.VersionModule
+scalaVersion: 2.11.12
+scalaTestDep: org.scalatest::scalatest:3.2.18
