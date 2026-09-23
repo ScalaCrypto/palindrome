@@ -60,7 +60,7 @@ palindrome/
 │   │   │   └── Palindrome.scala    # Implementation (starts with `// Scala <version>` comment)
 │   │   └── test/
 │   │       └── src/
-│   │           └── PalindromeSuite.scala # Test suite (FunSuite for <=2.11, AnyFunSuite for >=2.12)
+│   │           └── PalindromeSuite.scala # Test suite (FunSuite for <=2.10, AnyFunSuite for >=2.11)
 ├── 3/
 │   ├── package.mill.yaml           # Scala 3 group module definition (empty, but required)
 │   └── <0..9>/
@@ -163,7 +163,10 @@ object Palindrome:
 
 ### Known Test Failures
 
-`./mill -k __.test` passes for `2.10`, `2.12`, `2.13` and `3.0`–`3.9`. It fails for:
+`./mill -k __.test` passes for `2.10`–`2.13` and `3.0`–`3.9`. It fails for **2.5–2.9**, which can't be built with Mill at all. No test runs for them; the build stops before compiling, for three independent reasons:
 
-- **2.11**: the test imports `org.scalatest.FunSuite`, which ScalaTest 3.2.18 doesn't have.
-- **2.5–2.9**: dependency resolution fails, because Mill needs `scala-reflect`, which doesn't exist before Scala 2.10.
+1. **No `scala-reflect`**: Mill always adds `scala-reflect` to the Scala 2 compiler classpath, but it only exists from Scala 2.10 (`scala-library` and `scala-compiler` do exist for 2.5–2.9). This is the error shown (`scalaCompilerClasspath`: `scala-reflect-2.x.pom` not found).
+2. **No Zinc compiler bridge**: Mill compiles through Zinc, which needs a `compiler-bridge` per Scala version, and those are published only for 2.10–2.13. This is the fundamental blocker: even with 1 worked around, Mill couldn't compile these versions.
+3. **ScalaTest artifact names (2.8, 2.9)**: `::` requests `scalatest_2.8` / `scalatest_2.9`, but before 2.10 libraries were published with the full Scala version (`scalatest_2.8.2:1.8`, `scalatest_2.9.3:1.9.2`); Mill's `:::` requests those. The Java-style artifacts for 2.5–2.7 (`scalatest:0.9.5`, `scalatest:1.3`) resolve fine.
+
+Scala 2.10 is the dividing line: it split out `scala-reflect`, introduced binary-version artifact names (`_2.10`), and is the oldest version current build tooling supports.

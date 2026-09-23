@@ -1,6 +1,6 @@
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class PalindromeSuite extends FunSuite {
+class PalindromeSuite extends AnyFunSuite {
   test("isPalindrome checks empty and single character strings with default ignore") {
     assert(Palindrome.isPalindrome(""))
     assert(Palindrome.isPalindrome("a"))
