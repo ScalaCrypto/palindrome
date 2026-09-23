@@ -24,7 +24,7 @@ The point is the *comparison*: keep each variant small, self-contained, and focu
 | `2/5`     | `2.5.1`      | ScalaTest      | `0.9.5`           | Default             | `object Palindrome`, method overloading (no default args, no extensions) |
 | `2/6`     | `2.6.1`      | ScalaTest      | `0.9.5`           | Default             | `object Palindrome`, method overloading |
 | `2/7`     | `2.7.7`      | ScalaTest      | `1.3`             | Default             | `object Palindrome`, method overloading |
-| `2/8`     | `2.8.2`      | ScalaTest      | `1.8`             | Default             | `object Palindrome`, default argument values (`ignore: List[Char] = Nil`) |
+| `2/8`     | `2.8.2`      | ScalaTest      | `1.8`             | Default             | `object Palindrome`, default argument values (`ignore: Set[Char] = Set.empty`) |
 | `2/9`     | `2.9.3`      | ScalaTest      | `1.9.2`           | Default             | `object Palindrome`, default arguments |
 | `2/10`    | `2.10.7`     | ScalaTest      | `3.0.9`           | Default             | `object Palindrome`, default arguments |
 | `2/11`    | `2.11.12`    | ScalaTest      | `3.2.18`          | Default             | `object Palindrome`, default arguments |
@@ -99,9 +99,9 @@ All versions in each group below are identical apart from the header comment. Ev
 ```scala
 // Scala 2.5.1
 object Palindrome {
-  def isPalindrome(s: String): Boolean = isPalindrome(s, Nil)
+  def isPalindrome(s: String): Boolean = isPalindrome(s, Set.empty[Char])
 
-  def isPalindrome(s: String, ignore: List[Char]): Boolean = {
+  def isPalindrome(s: String, ignore: Set[Char]): Boolean = {
     if (s == null) false
     else {
       val clean = s.filter(c => !ignore.contains(c))
@@ -115,7 +115,7 @@ object Palindrome {
 ```scala
 // Scala 2.13.18
 object Palindrome {
-  def isPalindrome(s: String, ignore: List[Char] = Nil): Boolean = {
+  def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = {
     if (s == null) false
     else {
       val clean = s.filter(c => !ignore.contains(c))
@@ -130,8 +130,8 @@ Written with significant indentation (optional braces), e.g. `object Palindrome:
 ```scala
 // Scala 3.9.0
 extension (s: String)
-  def isPalindrome: Boolean = isPalindrome(Nil)
-  def isPalindrome(ignore: List[Char]): Boolean =
+  def isPalindrome: Boolean = isPalindrome(Set.empty[Char])
+  def isPalindrome(ignore: Set[Char]): Boolean =
     if s == null then false
     else
       val clean = s.filter(c => !ignore.contains(c))
@@ -139,7 +139,7 @@ extension (s: String)
 
 object Palindrome:
   def isPalindrome(s: String): Boolean = if s == null then false else s.isPalindrome
-  def isPalindrome(s: String, ignore: List[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)
+  def isPalindrome(s: String, ignore: Set[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)
 ```
 
 ---
