@@ -1,7 +1,7 @@
 // Scala 3.3.8
 extension (s: String)
-  def isPalindrome: Boolean = isPalindrome(Nil)
-  def isPalindrome(ignore: List[Char]): Boolean =
+  def isPalindrome: Boolean = isPalindrome(Set.empty[Char])
+  def isPalindrome(ignore: Set[Char]): Boolean =
     if s == null then false
     else
       val clean = s.filter(c => !ignore.contains(c))
@@ -9,4 +9,4 @@ extension (s: String)
 
 object Palindrome:
   def isPalindrome(s: String): Boolean = if s == null then false else s.isPalindrome
-  def isPalindrome(s: String, ignore: List[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)
+  def isPalindrome(s: String, ignore: Set[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)

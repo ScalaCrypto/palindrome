@@ -27,7 +27,7 @@ class PalindromeSuite extends AnyFunSuite {
   }
 
   test("isPalindrome checks valid sentence palindromes ignoring whitespace") {
-    val ignoreSpaces = List(' ')
+    val ignoreSpaces = Set(' ')
     assert(Palindrome.isPalindrome("never odd or even", ignoreSpaces))
     assert(Palindrome.isPalindrome("race car", ignoreSpaces))
     assert(Palindrome.isPalindrome("nurses run", ignoreSpaces))
@@ -37,12 +37,12 @@ class PalindromeSuite extends AnyFunSuite {
   }
 
   test("isPalindrome checks custom ignored characters") {
-    assert(Palindrome.isPalindrome("race!car!", List('!')))
-    assert(Palindrome.isPalindrome("madam, i'm adam", List(' ', ',', '\'')))
+    assert(Palindrome.isPalindrome("race!car!", Set('!')))
+    assert(Palindrome.isPalindrome("madam, i'm adam", Set(' ', ',', '\'')))
   }
 
   test("isPalindrome checks non-palindrome sentences with ignore parameter") {
-    val ignoreSpaces = List(' ')
+    val ignoreSpaces = Set(' ')
     assert(!Palindrome.isPalindrome("this is not a palindrome", ignoreSpaces))
     assert(!Palindrome.isPalindrome("hello world from scala", ignoreSpaces))
     assert(!Palindrome.isPalindrome("scala is great", ignoreSpaces))
