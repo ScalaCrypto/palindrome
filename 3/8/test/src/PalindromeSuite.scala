@@ -1,61 +1,68 @@
 import org.scalatest.funsuite.AnyFunSuite
 
 class PalindromeSuite extends AnyFunSuite {
-  test("isPalindrom checks empty and single character strings with default ignore") {
+  test("extension method isPalindrome on String checks empty and single character strings") {
+    assert("".isPalindrome)
+    assert("a".isPalindrome)
+    assert("".isPalindrom)
+    assert("a".isPalindrom)
+    assert(isPalindrome(""))
     assert(isPalindrom(""))
-    assert(isPalindrom("a"))
+    assert(Palindrome.isPalindrome(""))
     assert(Palindrome.isPalindrom(""))
-    assert(Palindrome.isPalindrom("a"))
   }
 
-  test("isPalindrom checks valid palindrome strings with default ignore") {
-    assert(isPalindrom("racecar"))
-    assert(isPalindrom("noon"))
-    assert(isPalindrom("kayak"))
-    assert(isPalindrom("madam"))
-    assert(isPalindrom("12321"))
-    assert(Palindrome.isPalindrom("racecar"))
+  test("extension method isPalindrome on String checks valid palindrome strings") {
+    assert("racecar".isPalindrome)
+    assert("noon".isPalindrome)
+    assert("kayak".isPalindrome)
+    assert("madam".isPalindrome)
+    assert("12321".isPalindrome)
+    assert("racecar".isPalindrom)
+    assert(Palindrome.isPalindrome("racecar"))
   }
 
-  test("isPalindrom checks non-palindrome strings with default ignore") {
-    assert(!isPalindrom("hello"))
-    assert(!isPalindrom("world"))
-    assert(!isPalindrom("scala"))
-    assert(!isPalindrom("palindrome"))
-    assert(!Palindrome.isPalindrom("hello"))
+  test("extension method isPalindrome on String checks non-palindrome strings") {
+    assert(!"hello".isPalindrome)
+    assert(!"world".isPalindrome)
+    assert(!"scala".isPalindrome)
+    assert(!"palindrome".isPalindrome)
+    assert(!"hello".isPalindrom)
+    assert(!Palindrome.isPalindrome("hello"))
   }
 
-  test("isPalindrom does not ignore whitespace by default") {
-    assert(!isPalindrom("never odd or even"))
-    assert(!isPalindrom("race car"))
-    assert(!Palindrome.isPalindrom("never odd or even"))
-    assert(!Palindrome.isPalindrom("race car"))
+  test("extension method isPalindrome does not ignore whitespace by default") {
+    assert(!"never odd or even".isPalindrome)
+    assert(!"race car".isPalindrome)
+    assert(!"never odd or even".isPalindrom)
+    assert(!Palindrome.isPalindrome("never odd or even"))
   }
 
-  test("isPalindrom checks valid sentence palindromes ignoring whitespace") {
+  test("extension method isPalindrome checks valid sentence palindromes ignoring whitespace") {
     val ignoreSpaces = List(' ')
-    assert(isPalindrom("never odd or even", ignoreSpaces))
-    assert(isPalindrom("race car", ignoreSpaces))
-    assert(isPalindrom("nurses run", ignoreSpaces))
-    assert(isPalindrom("was it a car or a cat i saw", ignoreSpaces))
-    assert(isPalindrom("step on no pets", ignoreSpaces))
-    assert(isPalindrom("live on time emit no evil", ignoreSpaces))
-    assert(Palindrome.isPalindrom("never odd or even", ignoreSpaces))
-    assert(Palindrome.isPalindrom("race car", ignoreSpaces))
+    assert("never odd or even".isPalindrome(ignoreSpaces))
+    assert("race car".isPalindrome(ignoreSpaces))
+    assert("nurses run".isPalindrome(ignoreSpaces))
+    assert("was it a car or a cat i saw".isPalindrome(ignoreSpaces))
+    assert("step on no pets".isPalindrome(ignoreSpaces))
+    assert("live on time emit no evil".isPalindrome(ignoreSpaces))
+    assert("race car".isPalindrom(ignoreSpaces))
+    assert(Palindrome.isPalindrome("race car", ignoreSpaces))
   }
 
-  test("isPalindrom checks custom ignored characters") {
-    assert(isPalindrom("race!car!", List('!')))
-    assert(isPalindrom("madam, i'm adam", List(' ', ',', '\'')))
-    assert(Palindrome.isPalindrom("race!car!", List('!')))
-    assert(Palindrome.isPalindrom("madam, i'm adam", List(' ', ',', '\'')))
+  test("extension method isPalindrome checks custom ignored characters") {
+    assert("race!car!".isPalindrome(List('!')))
+    assert("madam, i'm adam".isPalindrome(List(' ', ',', '\'')))
+    assert("race!car!".isPalindrom(List('!')))
+    assert(Palindrome.isPalindrome("race!car!", List('!')))
   }
 
-  test("isPalindrom checks non-palindrome sentences with ignore parameter") {
+  test("extension method isPalindrome checks non-palindrome sentences with ignore parameter") {
     val ignoreSpaces = List(' ')
-    assert(!isPalindrom("this is not a palindrome", ignoreSpaces))
-    assert(!isPalindrom("hello world from scala", ignoreSpaces))
-    assert(!isPalindrom("scala is great", ignoreSpaces))
-    assert(!Palindrome.isPalindrom("this is not a palindrome", ignoreSpaces))
+    assert(!"this is not a palindrome".isPalindrome(ignoreSpaces))
+    assert(!"hello world from scala".isPalindrome(ignoreSpaces))
+    assert(!"scala is great".isPalindrome(ignoreSpaces))
+    assert(!"this is not a palindrome".isPalindrom(ignoreSpaces))
+    assert(!Palindrome.isPalindrome("this is not a palindrome", ignoreSpaces))
   }
 }
