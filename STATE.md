@@ -21,9 +21,9 @@ The point is the *comparison*: keep each variant small, self-contained, and focu
 
 | Directory | Scala Version | Test Framework | ScalaTest Version | Java / JVM Override | Language Features Used |
 |-----------|--------------|----------------|-------------------|---------------------|------------------------|
-| `2/5`     | `2.5.1`      | ScalaTest      | `0.9.5`           | Default             | `object Palindrome`, method overloading (no default args, no extensions) |
-| `2/6`     | `2.6.1`      | ScalaTest      | `0.9.5`           | Default             | `object Palindrome`, method overloading |
-| `2/7`     | `2.7.7`      | ScalaTest      | `1.3`             | Default             | `object Palindrome`, method overloading |
+| `2/5`     | `2.5.1`      | ScalaTest      | `0.9.5`           | Default             | `object Palindrome`, method overloading (no default args, no extensions), `sameElements` (no content-based collection equality) |
+| `2/6`     | `2.6.1`      | ScalaTest      | `0.9.5`           | Default             | `object Palindrome`, method overloading, `sameElements` |
+| `2/7`     | `2.7.7`      | ScalaTest      | `1.3`             | Default             | `object Palindrome`, method overloading, `sameElements` |
 | `2/8`     | `2.8.2`      | ScalaTest      | `1.8`             | Default             | `object Palindrome`, default argument values (`ignore: Set[Char] = Set.empty`) |
 | `2/9`     | `2.9.3`      | ScalaTest      | `1.9.2`           | Default             | `object Palindrome`, default arguments |
 | `2/10`    | `2.10.7`     | ScalaTest      | `3.0.9`           | Default             | `object Palindrome`, default arguments |
@@ -96,6 +96,8 @@ All versions in each group below are identical apart from the header comment. Ev
 
 ### Scala 2.5 – 2.7 (No Default Arguments, No Extensions)
 `object Palindrome` only; default arguments arrived in 2.8, so the empty `ignore` default is an overload.
+
+The comparison is `clean.sameElements(clean.reverse)`, not `==`: before the 2.8 collections redesign, `String.filter` returns an `ArrayBuffer` and `.reverse` a lazy `RandomAccessSeq` view, and `==` between different collection types is `false` even when their elements match (on 2.7, even `"racecar".reverse == "racecar"` is `false`). From 2.8, `filter`/`reverse` on a `String` return a `String` and collections compare by content, so 2.8+ use `==`.
 ```scala
 // Scala 2.5.1
 object Palindrome {
@@ -105,7 +107,7 @@ object Palindrome {
     if (s == null) false
     else {
       val clean = s.filter(c => !ignore.contains(c))
-      clean == clean.reverse
+      clean.sameElements(clean.reverse)
     }
   }
 }

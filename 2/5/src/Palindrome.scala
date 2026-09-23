@@ -6,7 +6,7 @@ object Palindrome {
     if (s == null) false
     else {
       val clean = s.filter(c => !ignore.contains(c))
-      clean == clean.reverse
+      clean.sameElements(clean.reverse)
     }
   }
 }
