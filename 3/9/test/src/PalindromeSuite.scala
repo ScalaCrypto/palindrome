@@ -6,8 +6,6 @@ class PalindromeSuite extends AnyFunSuite:
     assert("a".isPalindrome)
     assert(isPalindrome(""))
     assert(isPalindrome("a"))
-    assert(Palindrome.isPalindrome(""))
-    assert(Palindrome.isPalindrome("a"))
   }
 
   test("extension method isPalindrome on String checks valid palindrome strings") {
@@ -17,7 +15,6 @@ class PalindromeSuite extends AnyFunSuite:
     assert("madam".isPalindrome)
     assert("12321".isPalindrome)
     assert(isPalindrome("racecar"))
-    assert(Palindrome.isPalindrome("racecar"))
   }
 
   test("extension method isPalindrome on String checks non-palindrome strings") {
@@ -26,14 +23,12 @@ class PalindromeSuite extends AnyFunSuite:
     assert(!"scala".isPalindrome)
     assert(!"palindrome".isPalindrome)
     assert(!isPalindrome("hello"))
-    assert(!Palindrome.isPalindrome("hello"))
   }
 
   test("extension method isPalindrome does not ignore whitespace by default") {
     assert(!"never odd or even".isPalindrome)
     assert(!"race car".isPalindrome)
     assert(!isPalindrome("never odd or even"))
-    assert(!Palindrome.isPalindrome("never odd or even"))
   }
 
   test("extension method isPalindrome checks valid sentence palindromes ignoring whitespace") {
@@ -45,20 +40,20 @@ class PalindromeSuite extends AnyFunSuite:
     assert("step on no pets".isPalindrome(ignoreSpaces))
     assert("live on time emit no evil".isPalindrome(ignoreSpaces))
 
-    assert(Palindrome.isPalindrome("never odd or even", ignoreSpaces))
-    assert(Palindrome.isPalindrome("race car", ignoreSpaces))
-    assert(Palindrome.isPalindrome("nurses run", ignoreSpaces))
-    assert(Palindrome.isPalindrome("was it a car or a cat i saw", ignoreSpaces))
-    assert(Palindrome.isPalindrome("step on no pets", ignoreSpaces))
-    assert(Palindrome.isPalindrome("live on time emit no evil", ignoreSpaces))
+    assert(isPalindrome("never odd or even", ignoreSpaces))
+    assert(isPalindrome("race car", ignoreSpaces))
+    assert(isPalindrome("nurses run", ignoreSpaces))
+    assert(isPalindrome("was it a car or a cat i saw", ignoreSpaces))
+    assert(isPalindrome("step on no pets", ignoreSpaces))
+    assert(isPalindrome("live on time emit no evil", ignoreSpaces))
   }
 
   test("extension method isPalindrome checks custom ignored characters") {
     assert("race!car!".isPalindrome(Set('!')))
     assert("madam, i'm adam".isPalindrome(Set(' ', ',', '\'')))
 
-    assert(Palindrome.isPalindrome("race!car!", Set('!')))
-    assert(Palindrome.isPalindrome("madam, i'm adam", Set(' ', ',', '\'')))
+    assert(isPalindrome("race!car!", Set('!')))
+    assert(isPalindrome("madam, i'm adam", Set(' ', ',', '\'')))
   }
 
   test("extension method isPalindrome checks non-palindrome sentences with ignore parameter") {
@@ -67,7 +62,7 @@ class PalindromeSuite extends AnyFunSuite:
     assert(!"hello world from scala".isPalindrome(ignoreSpaces))
     assert(!"scala is great".isPalindrome(ignoreSpaces))
 
-    assert(!Palindrome.isPalindrome("this is not a palindrome", ignoreSpaces))
-    assert(!Palindrome.isPalindrome("hello world from scala", ignoreSpaces))
-    assert(!Palindrome.isPalindrome("scala is great", ignoreSpaces))
+    assert(!isPalindrome("this is not a palindrome", ignoreSpaces))
+    assert(!isPalindrome("hello world from scala", ignoreSpaces))
+    assert(!isPalindrome("scala is great", ignoreSpaces))
   }

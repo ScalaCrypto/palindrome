@@ -30,16 +30,16 @@ The point is the *comparison*: keep each variant small, self-contained, and focu
 | `2/11`    | `2.11.12`    | Mill | ScalaTest      | `3.2.18`          | Default             | `object Palindrome`, default arguments |
 | `2/12`    | `2.12.21`    | Mill | ScalaTest      | `3.2.19`          | Default             | `object Palindrome`, default arguments |
 | `2/13`    | `2.13.18`    | Mill | ScalaTest      | `3.2.19`          | Default             | `object Palindrome`, default arguments |
-| `3/0`     | `3.0.2`      | Mill | ScalaTest      | `3.2.11`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/1`     | `3.1.3`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/2`     | `3.2.2`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/3`     | `3.3.8`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/4`     | `3.4.3`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/5`     | `3.5.2`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/6`     | `3.6.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/7`     | `3.7.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/8`     | `3.8.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
-| `3/9`     | `3.9.0`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, `object Palindrome` wrapper |
+| `3/0`     | `3.0.2`      | Mill | ScalaTest      | `3.2.11`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/1`     | `3.1.3`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/2`     | `3.2.2`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/3`     | `3.3.8`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/4`     | `3.4.3`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/5`     | `3.5.2`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/6`     | `3.6.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/7`     | `3.7.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/8`     | `3.8.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+| `3/9`     | `3.9.0`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
 
 ---
 
@@ -130,10 +130,16 @@ object Palindrome {
 }
 ```
 
-### Scala 3.0 – 3.9 (Significant Indentation, Top-Level Extension, Wrapper Object)
-Written with significant indentation (optional braces), e.g. `object Palindrome:` and `if … then … else`. The logic lives in a top-level `extension (s: String)` (`"racecar".isPalindrome`); `object Palindrome` wraps it with overloads that also handle `null` (`Palindrome.isPalindrome(s)`). There are no top-level `def`s besides the extension.
+### Scala 3.0 – 3.9 (Significant Indentation, Top-Level Extension and Def)
+Written with significant indentation (optional braces), e.g. `if … then … else`. Scala 3 allows top-level definitions, so there's no `object Palindrome`: the logic lives in a top-level `extension (s: String)` (`"racecar".isPalindrome`, `"race car".isPalindrome(Set(' '))`), and a top-level `def isPalindrome(s, ignore = Set.empty)` wraps it (`isPalindrome("race car", Set(' '))`).
+
+- **Why the extension holds the logic**: inside an extension, an unqualified `isPalindrome(...)` means `s.isPalindrome(...)`, so the extension can't call a top-level `def` of the same name, but the top-level `def` can call the extension.
+- **Why `@targetName`**: an extension method compiles to an ordinary method with the receiver as its first parameter, so `isPalindrome(s)(ignore)` and the top-level `isPalindrome(s, ignore)` have the same JVM signature. `@targetName("isPalindromeOf")` gives the top-level `def` a different JVM name.
+- **One-argument calls**: `isPalindrome("racecar")` resolves to the extension's `isPalindrome(s)` (Scala prefers the alternative that doesn't need a default argument). Both give the same result.
 ```scala
 // Scala 3.9.0
+import scala.annotation.targetName
+
 extension (s: String)
   def isPalindrome: Boolean = isPalindrome(Set.empty[Char])
   def isPalindrome(ignore: Set[Char]): Boolean =
@@ -142,9 +148,9 @@ extension (s: String)
       val clean = s.filter(c => !ignore.contains(c))
       clean == clean.reverse
 
-object Palindrome:
-  def isPalindrome(s: String): Boolean = if s == null then false else s.isPalindrome
-  def isPalindrome(s: String, ignore: Set[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)
+// Same JVM signature as the extension's isPalindrome(s)(ignore), hence the @targetName.
+@targetName("isPalindromeOf")
+def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = s.isPalindrome(ignore)
 ```
 
 ---
