@@ -73,8 +73,7 @@ Each `src/Palindrome.scala` starts with a `// Scala x.y.z` comment naming its ex
 - **Scala 2:** only `object Palindrome`, since Scala 2 has no extensions or top-level definitions. From 2.8 the empty
   `ignore` default is a default argument; 2.5–2.7 predate default arguments, so they use an overload instead.
 
-Every variant offers both spellings: `isPalindrom` (the original) and `isPalindrome` (an alias). Both take an
-optional `ignore` collection of characters to skip, e.g. a space for sentence palindromes like `"race car"`.
+Every variant implements `isPalindrome` taking an optional `ignore` collection of characters to skip, e.g. a space for sentence palindromes like `"race car"`.
 
 ## Workflow
 

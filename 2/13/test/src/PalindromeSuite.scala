@@ -4,8 +4,6 @@ class PalindromeSuite extends AnyFunSuite {
   test("isPalindrome checks empty and single character strings with default ignore") {
     assert(Palindrome.isPalindrome(""))
     assert(Palindrome.isPalindrome("a"))
-    assert(Palindrome.isPalindrom(""))
-    assert(Palindrome.isPalindrom("a"))
   }
 
   test("isPalindrome checks valid palindrome strings with default ignore") {

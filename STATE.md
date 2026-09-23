@@ -87,18 +87,15 @@ Every `Palindrome.scala` file begins with the Scala version comment at line 1:
 ```scala
 // Scala 2.5.1
 object Palindrome {
-  def isPalindrom(s: String): Boolean = isPalindrom(s, Nil)
+  def isPalindrome(s: String): Boolean = isPalindrome(s, Nil)
 
-  def isPalindrom(s: String, ignore: List[Char]): Boolean = {
+  def isPalindrome(s: String, ignore: List[Char]): Boolean = {
     if (s == null) false
     else {
       val clean = s.filter(c => !ignore.contains(c))
       clean == clean.reverse
     }
   }
-
-  def isPalindrome(s: String): Boolean = isPalindrom(s)
-  def isPalindrome(s: String, ignore: List[Char]): Boolean = isPalindrom(s, ignore)
 }
 ```
 
@@ -106,15 +103,13 @@ object Palindrome {
 ```scala
 // Scala 2.13.18
 object Palindrome {
-  def isPalindrom(s: String, ignore: List[Char] = Nil): Boolean = {
+  def isPalindrome(s: String, ignore: List[Char] = Nil): Boolean = {
     if (s == null) false
     else {
       val clean = s.filter(c => !ignore.contains(c))
       clean == clean.reverse
     }
   }
-
-  def isPalindrome(s: String, ignore: List[Char] = Nil): Boolean = isPalindrom(s, ignore)
 }
 ```
 
@@ -122,20 +117,14 @@ object Palindrome {
 ```scala
 // Scala 3.9.0
 extension (s: String)
-  def isPalindrom: Boolean = isPalindrom(Nil)
-  def isPalindrom(ignore: List[Char]): Boolean =
+  def isPalindrome: Boolean = isPalindrome(Nil)
+  def isPalindrome(ignore: List[Char]): Boolean =
     if s == null then false
     else
       val clean = s.filter(c => !ignore.contains(c))
       clean == clean.reverse
 
-  def isPalindrome: Boolean = isPalindrom
-  def isPalindrome(ignore: List[Char]): Boolean = isPalindrom(ignore)
-
 object Palindrome:
-  def isPalindrom(s: String): Boolean = if s == null then false else s.isPalindrom
-  def isPalindrom(s: String, ignore: List[Char]): Boolean = if s == null then false else s.isPalindrom(ignore)
-
   def isPalindrome(s: String): Boolean = if s == null then false else s.isPalindrome
   def isPalindrome(s: String, ignore: List[Char]): Boolean = if s == null then false else s.isPalindrome(ignore)
 ```
