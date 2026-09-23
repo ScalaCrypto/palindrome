@@ -1,5 +1,3 @@
-extends: ScalaModule
+extends: millbuild.VersionModule
 scalaVersion: 2.6.1
-object test:
-  extends: [ScalaTests, TestModule.ScalaTest]
-  mvnDeps: [org.scalatest:scalatest:0.9.5]
+scalaTestDep: org.scalatest:scalatest:0.9.5

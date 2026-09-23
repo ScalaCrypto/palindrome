@@ -1,6 +1,4 @@
-extends: ScalaModule
+extends: millbuild.VersionModule
 scalaVersion: 3.0.2
+scalaTestDep: org.scalatest::scalatest:3.2.11
 jvmId: temurin:17
-object test:
-  extends: [ScalaTests, TestModule.ScalaTest]
-  mvnDeps: [org.scalatest::scalatest:3.2.11]
