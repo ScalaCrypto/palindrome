@@ -1,0 +1,20 @@
+<section id="s30-extension" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:32px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 3.0 · 2021</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">An extension is also a function</h2>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:32px 44px; display:flex; flex-direction:column">
+<p style="font-size:28px; line-height:1.45; white-space:nowrap"><span style="color:#F2A65A">enum</span> PalindromeResult:</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;case Palindrome</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;case BreaksAt(index: Int)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap"><span style="color:#F2A65A">extension</span> [A](xs: Seq[A])(<span style="color:#F2A65A">using</span> eq: Eq[A])</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def checkPalindrome: PalindromeResult =</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;@tailrec</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;def loop(ys: Seq[A], from: Int): PalindromeResult = ys match</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;&#160;&#160;case x +: middle :+ y =&gt;</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if eq.eqv(x, y) then loop(middle, from + 1) else BreaksAt(from)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;&#160;&#160;case _ =&gt; Palindrome</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;loop(xs, 0)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def isPalindrome: Boolean = xs.checkPalindrome == Palindrome</p>
+</div>
+<p style="font-size:32px; line-height:1.4; color:#4A5160">"racecar".isPalindrome and isPalindrome("racecar") are the same method.</p>
+<aside>An extension method compiles to an ordinary method with the receiver as its first parameter, so there's no wrapper class and no separate top-level def. Bonus contrast: "racecar".isPalindrome works because an extension's receiver may be converted (String to Seq[Char]); Scala 2 needed 2.13's IsSeq wrapper for that, because its implicit views don't chain. Eq.caseInsensitive is passed with (using …), and a local given overrides the companion default.</aside>
+</section>

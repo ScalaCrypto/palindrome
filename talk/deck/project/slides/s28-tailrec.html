@@ -1,0 +1,16 @@
+<section id="s28-tailrec" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 2.8 · 2010</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">@tailrec turns a promise into a check</h2>
+<p style="font-size:32px; line-height:1.4; color:#4A5160">The generated code is unchanged. The compiler now rejects the loop if it ever stops being tail-recursive.</p>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px; display:flex; flex-direction:column">
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ import scala.annotation.tailrec</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">&#160;&#160;…</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− // Tail-recursive, so scalac compiles it to a loop; @tailrec to check that arrives in 2.8.</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ @tailrec</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def loop(from: Int): PalindromeResult = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">&#160;&#160;…</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− def eqv(x: Char, y: Char): Boolean = Character.toLowerCase(x) == Character.toLowerCase(y)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ def eqv(x: Char, y: Char): Boolean = x.toLower == y.toLower</p>
+</div>
+<aside>A small diff for 2.8, and the least interesting part of it. Char.toLower arrives with the 2.8 library too. The big 2.8 change, the collections redesign, doesn't show up yet, because isPalindrome only reads collections. Next slide.</aside>
+</section>

@@ -1,0 +1,33 @@
+{
+  "v": 4,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-26T12:00:00Z"
+  },
+  "title": "isPalindrome, Morphing",
+  "order": [
+    "cover",
+    "v2-5",
+    "v2-8",
+    "v2-10",
+    "v2-13",
+    "v3-0",
+    "v3-6"
+  ],
+  "sections": {
+    "morph": {
+      "description": "The palindrome methods changing in place, Scala 2.5 to 3.9",
+      "start": "cover"
+    }
+  },
+  "faces": {
+    "ibm-plex-sans": {
+      "family": "IBM Plex Sans",
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+    },
+    "ibm-plex-mono": {
+      "family": "IBM Plex Mono",
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap"
+    }
+  }
+}
