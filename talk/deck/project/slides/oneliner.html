@@ -1,0 +1,23 @@
+<section id="oneliner" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Stage 0</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">It starts as a one-liner</h2>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:44px 48px">
+<p style="font-size:40px; line-height:1.4; white-space:nowrap">def isPalindrome(s: String): Boolean = s == s.<span style="color:#F2A65A">reverse</span></p>
+</div>
+<div style="flex:1"></div>
+<div style="display:flex; gap:32px">
+<div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+<h3 style="font-size:32px; font-weight:600">Implicits from line one</h3>
+<p style="font-size:28px; line-height:1.4; color:#4A5160">s.reverse only works because String is enriched to StringOps.</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+<h3 style="font-size:32px; font-weight:600">Elegant, and wasteful</h3>
+<p style="font-size:28px; line-height:1.4; color:#4A5160">It allocates a full reversed copy just to compare.</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFFFF; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+<h3 style="font-size:32px; font-weight:600">False before 2.8</h3>
+<p style="font-size:28px; line-height:1.4; color:#4A5160">In 2.7, "racecar".reverse == "racecar" is false: no content equality.</p>
+</div>
+</div>
+<aside>Old ways: this is beautiful. New ways: it is also the wasteful version, and on 2.7 it's simply wrong, because collection == wasn't content-based before the 2.8 redesign. That's why no version in the repo uses it: every version compares elements pairwise through Eq instead. Generalizing to Seq[A] is free from here (stage 1).</aside>
+</section>

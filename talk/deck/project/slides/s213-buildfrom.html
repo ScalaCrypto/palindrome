@@ -1,0 +1,19 @@
+<section id="s213-buildfrom" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:32px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 2.13 · 2019 · the collections redesign, again</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">IsSeq and BuildFrom replace CanBuildFrom</h2>
+<p style="font-size:28px; line-height:1.4; color:#1B1F2A; background:#F3D9CF; border-radius:12px; padding:16px 24px">The 2.12 code on 2.13: <b>type mismatch; found: WrappedString, required: String</b></p>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:32px 44px; display:flex; flex-direction:column">
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">def palindromize[Repr, A0](xs: Repr)(implicit</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;<span style="color:#F2A65A">seq: IsSeq[Repr] { type A = A0 }</span>,</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;eq: Eq[A0],</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;<span style="color:#F2A65A">bf: BuildFrom[Repr, A0, Repr]</span>): Repr = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val ops = seq(xs)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val start = palindromicSuffixStart(ops.toSeq)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val b = <span style="color:#F2A65A">bf.newBuilder(xs)</span></p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= ops</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= ops.reverseIterator.drop(ops.length - start)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b.result()</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">}</p>
+</div>
+<aside>The 2.8 version stops compiling for String: StringOps is no longer a collection, so a String only becomes a SeqLike by wrapping it in a WrappedString, and Repr is inferred as WrappedString. SeqLike and CanBuildFrom survive only as deprecated aliases. IsSeq accepts anything that can be read as a Seq, String and Array included; BuildFrom replaces CanBuildFrom, and bf.newBuilder(xs) plays the part of bf(xs.repr). The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element type becomes an extra type parameter A0 tied by a refinement. Ordinary code lost CanBuildFrom entirely: List(...).map gets its type from SeqOps[A, CC, C]. One sentence on method syntax: the 2.13 wrapper follows the documented IsSeq pattern, isn't a value class any more, needs import scala.language.implicitConversions, and finally makes "abc".palindromize work on a Scala 2 String.</aside>
+</section>
