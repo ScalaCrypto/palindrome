@@ -28,9 +28,9 @@ Diffs ignore the `// Scala x.y.z` header line.
 | Scala 3.4.3 | — | — | identical to Scala 3.0.2 |
 | Scala 3.5.2 | — | — | identical to Scala 3.0.2 |
 | [Scala 3.6.4](#scala-364) | ✓ | — | New given syntax and named context bounds |
-| [Scala 3.7.4](#scala-374) | — | ✓ | Named pattern matching (tests only) |
-| Scala 3.8.4 | — | — | identical to Scala 3.7.4 |
-| Scala 3.9.0 | — | — | identical to Scala 3.7.4 |
+| Scala 3.7.4 | — | — | identical to Scala 3.6.4 |
+| Scala 3.8.4 | — | — | identical to Scala 3.6.4 |
+| Scala 3.9.0 | — | — | identical to Scala 3.6.4 |
 
 <a id="scala-251"></a>
 ## Scala 2.5.1: The whole design with 2007 machinery
@@ -41,23 +41,22 @@ Every idea of the talk is already expressible in 2.5. What's missing is only the
 - **Equality as a type class** (stage 3): `Eq[A]` taken as an `implicit` parameter. The default, `universal`, sits in
   `Eq`'s companion and is found through the implicit scope. Instances are anonymous classes, because lambdas can't
   implement a trait yet.
-- **An answer that says where it breaks** (stage 5): a `sealed trait` with a `case object` and a `case class`.
 - **Method syntax** (stage 6): an `implicit def` converts any `Seq` to a `PalindromeOps` wrapper.
-- **An index-based loop.** There are no `+:`/`:+` extractors yet. The loop is tail-recursive, so scalac already
-  compiles it to a jump, but nothing checks that.
-- **Making a palindrome** (stage 5b): `palindromize(xs)`, or `xs.palindromize` through the wrapper, returns the
+- **An index-based loop.** There are no `+:`/`:+` extractors yet, so an inner `loop` walks an index inward:
+  `from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))`. The recursive call is in tail position, even inside
+  `||` and `&&`, so scalac already compiles it to a jump, but nothing checks that.
+- **Making a palindrome** (stage 5): `palindromize(xs)`, or `xs.palindromize` through the wrapper, returns the
   shortest palindrome that starts with `xs`. It finds the longest suffix that's already a palindrome, using our own
   `isPalindrome`, and appends the reverse of what comes before it: `"abcb"` gives `"abcba"`, and `"racecar"` stays as
   it is. Because it calls `isPalindrome`, it takes an `Eq` too; with `Eq.caseInsensitive`, `"abA"` needs nothing
-  added. The suffix search (`palindromicSuffixStart`) is the same in every version, so the diffs below only show
-  how the result gets built.
+  added. The suffix search, `(0 to xs.length).find(i => isPalindrome(xs.drop(i)))`, is the same in every version (the
+  empty suffix always matches, so the `.get` is safe). The diffs below mostly show how the result gets built.
 - **Generic code can't build "the same kind of collection"**, so `palindromize` promises only a `Seq`.
   `palindromize("abcb")` is a `Seq[Char]`, not a `String`, and in 2.5 even
   `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false`. The tests compare with `.toList` and `.mkString`.
 
 Things that look odd today, and why:
-- **`PalindromeResult.Palindrome` is qualified**: importing it would clash with `object Palindrome`.
-- **The wrapper calls `Palindrome.checkPalindrome(xs)`**: unqualified, the call would resolve to its own method.
+- **The wrapper calls `Palindrome.isPalindrome(xs)`**: unqualified, the call would resolve to its own method.
 - **`Character.toLowerCase`**: `Char` has no `toLower` before 2.8.
 - **Elements are compared pairwise, never `xs == xs.reverse`**: before 2.8, `==` on collections isn't content-based,
   so `"racecar".reverse == "racecar"` is `false`. That's also why the talk's stage 0 one-liner has no version here.
@@ -86,41 +85,27 @@ object Eq {
   }
 }
 
-// The answer says more than true or false: where a non-palindrome breaks.
-sealed trait PalindromeResult
-object PalindromeResult {
-  case object Palindrome extends PalindromeResult
-  final case class BreaksAt(index: Int) extends PalindromeResult
-}
-
 // Scala 2 has no top-level definitions, so the functions live in an object.
 object Palindrome {
-  def checkPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): PalindromeResult = {
+  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = {
     // Tail-recursive, so scalac compiles it to a loop; @tailrec to check that arrives in 2.8.
-    def loop(from: Int): PalindromeResult = {
+    def loop(from: Int): Boolean = {
       val to = xs.length - 1 - from
-      if (from >= to) PalindromeResult.Palindrome
-      else if (eq.eqv(xs(from), xs(to))) loop(from + 1)
-      else PalindromeResult.BreaksAt(from)
+      from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))
     }
     loop(0)
   }
 
-  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean =
-    checkPalindrome(xs) == PalindromeResult.Palindrome
-
   // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
   // Without a way to build "the same collection type", generic code can only promise a Seq.
-  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = xs ++ xs.take(palindromicSuffixStart(xs)).reverse
-
-  // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-  private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-    (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = {
+    val start = (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+    xs ++ xs.take(start).reverse
+  }
 
   // Method syntax (xs.isPalindrome) through an implicit conversion to a wrapper.
   class PalindromeOps[A](xs: Seq[A]) {
-    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs)
     def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs)
     def palindromize(implicit eq: Eq[A]): Seq[A] = Palindrome.palindromize(xs)
   }
@@ -134,14 +119,14 @@ object Palindrome {
 
 *Compared with Scala 2.7.7; changes: source, tests.*
 
-- **`CanBuildFrom`** (talk stage 5b): 2.8 rebuilt the collections library so that operations return the type they
+- **`CanBuildFrom`** (talk stage 5): 2.8 rebuilt the collections library so that operations return the type they
   were called on. Generic code gets the same power by taking the source collection as `SeqLike[A, Repr]` (`Repr` is
   its concrete type) and an implicit `CanBuildFrom[Repr, A, Repr]`, a factory for builders of `Repr`s.
   `bf(xs.repr)` gives a builder, and `palindromize` fills it. Now `palindromize("abc")` is the `String` `"abcba"`,
   and a `List` or `Vector` gives back a `List` or `Vector`. The `String` case works because 2.8's `StringOps` is
   itself a `SeqLike[Char, String]`.
 - **The wrapper carries `Repr` too.** For `xs.palindromize` to return `Repr`, `PalindromeOps` now wraps a
-  `SeqLike[A, Repr]` instead of a `Seq[A]`, and the Boolean methods pass it on with `xs.toSeq`. Method syntax on a
+  `SeqLike[A, Repr]` instead of a `Seq[A]`, and `isPalindrome` passes it on with `xs.toSeq`. Method syntax on a
   `String` still doesn't work (views don't chain), so strings use the function form: `palindromize("abc")`.
 - **`@tailrec`** (stage 2): the compiler now rejects `loop` if it ever stops being tail-recursive. The generated code
   is unchanged: it was already a loop.
@@ -164,7 +149,7 @@ object Palindrome {
  
  // Equality as a type class: the caller decides what "the same element" means.
  trait Eq[A] {
-@@ -12,7 +15,7 @@
+@@ -12,14 +15,14 @@
  
    // Opt-in: pass it explicitly, or bring it into scope as an implicit.
    val caseInsensitive: Eq[Char] = new Eq[Char] {
@@ -173,42 +158,37 @@ object Palindrome {
    }
  }
  
-@@ -26,7 +29,7 @@
  // Scala 2 has no top-level definitions, so the functions live in an object.
  object Palindrome {
-   def checkPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): PalindromeResult = {
+   def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = {
 -    // Tail-recursive, so scalac compiles it to a loop; @tailrec to check that arrives in 2.8.
 +    @tailrec
-     def loop(from: Int): PalindromeResult = {
+     def loop(from: Int): Boolean = {
        val to = xs.length - 1 - from
-       if (from >= to) PalindromeResult.Palindrome
-@@ -41,19 +44,25 @@
+       from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))
+@@ -29,17 +32,20 @@
  
    // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 -  // Without a way to build "the same collection type", generic code can only promise a Seq.
--  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = xs ++ xs.take(palindromicSuffixStart(xs)).reverse
+-  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = {
+-    val start = (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+-    xs ++ xs.take(start).reverse
 +  // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
 +  def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
-+    val start = palindromicSuffixStart(xs.toSeq)
++    val start = (0 to xs.length).find(i => isPalindrome(xs.toSeq.drop(i))).get
 +    val b = bf(xs.repr)
 +    b ++= xs.iterator
 +    b ++= xs.reverseIterator.drop(xs.length - start)
 +    b.result
-+  }
- 
-   // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-   private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-     (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+   }
  
 -  // Method syntax (xs.isPalindrome) through an implicit conversion to a wrapper.
 -  class PalindromeOps[A](xs: Seq[A]) {
--    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs)
 -    def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs)
 -    def palindromize(implicit eq: Eq[A]): Seq[A] = Palindrome.palindromize(xs)
 +  // Method syntax (xs.isPalindrome) through an implicit conversion; Repr lets palindromize keep the type.
 +  class PalindromeOps[A, Repr](xs: SeqLike[A, Repr]) {
-+    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs.toSeq)
 +    def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs.toSeq)
 +    def palindromize(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = Palindrome.palindromize(xs)
    }
@@ -223,7 +203,7 @@ object Palindrome {
 ```diff
 --- 2/7/test/src/PalindromeSuite.scala
 +++ 2/8/test/src/PalindromeSuite.scala
-@@ -6,8 +6,8 @@
+@@ -5,8 +5,8 @@
    test("empty and single-element sequences are palindromes") {
      assert(isPalindrome(""))
      assert(isPalindrome("a"))
@@ -234,7 +214,7 @@ object Palindrome {
    }
  
    test("isPalindrome checks palindrome strings") {
-@@ -27,16 +27,16 @@
+@@ -26,21 +26,21 @@
    }
  
    test("isPalindrome is generic over Seq[A]") {
@@ -247,25 +227,22 @@ object Palindrome {
 +    assert(!isPalindrome(Seq(1, 2, 3)))
    }
  
-   test("isPalindrome and checkPalindrome are also methods on any Seq") {
+   test("isPalindrome is also a method on any Seq") {
 -    assert(List("a", "b", "a").isPalindrome)
 +    assert(Seq("a", "b", "a").isPalindrome)
      assert("racecar".toList.isPalindrome)
 -    assert(!List(1, 2).isPalindrome)
 +    assert(!Vector(1, 2).isPalindrome)
-     assert(List(1, 2, 3).checkPalindrome == BreaksAt(0))
    }
  
-@@ -44,7 +44,7 @@
-     assert(checkPalindrome("racecar") == PalindromeResult.Palindrome)
-     assert(checkPalindrome("hello") == BreaksAt(0))
-     assert(checkPalindrome("abcxba") == BreaksAt(2))
--    assert(checkPalindrome(List(1, 2, 3, 4, 2, 1)) == BreaksAt(2))
-+    assert(checkPalindrome(Seq(1, 2, 3, 4, 2, 1)) == BreaksAt(2))
+   test("isPalindrome finds a mismatch inside matching ends") {
+     assert(!isPalindrome("abcxba"))
+-    assert(!isPalindrome(List(1, 2, 3, 4, 2, 1)))
++    assert(!isPalindrome(Seq(1, 2, 3, 4, 2, 1)))
    }
  
    test("equality is case-sensitive by default") {
-@@ -64,18 +64,21 @@
+@@ -58,18 +58,21 @@
    }
  
    test("palindromize builds the shortest palindrome starting with the input") {
@@ -303,8 +280,9 @@ object Palindrome {
 *Compared with Scala 2.9.3; changes: source.*
 
 - **`case x +: middle :+ y`** (talk stage 2): the index arithmetic becomes one pattern that peels off the first and
-  the last element. It parses as `(x +: middle) :+ y`, because an operator's first character sets its precedence and
-  `+` binds tighter than `:`. On a `List`, `:+` (`init`/`last`) is O(n), which makes the loop O(n²); an
+  the last element. With no index to carry, the inner `loop` goes: `isPalindrome` recurses on `middle` itself, and
+  `@tailrec` moves onto it. It parses as `(x +: middle) :+ y`, because an operator's first character sets its precedence and
+  `+` binds tighter than `:`. On a `List`, `:+` (`init`/`last`) is O(n), which makes the recursion O(n²); an
   `IndexedSeq` such as `Vector` keeps it linear.
 - **`implicit class … extends AnyVal`** (stage 6): the wrapper class plus conversion become one declaration, and as a
   value class it usually needs no allocation. In 2.10 a value class's field must be public, hence `val xs`. It keeps
@@ -315,36 +293,33 @@ object Palindrome {
 ```diff
 --- 2/9/src/Palindrome.scala
 +++ 2/10/src/Palindrome.scala
-@@ -29,14 +29,14 @@
+@@ -21,13 +21,11 @@
+ 
  // Scala 2 has no top-level definitions, so the functions live in an object.
  object Palindrome {
-   def checkPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): PalindromeResult = {
-+    // x +: middle :+ y peels off the first and the last element in one pattern.
-     @tailrec
--    def loop(from: Int): PalindromeResult = {
+-  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = {
+-    @tailrec
+-    def loop(from: Int): Boolean = {
 -      val to = xs.length - 1 - from
--      if (from >= to) PalindromeResult.Palindrome
--      else if (eq.eqv(xs(from), xs(to))) loop(from + 1)
--      else PalindromeResult.BreaksAt(from)
-+    def loop(ys: Seq[A], from: Int): PalindromeResult = ys match {
-+      case x +: middle :+ y =>
-+        if (eq.eqv(x, y)) loop(middle, from + 1) else PalindromeResult.BreaksAt(from)
-+      case _ => PalindromeResult.Palindrome
-     }
+-      from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))
+-    }
 -    loop(0)
-+    loop(xs, 0)
++  // x +: middle :+ y peels off the first and the last element in one pattern.
++  @tailrec
++  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = xs match {
++    case x +: middle :+ y => eq.eqv(x, y) && isPalindrome(middle)
++    case _ => true
    }
  
-   def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean =
-@@ -57,12 +57,10 @@
-   private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-     (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+   // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
+@@ -41,11 +39,9 @@
+     b.result
+   }
  
 -  // Method syntax (xs.isPalindrome) through an implicit conversion; Repr lets palindromize keep the type.
 -  class PalindromeOps[A, Repr](xs: SeqLike[A, Repr]) {
 +  // Method syntax (xs.isPalindrome) through an implicit value class; Repr lets palindromize keep the type.
 +  implicit class PalindromeOps[A, Repr](val xs: SeqLike[A, Repr]) extends AnyVal {
-     def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs.toSeq)
      def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs.toSeq)
      def palindromize(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = Palindrome.palindromize(xs)
    }
@@ -368,15 +343,15 @@ object Palindrome {
 ```diff
 --- 2/10/src/Palindrome.scala
 +++ 2/11/src/Palindrome.scala
-@@ -58,7 +58,7 @@
-     (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+@@ -40,7 +40,7 @@
+   }
  
    // Method syntax (xs.isPalindrome) through an implicit value class; Repr lets palindromize keep the type.
 -  implicit class PalindromeOps[A, Repr](val xs: SeqLike[A, Repr]) extends AnyVal {
 +  implicit class PalindromeOps[A, Repr](private val xs: SeqLike[A, Repr]) extends AnyVal {
-     def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs.toSeq)
      def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs.toSeq)
      def palindromize(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = Palindrome.palindromize(xs)
+   }
 ```
 
 **Tests**
@@ -384,11 +359,10 @@ object Palindrome {
 ```diff
 --- 2/10/test/src/PalindromeSuite.scala
 +++ 2/11/test/src/PalindromeSuite.scala
-@@ -1,8 +1,8 @@
+@@ -1,7 +1,7 @@
 -import org.scalatest.FunSuite
 +import org.scalatest.funsuite.AnyFunSuite
  import Palindrome._
- import PalindromeResult.BreaksAt
  
 -class PalindromeSuite extends FunSuite {
 +class PalindromeSuite extends AnyFunSuite {
@@ -426,7 +400,7 @@ object Palindrome {
 +  val caseInsensitive: Eq[Char] = (x, y) => x.toLower == y.toLower
  }
  
- // The answer says more than true or false: where a non-palindrome breaks.
+ // Scala 2 has no top-level definitions, so the functions live in an object.
 ```
 
 <a id="scala-21318"></a>
@@ -434,7 +408,7 @@ object Palindrome {
 
 *Compared with Scala 2.12.21; changes: source, tests.*
 
-2.13 rewrote the collections a second time, and `palindromize` has to change with it (talk stage 5b):
+2.13 rewrote the collections a second time, and `palindromize` has to change with it (talk stage 5):
 
 - **The 2.8 version stops working.** `StringOps` is no longer a collection, so a `String` only becomes a `SeqLike` by
   wrapping it in a `WrappedString`, and `Repr` is inferred as `WrappedString`. `val s: String = palindromize("abc")` then
@@ -478,13 +452,13 @@ still needed where the source type isn't a collection class, as with `String` he
  
  // Equality as a type class: the caller decides what "the same element" means.
  trait Eq[A] {
-@@ -40,23 +41,29 @@
+@@ -26,18 +27,24 @@
  
    // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 -  // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
 -  def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
--    val start = palindromicSuffixStart(xs.toSeq)
+-    val start = (0 to xs.length).find(i => isPalindrome(xs.toSeq.drop(i))).get
 -    val b = bf(xs.repr)
 -    b ++= xs.iterator
 -    b ++= xs.reverseIterator.drop(xs.length - start)
@@ -493,25 +467,19 @@ still needed where the source type isn't a collection class, as with `String` he
 +  def palindromize[Repr, A0](xs: Repr)(
 +      implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
 +    val ops = seq(xs)
-+    val start = palindromicSuffixStart(ops.toSeq)
++    val start = (0 to ops.length).find(i => isPalindrome(ops.toSeq.drop(i))).get
 +    val b = bf.newBuilder(xs)
 +    b ++= ops
 +    b ++= ops.reverseIterator.drop(ops.length - start)
 +    b.result()
    }
  
-   // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-   private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-     (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
- 
 -  // Method syntax (xs.isPalindrome) through an implicit value class; Repr lets palindromize keep the type.
 -  implicit class PalindromeOps[A, Repr](private val xs: SeqLike[A, Repr]) extends AnyVal {
--    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs.toSeq)
 -    def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs.toSeq)
 -    def palindromize(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = Palindrome.palindromize(xs)
 +  // Method syntax (xs.isPalindrome, "abc".palindromize) for anything IsSeq accepts, String included.
 +  class PalindromeOps[Repr, S <: IsSeq[Repr]](xs: Repr, seq: S) {
-+    def checkPalindrome(implicit eq: Eq[seq.A]): PalindromeResult = Palindrome.checkPalindrome(seq(xs).toSeq)
 +    def isPalindrome(implicit eq: Eq[seq.A]): Boolean = Palindrome.isPalindrome(seq(xs).toSeq)
 +    def palindromize(implicit eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
 +      Palindrome.palindromize[Repr, seq.A](xs)(seq: seq.type, eq, bf)
@@ -527,16 +495,16 @@ still needed where the source type isn't a collection class, as with `String` he
 ```diff
 --- 2/12/test/src/PalindromeSuite.scala
 +++ 2/13/test/src/PalindromeSuite.scala
-@@ -35,7 +35,7 @@
+@@ -34,7 +34,7 @@
  
-   test("isPalindrome and checkPalindrome are also methods on any Seq") {
+   test("isPalindrome is also a method on any Seq") {
      assert(Seq("a", "b", "a").isPalindrome)
 -    assert("racecar".toList.isPalindrome)
 +    assert("racecar".isPalindrome)
      assert(!Vector(1, 2).isPalindrome)
-     assert(List(1, 2, 3).checkPalindrome == BreaksAt(0))
    }
-@@ -54,7 +54,7 @@
+ 
+@@ -49,7 +49,7 @@
  
    test("another Eq can be passed explicitly") {
      assert(isPalindrome("Racecar")(Eq.caseInsensitive))
@@ -545,7 +513,7 @@ still needed where the source type isn't a collection class, as with `String` he
    }
  
    test("an implicit Eq in scope takes precedence over the default") {
-@@ -64,7 +64,7 @@
+@@ -58,7 +58,7 @@
    }
  
    test("palindromize builds the shortest palindrome starting with the input") {
@@ -554,7 +522,7 @@ still needed where the source type isn't a collection class, as with `String` he
      val l: List[Int] = List(1, 2, 3).palindromize
      val v: Vector[Char] = palindromize(Vector('x', 'y'))
      assert(s == "abcba")
-@@ -73,12 +73,12 @@
+@@ -67,12 +67,12 @@
      assert(palindromize("abb") == "abba")
      assert(palindromize("racecar") == "racecar")
      assert(palindromize("") == "")
@@ -581,12 +549,11 @@ The headline of the 2 → 3 transition, shown on one slide:
 - **Significant indentation**: braces go, `if … then … else`.
 - **`implicit` → `given`/`using`** (talk stage 4): the companion default is a `given`, and the `Eq` arrives through a
   `using` clause.
-- **`sealed trait` + cases → `enum`** (stage 5).
 - **`implicit class` → `extension`** (stage 6), at top level. `object Palindrome` disappears, because Scala 3 has
   top-level definitions. The wrapper class disappears too, because an extension method is also an ordinary method:
-  `isPalindrome(xs)` and `xs.isPalindrome` are the same method.
-- **`_ == _` lambdas** for `Eq`, and `import PalindromeResult.*` (the qualification workaround is gone with the object).
-- **`palindromize` loses its refinement** (stage 5b). Scala 3 uses the 2.13 collections, so it's still `IsSeq` plus
+  `isPalindrome(xs)` and `xs.isPalindrome` are the same method, so the recursion reads `middle.isPalindrome`.
+- **`_ == _` lambdas** for `Eq`.
+- **`palindromize` loses its refinement** (stage 5). Scala 3 uses the 2.13 collections, so it's still `IsSeq` plus
   `BuildFrom`. But the extension's `using seq: IsSeq[Repr]` clause comes before the method's own `using` clause, so
   `BuildFrom[Repr, seq.A, Repr]` can depend on `seq` directly. 2.13's `{ type A = A0 }` workaround and extra type
   parameter disappear, and so do its wrapper class, its `seq.type` trick and its `implicitConversions` import: one
@@ -620,49 +587,30 @@ object Eq {
   val caseInsensitive: Eq[Char] = (x, y) => x.toLower == y.toLower
 }
 
-// The answer says more than true or false: where a non-palindrome breaks.
-sealed trait PalindromeResult
-object PalindromeResult {
-  case object Palindrome extends PalindromeResult
-  final case class BreaksAt(index: Int) extends PalindromeResult
-}
-
 // Scala 2 has no top-level definitions, so the functions live in an object.
 object Palindrome {
-  def checkPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): PalindromeResult = {
-    // x +: middle :+ y peels off the first and the last element in one pattern.
-    @tailrec
-    def loop(ys: Seq[A], from: Int): PalindromeResult = ys match {
-      case x +: middle :+ y =>
-        if (eq.eqv(x, y)) loop(middle, from + 1) else PalindromeResult.BreaksAt(from)
-      case _ => PalindromeResult.Palindrome
-    }
-    loop(xs, 0)
+  // x +: middle :+ y peels off the first and the last element in one pattern.
+  @tailrec
+  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = xs match {
+    case x +: middle :+ y => eq.eqv(x, y) && isPalindrome(middle)
+    case _ => true
   }
 
-  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean =
-    checkPalindrome(xs) == PalindromeResult.Palindrome
-
   // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
   // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
   def palindromize[Repr, A0](xs: Repr)(
       implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
     val ops = seq(xs)
-    val start = palindromicSuffixStart(ops.toSeq)
+    val start = (0 to ops.length).find(i => isPalindrome(ops.toSeq.drop(i))).get
     val b = bf.newBuilder(xs)
     b ++= ops
     b ++= ops.reverseIterator.drop(ops.length - start)
     b.result()
   }
 
-  // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-  private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-    (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
-
   // Method syntax (xs.isPalindrome, "abc".palindromize) for anything IsSeq accepts, String included.
   class PalindromeOps[Repr, S <: IsSeq[Repr]](xs: Repr, seq: S) {
-    def checkPalindrome(implicit eq: Eq[seq.A]): PalindromeResult = Palindrome.checkPalindrome(seq(xs).toSeq)
     def isPalindrome(implicit eq: Eq[seq.A]): Boolean = Palindrome.isPalindrome(seq(xs).toSeq)
     def palindromize(implicit eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
       Palindrome.palindromize[Repr, seq.A](xs)(seq: seq.type, eq, bf)
@@ -679,7 +627,6 @@ after (Scala 3.0.2):
 import scala.annotation.tailrec
 import scala.collection.BuildFrom
 import scala.collection.generic.IsSeq
-import PalindromeResult.*
 
 // Equality as a type class: the caller decides what "the same element" means.
 trait Eq[A]:
@@ -692,216 +639,146 @@ object Eq:
   // Opt-in: pass it with `using`, or bring it into scope as a given.
   val caseInsensitive: Eq[Char] = _.toLower == _.toLower
 
-// The answer says more than true or false: where a non-palindrome breaks.
-enum PalindromeResult:
-  case Palindrome
-  case BreaksAt(index: Int)
-
-// Top-level extension methods: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
+// A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
 extension [A](xs: Seq[A])(using eq: Eq[A])
-  def checkPalindrome: PalindromeResult =
-    // x +: middle :+ y peels off the first and the last element in one pattern.
-    @tailrec
-    def loop(ys: Seq[A], from: Int): PalindromeResult = ys match
-      case x +: middle :+ y =>
-        if eq.eqv(x, y) then loop(middle, from + 1) else BreaksAt(from)
-      case _ => Palindrome
-    loop(xs, 0)
-
-  def isPalindrome: Boolean = xs.checkPalindrome == Palindrome
+  // x +: middle :+ y peels off the first and the last element in one pattern.
+  @tailrec
+  def isPalindrome: Boolean = xs match
+    case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome
+    case _ => true
 
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-// ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome.
+// ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
 extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
     val ops = seq(xs)
-    val start = palindromicSuffixStart(ops.toSeq)
+    val start = (0 to ops.length).find(i => ops.toSeq.drop(i).isPalindrome).get
     val b = bf.newBuilder(xs)
     b ++= ops
     b ++= ops.reverseIterator.drop(ops.length - start)
     b.result()
-
-// Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-private def palindromicSuffixStart[A](xs: Seq[A])(using Eq[A]): Int =
-  (0 to xs.length).find(i => xs.drop(i).isPalindrome).get
 ```
 
 **Tests**
 
-Tests rewritten; before (Scala 2.13.18):
-
-```scala
-import org.scalatest.funsuite.AnyFunSuite
-import Palindrome._
-import PalindromeResult.BreaksAt
-
-class PalindromeSuite extends AnyFunSuite {
-  test("empty and single-element sequences are palindromes") {
-    assert(isPalindrome(""))
-    assert(isPalindrome("a"))
-    assert(isPalindrome(Seq.empty[Int]))
-    assert(isPalindrome(Seq(1)))
-  }
-
-  test("isPalindrome checks palindrome strings") {
-    assert(isPalindrome("racecar"))
-    assert(isPalindrome("noon"))
-    assert(isPalindrome("kayak"))
-    assert(isPalindrome("madam"))
-    assert(isPalindrome("12321"))
-  }
-
-  test("isPalindrome checks non-palindrome strings") {
-    assert(!isPalindrome("hello"))
-    assert(!isPalindrome("world"))
-    assert(!isPalindrome("scala"))
-    assert(!isPalindrome("palindrome"))
-    assert(!isPalindrome("race car"))
-  }
-
-  test("isPalindrome is generic over Seq[A]") {
-    assert(isPalindrome(Seq(1, 2, 3, 2, 1)))
-    assert(isPalindrome(List("a", "b", "a")))
-    assert(isPalindrome(Vector('x', 'y', 'y', 'x')))
-    assert(!isPalindrome(Seq(1, 2, 3)))
-  }
-
-  test("isPalindrome and checkPalindrome are also methods on any Seq") {
-    assert(Seq("a", "b", "a").isPalindrome)
-    assert("racecar".isPalindrome)
-    assert(!Vector(1, 2).isPalindrome)
-    assert(List(1, 2, 3).checkPalindrome == BreaksAt(0))
-  }
-
-  test("checkPalindrome reports where a non-palindrome breaks") {
-    assert(checkPalindrome("racecar") == PalindromeResult.Palindrome)
-    assert(checkPalindrome("hello") == BreaksAt(0))
-    assert(checkPalindrome("abcxba") == BreaksAt(2))
-    assert(checkPalindrome(Seq(1, 2, 3, 4, 2, 1)) == BreaksAt(2))
-  }
-
-  test("equality is case-sensitive by default") {
-    assert(!isPalindrome("Racecar"))
-    assert(checkPalindrome("Racecar") == BreaksAt(0))
-  }
-
-  test("another Eq can be passed explicitly") {
-    assert(isPalindrome("Racecar")(Eq.caseInsensitive))
-    assert("Racecar".isPalindrome(Eq.caseInsensitive))
-  }
-
-  test("an implicit Eq in scope takes precedence over the default") {
-    implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
-    assert(isPalindrome("Racecar"))
-    assert(checkPalindrome("Racecar") == PalindromeResult.Palindrome)
-  }
-
-  test("palindromize builds the shortest palindrome starting with the input") {
-    val s: String = "abcb".palindromize
-    val l: List[Int] = List(1, 2, 3).palindromize
-    val v: Vector[Char] = palindromize(Vector('x', 'y'))
-    assert(s == "abcba")
-    assert(l == List(1, 2, 3, 2, 1))
-    assert(v == Vector('x', 'y', 'x'))
-    assert(palindromize("abb") == "abba")
-    assert(palindromize("racecar") == "racecar")
-    assert(palindromize("") == "")
-    assert("scala".palindromize.isPalindrome)
-    assert(Vector(1, 2).palindromize.isPalindrome)
-  }
-
-  test("palindromize uses the Eq in scope") {
-    implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
-    assert("abA".palindromize == "abA")
-  }
-}
-```
-
-after (Scala 3.0.2):
-
-```scala
-import org.scalatest.funsuite.AnyFunSuite
-import PalindromeResult.*
-
-class PalindromeSuite extends AnyFunSuite:
-  test("empty and single-element sequences are palindromes") {
-    assert("".isPalindrome)
-    assert("a".isPalindrome)
-    assert(Seq.empty[Int].isPalindrome)
-    assert(Seq(1).isPalindrome)
-  }
-
-  test("isPalindrome checks palindrome strings") {
-    assert("racecar".isPalindrome)
-    assert("noon".isPalindrome)
-    assert("kayak".isPalindrome)
-    assert("madam".isPalindrome)
-    assert("12321".isPalindrome)
-  }
-
-  test("isPalindrome checks non-palindrome strings") {
-    assert(!"hello".isPalindrome)
-    assert(!"world".isPalindrome)
-    assert(!"scala".isPalindrome)
-    assert(!"palindrome".isPalindrome)
-    assert(!"race car".isPalindrome)
-  }
-
-  test("isPalindrome is generic over Seq[A]") {
-    assert(Seq(1, 2, 3, 2, 1).isPalindrome)
-    assert(List("a", "b", "a").isPalindrome)
-    assert(Vector('x', 'y', 'y', 'x').isPalindrome)
-    assert(!Seq(1, 2, 3).isPalindrome)
-  }
-
-  test("isPalindrome and checkPalindrome can also be called as functions") {
-    assert(isPalindrome("racecar"))
-    assert(isPalindrome(Seq(1, 2, 1)))
-    assert(!isPalindrome("hello"))
-    assert(checkPalindrome(List(1, 2, 3)) == BreaksAt(0))
-  }
-
-  test("checkPalindrome reports where a non-palindrome breaks") {
-    assert("racecar".checkPalindrome == Palindrome)
-    assert("hello".checkPalindrome == BreaksAt(0))
-    assert("abcxba".checkPalindrome == BreaksAt(2))
-    assert(Seq(1, 2, 3, 4, 2, 1).checkPalindrome == BreaksAt(2))
-  }
-
-  test("equality is case-sensitive by default") {
-    assert(!"Racecar".isPalindrome)
-    assert("Racecar".checkPalindrome == BreaksAt(0))
-  }
-
-  test("another Eq can be passed explicitly") {
-    assert("Racecar".isPalindrome(using Eq.caseInsensitive))
-    assert(isPalindrome("Racecar")(using Eq.caseInsensitive))
-  }
-
-  test("a given Eq in scope takes precedence over the default") {
-    given Eq[Char] = Eq.caseInsensitive
-    assert("Racecar".isPalindrome)
-    assert("Racecar".checkPalindrome == Palindrome)
-  }
-
-  test("palindromize builds the shortest palindrome starting with the input") {
-    val s: String = "abcb".palindromize
-    val l: List[Int] = List(1, 2, 3).palindromize
-    val v: Vector[Char] = Vector('x', 'y').palindromize
-    assert(s == "abcba")
-    assert(l == List(1, 2, 3, 2, 1))
-    assert(v == Vector('x', 'y', 'x'))
-    assert(palindromize("abb") == "abba")
-    assert("racecar".palindromize == "racecar")
-    assert("".palindromize == "")
-    assert("scala".palindromize.isPalindrome)
-  }
-
-  test("palindromize uses the Eq in scope") {
-    given Eq[Char] = Eq.caseInsensitive
-    assert("abA".palindromize == "abA")
-  }
+```diff
+--- 2/13/test/src/PalindromeSuite.scala
++++ 3/0/test/src/PalindromeSuite.scala
+@@ -1,78 +1,75 @@
+ import org.scalatest.funsuite.AnyFunSuite
+-import Palindrome._
+ 
+-class PalindromeSuite extends AnyFunSuite {
++class PalindromeSuite extends AnyFunSuite:
+   test("empty and single-element sequences are palindromes") {
+-    assert(isPalindrome(""))
+-    assert(isPalindrome("a"))
+-    assert(isPalindrome(Seq.empty[Int]))
+-    assert(isPalindrome(Seq(1)))
++    assert("".isPalindrome)
++    assert("a".isPalindrome)
++    assert(Seq.empty[Int].isPalindrome)
++    assert(Seq(1).isPalindrome)
+   }
+ 
+   test("isPalindrome checks palindrome strings") {
+-    assert(isPalindrome("racecar"))
+-    assert(isPalindrome("noon"))
+-    assert(isPalindrome("kayak"))
+-    assert(isPalindrome("madam"))
+-    assert(isPalindrome("12321"))
++    assert("racecar".isPalindrome)
++    assert("noon".isPalindrome)
++    assert("kayak".isPalindrome)
++    assert("madam".isPalindrome)
++    assert("12321".isPalindrome)
+   }
+ 
+   test("isPalindrome checks non-palindrome strings") {
+-    assert(!isPalindrome("hello"))
+-    assert(!isPalindrome("world"))
+-    assert(!isPalindrome("scala"))
+-    assert(!isPalindrome("palindrome"))
+-    assert(!isPalindrome("race car"))
++    assert(!"hello".isPalindrome)
++    assert(!"world".isPalindrome)
++    assert(!"scala".isPalindrome)
++    assert(!"palindrome".isPalindrome)
++    assert(!"race car".isPalindrome)
+   }
+ 
+   test("isPalindrome is generic over Seq[A]") {
+-    assert(isPalindrome(Seq(1, 2, 3, 2, 1)))
+-    assert(isPalindrome(List("a", "b", "a")))
+-    assert(isPalindrome(Vector('x', 'y', 'y', 'x')))
+-    assert(!isPalindrome(Seq(1, 2, 3)))
++    assert(Seq(1, 2, 3, 2, 1).isPalindrome)
++    assert(List("a", "b", "a").isPalindrome)
++    assert(Vector('x', 'y', 'y', 'x').isPalindrome)
++    assert(!Seq(1, 2, 3).isPalindrome)
+   }
+ 
+-  test("isPalindrome is also a method on any Seq") {
+-    assert(Seq("a", "b", "a").isPalindrome)
+-    assert("racecar".isPalindrome)
+-    assert(!Vector(1, 2).isPalindrome)
++  test("isPalindrome can also be called as a function") {
++    assert(isPalindrome("racecar"))
++    assert(isPalindrome(Seq(1, 2, 1)))
++    assert(!isPalindrome("hello"))
+   }
+ 
+   test("isPalindrome finds a mismatch inside matching ends") {
+-    assert(!isPalindrome("abcxba"))
+-    assert(!isPalindrome(Seq(1, 2, 3, 4, 2, 1)))
++    assert(!"abcxba".isPalindrome)
++    assert(!Seq(1, 2, 3, 4, 2, 1).isPalindrome)
+   }
+ 
+   test("equality is case-sensitive by default") {
+-    assert(!isPalindrome("Racecar"))
++    assert(!"Racecar".isPalindrome)
+   }
+ 
+   test("another Eq can be passed explicitly") {
+-    assert(isPalindrome("Racecar")(Eq.caseInsensitive))
+-    assert("Racecar".isPalindrome(Eq.caseInsensitive))
++    assert("Racecar".isPalindrome(using Eq.caseInsensitive))
++    assert(isPalindrome("Racecar")(using Eq.caseInsensitive))
+   }
+ 
+-  test("an implicit Eq in scope takes precedence over the default") {
+-    implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
+-    assert(isPalindrome("Racecar"))
++  test("a given Eq in scope takes precedence over the default") {
++    given Eq[Char] = Eq.caseInsensitive
++    assert("Racecar".isPalindrome)
+   }
+ 
+   test("palindromize builds the shortest palindrome starting with the input") {
+     val s: String = "abcb".palindromize
+     val l: List[Int] = List(1, 2, 3).palindromize
+-    val v: Vector[Char] = palindromize(Vector('x', 'y'))
++    val v: Vector[Char] = Vector('x', 'y').palindromize
+     assert(s == "abcba")
+     assert(l == List(1, 2, 3, 2, 1))
+     assert(v == Vector('x', 'y', 'x'))
+     assert(palindromize("abb") == "abba")
+-    assert(palindromize("racecar") == "racecar")
+-    assert(palindromize("") == "")
++    assert("racecar".palindromize == "racecar")
++    assert("".palindromize == "")
+     assert("scala".palindromize.isPalindrome)
+-    assert(Vector(1, 2).palindromize.isPalindrome)
+   }
+ 
+   test("palindromize uses the Eq in scope") {
+-    implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
++    given Eq[Char] = Eq.caseInsensitive
+     assert("abA".palindromize == "abA")
+   }
+-}
 ```
 
 <a id="scala-364"></a>
@@ -915,14 +792,14 @@ class PalindromeSuite extends AnyFunSuite:
   parameter. `eq` stays usable by name in the body. `palindromize` gets the same treatment:
   `extension [Repr: IsSeq as seq](xs: Repr)`, and `seq.A` still works in the `BuildFrom`.
 
-3.5 rejects both.
+3.5 rejects both. 3.7 to 3.9 are identical.
 
 **Source**
 
 ```diff
 --- 3/5/src/Palindrome.scala
 +++ 3/6/src/Palindrome.scala
-@@ -9,7 +9,7 @@
+@@ -8,13 +8,13 @@
  
  object Eq:
    // The default, found in Eq's implicit scope: universal equality.
@@ -931,52 +808,22 @@ class PalindromeSuite extends AnyFunSuite:
  
    // Opt-in: pass it with `using`, or bring it into scope as a given.
    val caseInsensitive: Eq[Char] = _.toLower == _.toLower
-@@ -20,7 +20,7 @@
-   case BreaksAt(index: Int)
  
- // Top-level extension methods: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
+ // A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
 -extension [A](xs: Seq[A])(using eq: Eq[A])
 +extension [A: Eq as eq](xs: Seq[A])
-   def checkPalindrome: PalindromeResult =
-     // x +: middle :+ y peels off the first and the last element in one pattern.
-     @tailrec
-@@ -35,7 +35,7 @@
+   // x +: middle :+ y peels off the first and the last element in one pattern.
+   @tailrec
+   def isPalindrome: Boolean = xs match
+@@ -24,7 +24,7 @@
  // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
- // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome.
+ // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
  // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
 -extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
 +extension [Repr: IsSeq as seq](xs: Repr)
    def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
      val ops = seq(xs)
-     val start = palindromicSuffixStart(ops.toSeq)
-```
-
-<a id="scala-374"></a>
-## Scala 3.7.4: Named pattern matching (tests only)
-
-*Compared with Scala 3.6.4; changes: tests.*
-
-- **`case BreaksAt(index = i)`**: with named tuples stable in 3.7, patterns can bind case class fields by name. The
-  implementation has no pattern that benefits, so only the tests use it. 3.6 rejects it.
-
-3.8 and 3.9 are identical.
-
-**Tests**
-
-```diff
---- 3/6/test/src/PalindromeSuite.scala
-+++ 3/7/test/src/PalindromeSuite.scala
-@@ -79,3 +79,10 @@
-     given Eq[Char] = Eq.caseInsensitive
-     assert("abA".palindromize == "abA")
-   }
-+
-+  test("a BreaksAt can be matched by field name") {
-+    val index = "abcxba".checkPalindrome match
-+      case BreaksAt(index = i) => i
-+      case Palindrome          => -1
-+    assert(index == 2)
-+  }
+     val start = (0 to ops.length).find(i => ops.toSeq.drop(i).isPalindrome).get
 ```
 
 <a id="final"></a>
@@ -989,7 +836,6 @@ The complete `3/9/src/Palindrome.scala`, the end point of the tour:
 import scala.annotation.tailrec
 import scala.collection.BuildFrom
 import scala.collection.generic.IsSeq
-import PalindromeResult.*
 
 // Equality as a type class: the caller decides what "the same element" means.
 trait Eq[A]:
@@ -1002,37 +848,23 @@ object Eq:
   // Opt-in: pass it with `using`, or bring it into scope as a given.
   val caseInsensitive: Eq[Char] = _.toLower == _.toLower
 
-// The answer says more than true or false: where a non-palindrome breaks.
-enum PalindromeResult:
-  case Palindrome
-  case BreaksAt(index: Int)
-
-// Top-level extension methods: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
+// A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
 extension [A: Eq as eq](xs: Seq[A])
-  def checkPalindrome: PalindromeResult =
-    // x +: middle :+ y peels off the first and the last element in one pattern.
-    @tailrec
-    def loop(ys: Seq[A], from: Int): PalindromeResult = ys match
-      case x +: middle :+ y =>
-        if eq.eqv(x, y) then loop(middle, from + 1) else BreaksAt(from)
-      case _ => Palindrome
-    loop(xs, 0)
-
-  def isPalindrome: Boolean = xs.checkPalindrome == Palindrome
+  // x +: middle :+ y peels off the first and the last element in one pattern.
+  @tailrec
+  def isPalindrome: Boolean = xs match
+    case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome
+    case _ => true
 
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-// ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome.
+// ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
 extension [Repr: IsSeq as seq](xs: Repr)
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
     val ops = seq(xs)
-    val start = palindromicSuffixStart(ops.toSeq)
+    val start = (0 to ops.length).find(i => ops.toSeq.drop(i).isPalindrome).get
     val b = bf.newBuilder(xs)
     b ++= ops
     b ++= ops.reverseIterator.drop(ops.length - start)
     b.result()
-
-// Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-private def palindromicSuffixStart[A](xs: Seq[A])(using Eq[A]): Int =
-  (0 to xs.length).find(i => xs.drop(i).isPalindrome).get
 ```

@@ -2,20 +2,19 @@
 <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 2.10 · 2013</p>
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">x +: middle :+ y peels off both ends</h2>
 <div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px; display:flex; flex-direction:column">
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;@tailrec</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− def loop(from: Int): PalindromeResult = {</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">−&#160;&#160;&#160;val to = xs.length - 1 - from</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">−&#160;&#160;&#160;if (from &gt;= to) PalindromeResult.Palindrome</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">−&#160;&#160;&#160;else if (eq.eqv(xs(from), xs(to))) loop(from + 1)</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">−&#160;&#160;&#160;else PalindromeResult.BreaksAt(from)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− &#160;&#160;@tailrec</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− &#160;&#160;def loop(from: Int): Boolean = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− &#160;&#160;&#160;&#160;val to = xs.length - 1 - from</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− &#160;&#160;&#160;&#160;from &gt;= to || (eq.eqv(xs(from), xs(to)) &amp;&amp; loop(from + 1))</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− &#160;&#160;}</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− &#160;&#160;loop(0)</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− }</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− loop(0)</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ def loop(ys: Seq[A], from: Int): PalindromeResult = ys match {</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+&#160;&#160;&#160;case <span style="color:#F2A65A">x +: middle :+ y</span> =&gt;</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+&#160;&#160;&#160;&#160;&#160;if (eq.eqv(x, y)) loop(middle, from + 1) else PalindromeResult.BreaksAt(from)</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+&#160;&#160;&#160;case _ =&gt; PalindromeResult.Palindrome</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ @tailrec</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = xs match {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ &#160;&#160;case <span style="color:#F2A65A">x +: middle :+ y</span> =&gt; eq.eqv(x, y) &amp;&amp; isPalindrome(middle)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ &#160;&#160;case _ =&gt; true</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ }</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ loop(xs, 0)</p>
 </div>
-<aside>Talk stage 2. It parses as (x +: middle) :+ y, because an operator's first character sets its precedence and + binds tighter than colon: :+ splits off the last element, +: the first. Caveat to say out loud: on a List, :+ needs init and last, which are O(n), so this lovely version is quietly O(n²). An IndexedSeq such as Vector keeps it linear. Elegant by default, but know when the data structure betrays you.</aside>
+<aside>Talk stage 2. With no index to carry, the inner loop goes: isPalindrome recurses on middle itself, and @tailrec moves onto it. It parses as (x +: middle) :+ y, because an operator's first character sets its precedence and + binds tighter than colon: :+ splits off the last element, +: the first. Caveat to say out loud: on a List, :+ needs init and last, which are O(n), so this lovely version is quietly O(n²). An IndexedSeq such as Vector keeps it linear. Elegant by default, but know when the data structure betrays you.</aside>
 </section>

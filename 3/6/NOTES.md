@@ -6,4 +6,4 @@
   parameter. `eq` stays usable by name in the body. `palindromize` gets the same treatment:
   `extension [Repr: IsSeq as seq](xs: Repr)`, and `seq.A` still works in the `BuildFrom`.
 
-3.5 rejects both.
+3.5 rejects both. 3.7 to 3.9 are identical.

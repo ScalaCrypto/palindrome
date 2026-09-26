@@ -6,10 +6,9 @@
 <tr><td>implicit def universal[A]: Eq[A]</td><td>given universal[A]: Eq[A]</td></tr>
 <tr><td>(implicit eq: Eq[A])</td><td>(using eq: Eq[A])</td></tr>
 <tr><td>(x, y) =&gt; x == y</td><td>_ == _</td></tr>
-<tr><td>sealed trait + case object + case class</td><td>enum PalindromeResult</td></tr>
 <tr><td>object Palindrome { … }</td><td>top-level definitions</td></tr>
 <tr><td>implicit class PalindromeOps … extends AnyVal</td><td>extension [A](xs: Seq[A])</td></tr>
 <tr><td>if (…) … else …, braces</td><td>if … then … else, indentation</td></tr>
 </table>
-<aside>Talk stage 4, 5 and 6 in one table: the diff between 2.13 and 3.0 is the headline of the 2 to 3 transition, and it reads in seconds. given for implicit val, using for implicit, braces gone, enum for the sealed trait, extension for the implicit class, and object Palindrome disappears because Scala 3 has top-level definitions.</aside>
+<aside>Talk stages 4 and 6 in one table: the diff between 2.13 and 3.0 is the headline of the 2 to 3 transition, and it reads in seconds. given for implicit val, using for implicit, braces gone, extension for the implicit class, and object Palindrome disappears because Scala 3 has top-level definitions.</aside>
 </section>

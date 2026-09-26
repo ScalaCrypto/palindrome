@@ -1,6 +1,5 @@
 import org.scalatest.funsuite.AnyFunSuite
 import Palindrome._
-import PalindromeResult.BreaksAt
 
 class PalindromeSuite extends AnyFunSuite {
   test("empty and single-element sequences are palindromes") {
@@ -33,23 +32,19 @@ class PalindromeSuite extends AnyFunSuite {
     assert(!isPalindrome(Seq(1, 2, 3)))
   }
 
-  test("isPalindrome and checkPalindrome are also methods on any Seq") {
+  test("isPalindrome is also a method on any Seq") {
     assert(Seq("a", "b", "a").isPalindrome)
     assert("racecar".toList.isPalindrome)
     assert(!Vector(1, 2).isPalindrome)
-    assert(List(1, 2, 3).checkPalindrome == BreaksAt(0))
   }
 
-  test("checkPalindrome reports where a non-palindrome breaks") {
-    assert(checkPalindrome("racecar") == PalindromeResult.Palindrome)
-    assert(checkPalindrome("hello") == BreaksAt(0))
-    assert(checkPalindrome("abcxba") == BreaksAt(2))
-    assert(checkPalindrome(Seq(1, 2, 3, 4, 2, 1)) == BreaksAt(2))
+  test("isPalindrome finds a mismatch inside matching ends") {
+    assert(!isPalindrome("abcxba"))
+    assert(!isPalindrome(Seq(1, 2, 3, 4, 2, 1)))
   }
 
   test("equality is case-sensitive by default") {
     assert(!isPalindrome("Racecar"))
-    assert(checkPalindrome("Racecar") == BreaksAt(0))
   }
 
   test("another Eq can be passed explicitly") {
@@ -60,7 +55,6 @@ class PalindromeSuite extends AnyFunSuite {
   test("an implicit Eq in scope takes precedence over the default") {
     implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
     assert(isPalindrome("Racecar"))
-    assert(checkPalindrome("Racecar") == PalindromeResult.Palindrome)
   }
 
   test("palindromize builds the shortest palindrome starting with the input") {
