@@ -1,5 +1,4 @@
 import org.scalatest.funsuite.AnyFunSuite
-import PalindromeResult.*
 
 class PalindromeSuite extends AnyFunSuite:
   test("empty and single-element sequences are palindromes") {
@@ -32,23 +31,19 @@ class PalindromeSuite extends AnyFunSuite:
     assert(!Seq(1, 2, 3).isPalindrome)
   }
 
-  test("isPalindrome and checkPalindrome can also be called as functions") {
+  test("isPalindrome can also be called as a function") {
     assert(isPalindrome("racecar"))
     assert(isPalindrome(Seq(1, 2, 1)))
     assert(!isPalindrome("hello"))
-    assert(checkPalindrome(List(1, 2, 3)) == BreaksAt(0))
   }
 
-  test("checkPalindrome reports where a non-palindrome breaks") {
-    assert("racecar".checkPalindrome == Palindrome)
-    assert("hello".checkPalindrome == BreaksAt(0))
-    assert("abcxba".checkPalindrome == BreaksAt(2))
-    assert(Seq(1, 2, 3, 4, 2, 1).checkPalindrome == BreaksAt(2))
+  test("isPalindrome finds a mismatch inside matching ends") {
+    assert(!"abcxba".isPalindrome)
+    assert(!Seq(1, 2, 3, 4, 2, 1).isPalindrome)
   }
 
   test("equality is case-sensitive by default") {
     assert(!"Racecar".isPalindrome)
-    assert("Racecar".checkPalindrome == BreaksAt(0))
   }
 
   test("another Eq can be passed explicitly") {
@@ -59,7 +54,6 @@ class PalindromeSuite extends AnyFunSuite:
   test("a given Eq in scope takes precedence over the default") {
     given Eq[Char] = Eq.caseInsensitive
     assert("Racecar".isPalindrome)
-    assert("Racecar".checkPalindrome == Palindrome)
   }
 
   test("palindromize builds the shortest palindrome starting with the input") {

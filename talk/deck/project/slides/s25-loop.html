@@ -2,12 +2,10 @@
 <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 2.5 · 2007</p>
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">Index loop, and a conversion for methods</h2>
 <div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px; display:flex; flex-direction:column">
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">def checkPalindrome[A](xs: Seq[A])(<span style="color:#F2A65A">implicit eq: Eq[A]</span>): PalindromeResult = {</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def loop(from: Int): PalindromeResult = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">def isPalindrome[A](xs: Seq[A])(<span style="color:#F2A65A">implicit eq: Eq[A]</span>): Boolean = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def loop(from: Int): Boolean = {</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;val to = xs.length - 1 - from</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;if (from &gt;= to) PalindromeResult.Palindrome</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;else if (eq.eqv(xs(from), xs(to))) loop(from + 1)</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;else PalindromeResult.BreaksAt(from)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;from &gt;= to || (eq.eqv(xs(from), xs(to)) &amp;&amp; loop(from + 1))</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;}</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;loop(0)</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">}</p>
@@ -16,5 +14,5 @@
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">}</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap"><span style="color:#F2A65A">implicit def</span> palindromeOps[A](xs: Seq[A]): PalindromeOps[A] = new PalindromeOps(xs)</p>
 </div>
-<aside>No +: and :+ extractors yet, so it's index arithmetic. The loop is tail-recursive, and scalac already compiles it to a jump (javap shows a backward goto), but nothing checks that. Method syntax: an implicit def converts any Seq to a wrapper. Oddities worth one sentence: PalindromeResult.Palindrome is qualified because importing it would clash with object Palindrome, and the wrapper must call Palindrome.isPalindrome or it would call itself.</aside>
+<aside>No +: and :+ extractors yet, so it's index arithmetic. The recursive call is in tail position, even inside || and &&, and scalac already compiles it to a jump (javap shows a backward goto), but nothing checks that. Method syntax: an implicit def converts any Seq to a wrapper. Oddity worth one sentence: the wrapper must call Palindrome.isPalindrome, or it would call itself.</aside>
 </section>

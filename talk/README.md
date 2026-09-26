@@ -11,7 +11,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck and the artifact
 
 The deck is presented and edited as a claude.ai Slides artifact:
-<https://claude.ai/artifact/PHcDucovro6sTQXs2Xcnbr> (private until shared from its Share menu). `deck/project/` is the
+<https://claude.ai/artifact/4nvk9BRuCLeutLsoEpQt3d> (private until shared from its Share menu). `deck/project/` is the
 versioned copy of it. Keep the two in step:
 
 - **After editing the artifact** (in the browser, or through Claude): read its files back into `deck/project/` and
@@ -27,15 +27,28 @@ the sources, so after a code change, compare the affected slides with `EVOLUTION
 
 `morph.py` generates a second deck, `morph/project/`, from the version sources: the palindrome methods on one slide
 per version where they change, each slide morphing into the next with a magic-move transition, so the code changes in
-place. Its artifact is <https://claude.ai/artifact/D5M6ykhDMvCngXQxsWriTy>. It's generated, so it's never edited by
+place. Its artifact is <https://claude.ai/artifact/RYU4d3bpEjxvV7MX1sfTKb>. It's generated, so it's never edited by
 hand: after a code change, run `talk/morph.py` and publish `morph/project/` to the artifact with `morph/` as the root.
 How it matches tokens between versions is in `../DESIGN.md`.
+
+## The annotated deck
+
+`annotated.py` generates a third deck, `annotated/project/`, that merges the other two. The talk deck's framing and
+side-topic slides (`Eq`, value classes, SAM, the 2 → 3 table) are copied in, restyled to its dark palette with their
+code highlighted like the code slides. The code slides are the morph deck's,
+with handwritten notes in speech bubbles that point at the code they explain and fade in one per click after each
+morph. Where a talk slide interrupts the morph, the code is shown again afterwards, so the next change still morphs.
+The notes and the slide order are in `annotated.py` (`NOTES`, `SEQUENCE`), and the bubbles are placed automatically
+next to their code. Its artifact is <https://claude.ai/artifact/36zpmLsjkc1dcmvW7n6JPr>. It's generated too: after changing the
+code, the talk deck's slides or the notes, run `talk/annotated.py`, check it with
+`talk/render.py --screenshots talk/annotated`, and publish `annotated/project/` with `annotated/` as the root.
 
 ## Checking the layout
 
 ```bash
 talk/render.py                 # measure every slide; exit 1 if anything overflows
 talk/render.py --screenshots   # also write out/talk-render/shots/*.png and contact sheets out/talk-render/sheet*.png
+talk/render.py --screenshots talk/annotated   # the same for another deck, into out/talk-render/annotated/
 ```
 
 Each slide is laid out on the deck's 1920×1080 canvas, with the deck's fonts, and measured:

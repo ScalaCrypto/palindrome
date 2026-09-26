@@ -158,28 +158,7 @@ def isPalindrome[A](xs: Seq[A])(using eq: Eq[A]): Boolean = xs match
 The diff between Stage 3 and Stage 4 *is* the headline of the 2→3 transition — read in
 seconds. `given` for `implicit val`, `using` for `implicit`, braces gone.
 
-### Stage 5 — the answer says something: ADTs (sealed trait vs enum)
-
-Stop returning `Boolean`; report *where* it breaks.
-
-```scala
-// Scala 2
-sealed trait PalindromeResult
-object PalindromeResult {
-  case object Palindrome extends PalindromeResult
-  final case class BreaksAt(index: Int) extends PalindromeResult
-}
-
-// Scala 3
-enum PalindromeResult:
-  case Palindrome
-  case BreaksAt(index: Int)
-```
-
-Keep it to two cases; resist growing it. Pulls a minimal slice of output-enrichment into
-service just to showcase `enum` — no Manacher's algorithm here (see §5).
-
-### Stage 5b — make one: the collections redesigns (2.8 `CanBuildFrom`, 2.13 `BuildFrom`)
+### Stage 5 — make one: the collections redesigns (2.8 `CanBuildFrom`, 2.13 `BuildFrom`)
 
 So far we only *read* collections, which is why the biggest library change in Scala's
 history — the 2.8 collections redesign — hasn't shown up. Turn the question around: once
@@ -189,22 +168,20 @@ with our own `isPalindrome`, and mirrors only what comes before it. So it takes 
 and the type-class thread meets the collections thread in one signature. Only one new
 demand comes from the problem: give back the same kind of collection you were given.
 
-The name sits with `isPalindrome` and `checkPalindrome`, and it's a verb like the
+The name sits with `isPalindrome`, and it's a verb like the
 collection operations it's built from (`reverse`, `map`). It adds the fewest elements
 possible, which is also what "palindromize" means on puzzle sites.
 
 ```scala
-// Every version: where the longest palindromic suffix starts (the Eq decides what counts)
-private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-  (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
-
-// Scala 2.7 — generic code can only promise a Seq
-def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] =
-  xs ++ xs.take(palindromicSuffixStart(xs)).reverse                // "abcb" gives a Seq[Char]
+// Scala 2.7 — generic code can only promise a Seq; the empty suffix always matches, so .get is safe
+def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = {
+  val start = (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+  xs ++ xs.take(start).reverse                                    // "abcb" gives a Seq[Char]
+}
 
 // Scala 2.8 — CanBuildFrom: a builder for the caller's own collection type
 def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
-  val start = palindromicSuffixStart(xs.toSeq)
+  val start = (0 to xs.length).find(i => isPalindrome(xs.toSeq.drop(i))).get
   val b = bf(xs.repr)
   b ++= xs.iterator
   b ++= xs.reverseIterator.drop(xs.length - start)
@@ -219,7 +196,7 @@ def palindromize[Repr, A0](xs: Repr)(
 extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
     val ops = seq(xs)
-    val start = palindromicSuffixStart(ops.toSeq)
+    val start = (0 to ops.length).find(i => ops.toSeq.drop(i).isPalindrome).get
     val b = bf.newBuilder(xs)
     b ++= ops
     b ++= ops.reverseIterator.drop(ops.length - start)
@@ -227,8 +204,8 @@ extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
 ```
 
 `reverseIterator.drop(length - start)` yields the elements before the suffix, reversed.
-If a slide needs to be shorter, drop the helper from it and just say "find the longest
-palindromic suffix". Say out loud that the helper is O(n²): a linear version exists
+The `start` line is the same search in every version: "find the longest palindromic
+suffix". Say out loud that it's O(n²): a linear version exists
 (based on the KMP string-matching algorithm), but like Manacher's it's an algorithm topic,
 not a language one.
 
@@ -265,7 +242,10 @@ implicit class PalindromeOps[A](private val xs: Seq[A]) extends AnyVal {
 
 // Scala 3 — the extension *is* the function: isPalindrome(xs) and xs.isPalindrome both work
 extension [A](xs: Seq[A])(using eq: Eq[A])
-  def isPalindrome: Boolean = xs.checkPalindrome == Palindrome
+  @tailrec
+  def isPalindrome: Boolean = xs match
+    case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome
+    case _                => true
 ```
 
 End on `Seq("a", "b", "a").isPalindrome` — the function has grown from a string-only
@@ -288,8 +268,6 @@ explains the choices. The samples differ from the slides above in two ways:
   samples use a universal default (`==`) in `Eq`'s companion plus an opt-in
   `Eq.caseInsensitive`, passed explicitly or put in scope. This keeps
   `Seq("a", "b", "a")` working and case-sensitive checks the default.
-- **Stage 5 naming.** `checkPalindrome` returns the `PalindromeResult`; `isPalindrome`
-  stays `Boolean` (`checkPalindrome == Palindrome`).
 - **Scala 2 wrapper shape.** For `xs.palindromize` to keep the collection type, the Scala 2
   wrapper carries `Repr`: `SeqLike[A, Repr]` in 2.8–2.12, and an `IsSeq`-based wrapper in
   2.13. The slides show only the `palindromize` signatures.
@@ -378,9 +356,13 @@ topic, not a language-history one, and would staple a second talk onto this one.
 ## 6. Open items
 
 - [ ] Confirm title: `A brief history Scala` → **A Brief History of Scala**?
-- [ ] Decide whether Stage 5b (`palindromize`, the 2.8 and 2.13 collections redesigns) stays:
+- [ ] Decide whether Stage 5 (`palindromize`, the 2.8 and 2.13 collections redesigns) stays:
       it adds about two slides to a budget §2 already calls full. If it stays, consider
       adding "the collections redesigns" to the description's paragraph-3 tour list.
+- [ ] The description (§2) still promises "contrasting sealed-trait ADTs with Scala 3
+      enums", but the code has no result ADT any more. Either say it in one line on the
+      3.0 slide (`sealed trait` + `case object`/`case class` → `enum`) or drop "ADTs"
+      from the description if it can still be edited.
 - [ ] Decide final scope: keep §4 CanEqual and/or §5 opaque types in, or leave cut
       (and keep description paragraph-3 list in sync either way).
 - [ ] Map the old-ways/new-ways split concretely to Odd vs Martin for the double act.

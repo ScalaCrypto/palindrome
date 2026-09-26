@@ -5,7 +5,7 @@
   "order": [
     "cover", "premise", "timeline", "oneliner",
     "scala2", "s25-types", "s25-loop", "s28-tailrec", "s28-cbf", "s210-extractors", "s210-valueclass", "s212-sam", "s213-buildfrom",
-    "scala3", "s30-collapse", "s30-extension", "s30-palindromize", "s36-syntax", "s37-patterns",
+    "scala3", "s30-collapse", "s30-extension", "s30-palindromize", "s36-syntax",
     "final", "takeaways", "thanks"
   ],
   "sections": {

@@ -79,10 +79,12 @@ and on a meaningful error path, so the evaluator wins on overall coverage.
 (`scaladays-2026-talk.md`) doesn't swap the example to fix the limitation above. It grows
 the problem instead, so each headline change is still needed:
 
-- ADT: `PalindromeResult` (`Palindrome` | `BreaksAt(index)`), sealed trait → `enum`
 - contextual abstraction: equality as an `Eq` type class, `implicit` → `given` / `using`
-- the richer answer: `BreaksAt` reports where a non-palindrome breaks, in place of an
-  error path
+- building a collection: `palindromize` returns the input's own collection type, which
+  brings in the 2.8 and 2.13 collections redesigns
+
+The ADT stays out. A result type that reports where a non-palindrome breaks made every
+version longer for one sealed trait → `enum` beat, so `isPalindrome` returns a `Boolean`.
 
 The evaluator and its version-by-version draft are therefore not pursued. The repo
 implements the palindrome design for every version from 2.5 to 3.9 (see `STATE.md` and

@@ -17,41 +17,27 @@ object Eq {
   }
 }
 
-// The answer says more than true or false: where a non-palindrome breaks.
-sealed trait PalindromeResult
-object PalindromeResult {
-  case object Palindrome extends PalindromeResult
-  final case class BreaksAt(index: Int) extends PalindromeResult
-}
-
 // Scala 2 has no top-level definitions, so the functions live in an object.
 object Palindrome {
-  def checkPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): PalindromeResult = {
+  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = {
     // Tail-recursive, so scalac compiles it to a loop; @tailrec to check that arrives in 2.8.
-    def loop(from: Int): PalindromeResult = {
+    def loop(from: Int): Boolean = {
       val to = xs.length - 1 - from
-      if (from >= to) PalindromeResult.Palindrome
-      else if (eq.eqv(xs(from), xs(to))) loop(from + 1)
-      else PalindromeResult.BreaksAt(from)
+      from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))
     }
     loop(0)
   }
 
-  def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean =
-    checkPalindrome(xs) == PalindromeResult.Palindrome
-
   // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
-  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
   // Without a way to build "the same collection type", generic code can only promise a Seq.
-  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = xs ++ xs.take(palindromicSuffixStart(xs)).reverse
-
-  // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
-  private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
-    (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = {
+    val start = (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+    xs ++ xs.take(start).reverse
+  }
 
   // Method syntax (xs.isPalindrome) through an implicit conversion to a wrapper.
   class PalindromeOps[A](xs: Seq[A]) {
-    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs)
     def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs)
     def palindromize(implicit eq: Eq[A]): Seq[A] = Palindrome.palindromize(xs)
   }
