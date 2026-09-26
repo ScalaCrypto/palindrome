@@ -1,0 +1,21 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-09-26T12:00:00Z"},
+  "title": "A Brief History of Scala",
+  "order": [
+    "cover", "premise", "timeline", "oneliner",
+    "scala2", "s25-types", "s25-loop", "s28-tailrec", "s28-cbf", "s210-extractors", "s210-valueclass", "s212-sam", "s213-buildfrom",
+    "scala3", "s30-collapse", "s30-extension", "s30-palindromize", "s36-syntax", "s37-patterns",
+    "final", "takeaways", "thanks"
+  ],
+  "sections": {
+    "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},
+    "scala2": {"description": "Scala 2.5 to 2.13: the ideas arrive before the syntax", "start": "scala2"},
+    "scala3": {"description": "Scala 3.0 to 3.9: the big collapse, then refinements", "start": "scala3"},
+    "closing": {"description": "Where isPalindrome ends up, and what the journey says", "start": "final"}
+  },
+  "faces": {
+    "ibm-plex-sans": {"family": "IBM Plex Sans", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"},
+    "ibm-plex-mono": {"family": "IBM Plex Mono", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap"}
+  }
+}

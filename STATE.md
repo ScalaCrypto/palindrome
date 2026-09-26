@@ -81,6 +81,10 @@ palindrome/
 │               └── PalindromeSuite.scala # Test suite (AnyFunSuite)
 ├── tools/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
+├── talk/
+│   ├── README.md                   # How the deck, its artifact and the render check fit together
+│   ├── deck/project/               # The slide deck: deck.json + slides/<id>.html (claude.ai Slides format)
+│   └── render.py                   # Renders the deck in headless Chrome; exit 1 on overflow; --screenshots
 ├── .github/workflows/
 │   └── evolution.yml               # CI: runs tools/evolution.py --check
 ├── .claude/settings.json           # Claude Code hook: regenerates EVOLUTION.md after edits to versions
@@ -182,6 +186,10 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
+- **Keep `talk/deck/` in step with the deck's artifact**: the deck is edited and presented as a claude.ai Slides
+  artifact, and `talk/deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
+  copied from the sources and isn't checked against them: after a code change, compare the affected slides with
+  `EVOLUTION.md`, and run `talk/render.py` after changing slides.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -196,6 +204,7 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
+talk/render.py           # check the slide deck's layout (needs Chrome); --screenshots for PNGs
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.

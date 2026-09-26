@@ -1,0 +1,21 @@
+<section id="s28-cbf" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:28px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 2.8 · 2010 · the collections redesign</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">Make one: the answer keeps your type</h2>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:28px 44px; display:flex; flex-direction:column">
+<p style="font-size:24px; line-height:1.4; color:#F2A65A">Scala 2.7</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): <span style="color:#F2A65A">Seq[A]</span> =</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;xs ++ xs.take(palindromicSuffixStart(xs)).reverse&#160;&#160;&#160;<span style="color:#9AA3AF">// "abcb": a Seq[Char]</span></p>
+</div>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:28px 44px; display:flex; flex-direction:column">
+<p style="font-size:24px; line-height:1.4; color:#F2A65A">Scala 2.8</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">def palindromize[A, <span style="color:#F2A65A">Repr</span>](xs: <span style="color:#F2A65A">SeqLike[A, Repr]</span>)(</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;implicit eq: Eq[A], <span style="color:#F2A65A">bf: CanBuildFrom[Repr, A, Repr]</span>): <span style="color:#F2A65A">Repr</span> = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val start = palindromicSuffixStart(xs.toSeq)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val b = bf(xs.repr)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= xs.iterator</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= xs.reverseIterator.drop(xs.length - start)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b.result</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">}&#160;&#160;&#160;<span style="color:#9AA3AF">// "abcb": the String "abcba"</span></p>
+</div>
+<aside>Turn the question around: once we can check palindromes, build one. palindromize returns the shortest palindrome starting with the input: it finds the longest palindromic suffix with our own isPalindrome (the helper palindromicSuffixStart, identical in every version, so it takes an Eq) and mirrors only what comes before it. The problem demands one thing: give back what you were given. In 2.7 generic code can only promise a Seq. In 2.8, SeqLike[A, Repr] names the concrete type and CanBuildFrom is a factory for builders of it: bf(xs.repr) gives a builder, and we fill it. Be honest: it worked, and the signatures scared people. The helper is O(n²); a linear KMP-based version exists but it's an algorithm topic.</aside>
+</section>

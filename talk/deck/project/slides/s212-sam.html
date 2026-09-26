@@ -1,0 +1,17 @@
+<section id="s212-sam" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">Scala 2.12 · 2016</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">Type class instances become lambdas</h2>
+<p style="font-size:32px; line-height:1.4; color:#4A5160">Eq has a single abstract method, so a lambda can implement it. 2.11 answers: “missing parameter type”.</p>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px; display:flex; flex-direction:column">
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− implicit def universal[A]: Eq[A] = new Eq[A] {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">−&#160;&#160;&#160;def eqv(x: A, y: A): Boolean = x == y</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− }</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ implicit def universal[A]: Eq[A] = <span style="color:#F2A65A">(x, y) =&gt; x == y</span></p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− val caseInsensitive: Eq[Char] = new Eq[Char] {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">−&#160;&#160;&#160;def eqv(x: Char, y: Char): Boolean = x.toLower == y.toLower</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− }</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ val caseInsensitive: Eq[Char] = <span style="color:#F2A65A">(x, y) =&gt; x.toLower == y.toLower</span></p>
+</div>
+<aside>SAM conversion: two anonymous classes shrink to one line each. A good moment for the old-ways speaker to concede one.</aside>
+</section>

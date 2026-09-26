@@ -5,6 +5,60 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-26 — `talk/`: the slide deck and a layout check in the repo
+
+### What changed
+
+`talk/deck/project/` holds the deck for the talk: `deck.json` plus one HTML file per slide, in the format of the
+claude.ai Slides artifact it's presented from (22 slides, drafted from `EVOLUTION.md` and the talk spec).
+`talk/render.py` renders every slide in headless Chrome on the 1920×1080 canvas, with the deck's fonts. It exits 1 if
+anything crosses the margins or overflows its container, and `--screenshots` writes one PNG per slide plus contact
+sheets. `talk/README.md` explains how the files and the artifact are kept in step.
+
+### Why
+
+The deck only existed as an artifact, and its source files and the render check only in a session's temporary
+directory. The repo is where the talk's code lives, so the deck's source belongs next to it, under version control.
+The render check found the deck's one real problem so far (see below), so it's worth being able to run again.
+
+### Alternatives rejected
+
+- **Committing the generator that produced the 19 versions' sources.** It was a one-off template script. The sources
+  are what's compiled and tested; keeping the generator would be a second copy of all the code to keep in sync, and
+  `EVOLUTION.md` already records how the versions differ.
+- **Moving the talk spec and problem-selection docs into `talk/`.** Several documents and `tools/evolution.py` point
+  at them where they are; moving them is churn without a benefit.
+- **Committing the downloaded fonts or the screenshots.** Both are reproducible, and the screenshots change with
+  every edit. They go to the git-ignored `out/talk-render/`.
+- **One tall screenshot of all slides, cropped per slide** (the first approach). Chrome corrupted the bottom of very
+  tall screenshots, and macOS `sips` ignores a crop offset of 0. One page per slide avoids both.
+- **Google Fonts loaded over the network during rendering.** With virtual time, headless Chrome hung. The fonts are
+  downloaded once and served from local files.
+- **Waiting for Chrome to exit.** On macOS, headless Chrome writes its output and then keeps running, so every call
+  took a minute until a time limit killed it. The script polls for the DOM dump or the finished PNG and stops Chrome
+  then: 20 seconds for the full check with screenshots, instead of about 45 minutes.
+- **JetBrains Mono for code** (the deck's first code font). Its programming ligatures showed `==` as `═`, `>=` as `≥`
+  and `=>` as `⇒`, which misleads when the syntax is the subject, and the slide format can't switch ligatures off.
+  The deck uses IBM Plex Mono, which has none and matches IBM Plex Sans.
+
+### Limitations accepted
+
+- The artifact and `talk/deck/` can drift; syncing is a manual step, described in `talk/README.md` and `STATE.md`.
+- The slides' code isn't checked against the sources.
+- `render.py` approximates the artifact's renderer: it applies the format's defaults, but doesn't run the artifact's
+  own page code.
+- `render.py` needs Chrome and network access for the first font download, so it isn't part of CI.
+
+### Verification
+
+- `talk/deck/project/` was read back from the published artifact, not copied from local drafts.
+- `talk/render.py --screenshots` passes on all 22 slides in about 20 seconds. The only report is the takeaways
+  heading, which is meant to take two lines. The contact sheets were inspected.
+- With a code line made too long on one slide, the script failed, naming the slide and the overflow (154px), and
+  passed again once the slide was restored.
+
+---
+
 ## 2026-09-26 — `palindromize`: showing the 2.8 and 2.13 collections redesigns
 
 ### What changed
