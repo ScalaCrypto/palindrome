@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // empty' | { read -r f; case \"$f\" in */[23]/[0-9]*/src/Palindrome.scala|*/[23]/[0-9]*/test/src/PalindromeSuite.scala|*/[23]/[0-9]*/NOTES.md) \"$CLAUDE_PROJECT_DIR/tools/evolution.py\" >/dev/null || exit 2 ;; esac; }",
+            "timeout": 30,
+            "statusMessage": "Regenerating EVOLUTION.md"
+          }
+        ]
+      }
+    ]
+  }
+}

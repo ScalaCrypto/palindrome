@@ -1,0 +1,16 @@
+# EVOLUTION.md is generated from the version directories; fail when it no longer matches the code.
+name: EVOLUTION.md up to date
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: tools/evolution.py --check
