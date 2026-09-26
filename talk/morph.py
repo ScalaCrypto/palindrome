@@ -4,8 +4,7 @@ into the next with a magic-move transition, so the code changes in place.
 
 Usage: talk/morph.py
 
-The code comes from each version's src/Palindrome.scala: checkPalindrome, isPalindrome, palindromize and its helper
-palindromicSuffixStart, without comments. Only versions where that code changes get a slide; the slide is labelled
+The code comes from each version's src/Palindrome.scala: isPalindrome and palindromize, without comments. Only versions where that code changes get a slide; the slide is labelled
 with the range of versions that share it.
 
 How the morph works: the Slides format's magic move animates every pinned element that has the same id on two
@@ -23,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "talk/morph/project"
 
-# (directory, first year, NOTES.md that introduced the code); the first version of each run of identical code.
+# The version directories, oldest first.
 VERSIONS = ["2/5", "2/6", "2/7", "2/8", "2/9", "2/10", "2/11", "2/12", "2/13",
             "3/0", "3/1", "3/2", "3/3", "3/4", "3/5", "3/6", "3/7", "3/8", "3/9"]
 YEARS = {"2.5": 2007, "2.8": 2010, "2.10": 2013, "2.11": 2014, "2.12": 2016, "2.13": 2019, "3.0": 2021, "3.6": 2024,
@@ -43,7 +42,7 @@ TOKEN = re.compile(r"\s+|@?[A-Za-z_][A-Za-z0-9_]*|\d+|\"[^\"]*\"|[-+*/<>=!:&|^%~
 def extract(src: str) -> list[str]:
     """The palindrome methods of one version, without comments and with the object's indentation removed."""
     lines = src.splitlines()
-    start = next(i for i, l in enumerate(lines) if re.match(r"\s*(def checkPalindrome|extension \[A)", l))
+    start = next(i for i, l in enumerate(lines) if re.match(r"\s*(@tailrec|def isPalindrome|extension \[A)", l))
     end = next((i for i, l in enumerate(lines) if "Method syntax" in l), len(lines))
     body = [l for l in lines[start:end] if not l.strip().startswith("//")]
     indent = min(len(l) - len(l.lstrip()) for l in body if l.strip())

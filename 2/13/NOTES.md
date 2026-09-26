@@ -1,6 +1,6 @@
 # The collections redesign again: `CanBuildFrom` gives way to `IsSeq` and `BuildFrom`
 
-2.13 rewrote the collections a second time, and `palindromize` has to change with it (talk stage 5b):
+2.13 rewrote the collections a second time, and `palindromize` has to change with it (talk stage 5):
 
 - **The 2.8 version stops working.** `StringOps` is no longer a collection, so a `String` only becomes a `SeqLike` by
   wrapping it in a `WrappedString`, and `Repr` is inferred as `WrappedString`. `val s: String = palindromize("abc")` then

@@ -5,13 +5,73 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-26 — No result ADT: only `isPalindrome` and `palindromize`
+
+### What changed
+
+Every version drops `PalindromeResult` (`Palindrome` | `BreaksAt(index)`), `checkPalindrome` and the private helper
+`palindromicSuffixStart`. `isPalindrome` returns its `Boolean` directly. In 2.5–2.9 an inner `loop` walks an index
+inward with `from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))`. From 2.10, `isPalindrome` recurses on
+itself through `case x +: middle :+ y => eq.eqv(x, y) && isPalindrome(middle)`, with `@tailrec` on the method. In
+Scala 3, that's `middle.isPalindrome` inside the extension. `palindromize` inlines the suffix search as its first line:
+`val start = (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get` (on `xs.toSeq` from 2.8, on `ops.toSeq` from
+2.13).
+
+The tests lose the `checkPalindrome` assertions and 3.7's named-pattern test. "isPalindrome finds a mismatch inside
+matching ends" keeps what the `BreaksAt(2)` cases checked: `"abcxba"` and `1, 2, 3, 4, 2, 1` aren't palindromes.
+3.7 no longer differs from 3.6, so its `NOTES.md` is gone and eight versions change the code. The talk's stage 5 (the
+ADT) is removed and 5b becomes stage 5. Both decks follow: the talk deck loses the 3.7 slide and the ADT from the 2.5
+and 3.0 slides. The morph deck is regenerated, and `talk/morph.py` finds the code by `@tailrec` or `def isPalindrome`.
+This branch's decks are published to new artifacts (<https://claude.ai/artifact/4nvk9BRuCLeutLsoEpQt3d> and
+<https://claude.ai/artifact/RYU4d3bpEjxvV7MX1sfTKb>), so the artifacts of the branch it's stacked on still match that
+branch's code.
+
+### Why
+
+The ADT carried one beat (`sealed trait` → `enum`) and cost every version three definitions. `checkPalindrome`
+needed a loop with an extra `from` parameter just to report the index, and `isPalindrome` became a comparison against
+`Palindrome`. Without the ADT, the recursion in 2.10+ and Scala 3 is exactly the talk spec's stages 2–4, with no inner
+helper. On the slides, the code that changes between versions is now the part the talk is about.
+
+### Alternatives rejected
+
+- **Keep `BreaksAt` and drop only `checkPalindrome`'s wrapper methods.** It still needs the `from`-carrying loop and
+  the ADT definitions, which is most of the cost.
+- **Move 3.7's named-pattern test onto something else.** Nothing left in the code has a case class with a named
+  field to match. A test invented for the syntax would add a difference the problem doesn't ask for.
+- **Keep `palindromicSuffixStart` as a named helper.** It's one expression, used once. Inlined as `val start = …`, it
+  reads in place, and the 2.8 → 2.13 → 3.0 diffs of `palindromize` still show only how the result gets built.
+- **Rewrite the submitted talk description.** It still promises "contrasting sealed-trait ADTs with Scala 3 enums".
+  That's recorded as an open item in the talk spec instead: say it in one line on the 3.0 slide, or edit the
+  description if that's still possible.
+- **Publish the simplified decks over the existing artifacts.** The branch this one is stacked on would then have
+  artifacts that don't match its code. New artifacts keep each branch self-consistent. Merging this branch means
+  switching to the new links, which its `talk/README.md` already does.
+
+### Limitations accepted
+
+- `isPalindrome` no longer says where a non-palindrome breaks.
+- Scala 2's `from >= to || (… && loop(from + 1))` is denser than the `if`/`else if`/`else` it replaces. It's kept
+  because it mirrors the `eq.eqv(x, y) && isPalindrome(middle)` that follows in 2.10.
+- The morph deck keeps its one-row header and 80px margins. The code is now 16 lines at most, and it would fit under
+  the talk deck's larger headings too, but the header was left as it is.
+
+### Verification
+
+`./mill __.test`: 14 versions, 11 tests each, all pass. That includes `@tailrec` on the self-recursive `isPalindrome`
+in 2.10–2.13 and on the Scala 3 extension method. `legacy/test.sh`: 2.5–2.9 pass, including 2.8's `@tailrec` through
+`||` and `&&`. `tools/evolution.py --check` passes. `talk/render.py`: all 21 slides pass (s28-cbf is the tightest, at
+941 of 952px). `talk/morph.py`: 25px code, 69–90 runs per slide. Every id shared by neighbouring slides has the same
+text (64–75 per transition), and the rightmost run ends at x=1782.
+
+---
+
 ## 2026-09-26 — `talk/morph.py`: a deck where the code changes in place
 
 ### What changed
 
 `talk/morph.py` generates a second deck, `talk/morph/project/` (the claude.ai Slides format, artifact
-<https://claude.ai/artifact/D5M6ykhDMvCngXQxsWriTy>). It shows `checkPalindrome`, `isPalindrome`, `palindromize` and
-`palindromicSuffixStart`, without comments, on one slide per distinct state of that code. That's six slides: 2.5–2.7,
+<https://claude.ai/artifact/RYU4d3bpEjxvV7MX1sfTKb>). It shows `isPalindrome` and `palindromize`, without comments, on one slide per distinct state of that code. That's six slides: 2.5–2.7,
 2.8–2.9, 2.10–2.12, 2.13, 3.0–3.5 and 3.6–3.9. Each slide leaves with the format's magic-move transition, so tokens
 that survive into the next version glide to their new place, and the rest fade out or in.
 

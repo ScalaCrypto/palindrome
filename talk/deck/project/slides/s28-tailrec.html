@@ -7,7 +7,7 @@
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">&#160;&#160;…</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− // Tail-recursive, so scalac compiles it to a loop; @tailrec to check that arrives in 2.8.</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ @tailrec</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def loop(from: Int): PalindromeResult = {</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;def loop(from: Int): Boolean = {</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">&#160;&#160;…</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; color:#8A93A0">− def eqv(x: Char, y: Char): Boolean = Character.toLowerCase(x) == Character.toLowerCase(y)</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap; background:#2A4468; color:#FFFFFF">+ def eqv(x: Char, y: Char): Boolean = x.toLower == y.toLower</p>

@@ -11,7 +11,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck and the artifact
 
 The deck is presented and edited as a claude.ai Slides artifact:
-<https://claude.ai/artifact/PHcDucovro6sTQXs2Xcnbr> (private until shared from its Share menu). `deck/project/` is the
+<https://claude.ai/artifact/4nvk9BRuCLeutLsoEpQt3d> (private until shared from its Share menu). `deck/project/` is the
 versioned copy of it. Keep the two in step:
 
 - **After editing the artifact** (in the browser, or through Claude): read its files back into `deck/project/` and
@@ -27,7 +27,7 @@ the sources, so after a code change, compare the affected slides with `EVOLUTION
 
 `morph.py` generates a second deck, `morph/project/`, from the version sources: the palindrome methods on one slide
 per version where they change, each slide morphing into the next with a magic-move transition, so the code changes in
-place. Its artifact is <https://claude.ai/artifact/D5M6ykhDMvCngXQxsWriTy>. It's generated, so it's never edited by
+place. Its artifact is <https://claude.ai/artifact/RYU4d3bpEjxvV7MX1sfTKb>. It's generated, so it's never edited by
 hand: after a code change, run `talk/morph.py` and publish `morph/project/` to the artifact with `morph/` as the root.
 How it matches tokens between versions is in `../DESIGN.md`.
 
