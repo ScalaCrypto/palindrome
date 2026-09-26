@@ -5,6 +5,123 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-26 — `palindromize`: showing the 2.8 and 2.13 collections redesigns
+
+### What changed
+
+Every version gains `palindromize`, which builds the shortest palindrome that starts with `xs` (`"abcb"` →
+`"abcba"`, `"abb"` → `"abba"`, `"racecar"` unchanged). A private helper, `palindromicSuffixStart`, is identical in
+every version apart from syntax. It finds the longest suffix that's already a palindrome, using `isPalindrome` and
+therefore an `Eq`, and only the elements before it are mirrored (`reverseIterator.drop(length - start)`). From 2.8
+the result has the input's own collection type. It's available as a function and as a method (`xs.palindromize`)
+in every version. The talk spec gains a matching
+Stage 5b. The function's signature shows the collections story:
+
+- **2.5–2.7**: `palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A]`. The type is lost: `"abcb"` gives a
+  `Seq[Char]`.
+- **2.8–2.12**: `palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]):
+  Repr`, filling the builder `bf(xs.repr)`.
+- **2.13**: `palindromize[Repr, A0](xs: Repr)(implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0],
+  bf: BuildFrom[Repr, A0, Repr])`. 2.13 now differs from 2.12.
+- **3.0**: an `extension [Repr](xs: Repr)(using seq: IsSeq[Repr])` whose `palindromize` takes
+  `(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr])`. From 3.6 it's written `[Repr: IsSeq as seq]`.
+
+For method syntax, the Scala 2 `PalindromeOps` wrapper carries the collection type, and its shape follows each
+redesign:
+
+- **2.5–2.7**: `PalindromeOps[A](xs: Seq[A])`.
+- **2.8–2.12**: `PalindromeOps[A, Repr](xs: SeqLike[A, Repr])`, an implicit value class from 2.10. The Boolean
+  methods pass `xs.toSeq` on.
+- **2.13**: the pattern the 2.13 docs give for custom collection operations. An `implicit def palindromeOps[Repr](xs:
+  Repr)(implicit seq: IsSeq[Repr])` returns a `PalindromeOps[Repr, seq.type]` (not a value class), and it needs
+  `import scala.language.implicitConversions`. Because the conversion starts from `String` itself, `"racecar"
+  .isPalindrome` and `"abc".palindromize` work in Scala 2 for the first time, and the 2.13 tests use them.
+
+### Why
+
+The 2.8 collections redesign is the largest change between neighbouring releases, yet the 2.7 → 2.8 diff only showed
+`@tailrec` and `toLower`. `isPalindrome` only *reads* collections, and `CanBuildFrom` only matters when generic code
+*builds* one of the type it was given. Following the talk's rule (add machinery only when the problem demands
+it), the problem grows by one step: after checking a palindrome, make one. "Give me back what I gave you" is exactly
+what `CanBuildFrom` exists for, and `"abc"` → `"abcba"` makes it visible in one line.
+
+*Shortest* palindrome, not just "xs followed by its reverse", because it's the answer a reader expects, and because
+finding the palindromic suffix reuses `isPalindrome`. That makes `palindromize` depend on `Eq`, so the type-class
+thread and the collections thread meet in one signature. It costs one helper, which is the same in every version,
+so the per-version diffs still show only how the result gets built.
+
+The name `palindromize` shares the stem of `isPalindrome` and `checkPalindrome`. It's a verb, like the collection
+operations it's built from (`reverse`, `map`, `filter`), it means "add the fewest elements" on puzzle sites (as
+ours now does), and `xs.palindromize.isPalindrome` always holds.
+
+Method syntax is included because every other operation has it, so a function-only `palindromize` stood out. The
+wrapper's changing shape is part of the collections story rather than noise: carrying `Repr` is exactly what the 2.8
+design asked of library authors, and the 2.13 `IsSeq` pattern is what replaced it.
+
+### Alternatives rejected
+
+- **Other names.** `mirrored` describes the mechanics but doesn't say "palindrome". `palindrize` isn't a word and
+  drops the shared stem. `toPalindrome` suggests a conversion to a type named `Palindrome`, which is also our result
+  case. `palindromized` follows `sorted`, but participles are the exception in Scala's collections.
+- **Mirroring the whole sequence** (`xs` + reverse without the first element: `"abcb"` → `"abcbcba"`). Simpler, but
+  not the shortest, doesn't use `Eq`, and turns `"racecar"` into a 13-character palindrome.
+- **A linear-time suffix search** (via the KMP failure function on the reverse of `xs`, a separator, then `xs`). It's
+  an algorithm topic, not a language one, like the Manacher's algorithm the talk already excludes. The O(n²)
+  "try each suffix" helper is one line and reuses `isPalindrome`.
+- **`==` instead of `Eq` in the suffix search.** Then `palindromize` and `isPalindrome` could disagree: with
+  `Eq.caseInsensitive` in scope, `palindromize("abA")` would return a string that `isPalindrome` already accepted
+  as it was.
+- **A version-specific suffix search** (e.g. `tails` from 2.9, or a `@tailrec` helper). It would add diffs that
+  aren't about the collections redesigns.
+- **A filtering or normalizing operation** (e.g. dropping ignored characters). `filter` already returns `Repr` in
+  2.8 without any implicit, so no `CanBuildFrom` would appear in our code.
+- **Passing the `CanBuildFrom` through to `++`** (`xs ++ xs.reverseIterator.drop(…)`). It's shorter, but it hides
+  what the implicit *is*. Filling the builder by hand shows it's a builder factory. It also makes the 2.13 diff tiny
+  (`bf(xs.repr)` → `bf.newBuilder(xs)`), so the slide is about the signature.
+- **The 2.13 "no implicit needed" form**, `palindromize[A, CC[X] <: SeqOps[X, CC, CC[X]]](xs: CC[A]): CC[A]`. It
+  shows that ordinary code lost `CanBuildFrom`, but a `String` then comes back as an `IndexedSeq[Char]`. Keeping
+  `String` working is the point of the example, and `IsSeq` + `BuildFrom` is the documented 2.13 way to do that.
+- **In 2.13, a second wrapper for `palindromize` next to the `Seq[A]` value class.** It would keep the value class
+  for the Boolean methods, but two conversions with overlapping receivers are harder to read. One `IsSeq` wrapper
+  serves all three methods and brings `String` method syntax.
+- **In 2.13, the wrapper method written without the explicit `[Repr, seq.A]` and `seq: seq.type`.** It doesn't
+  compile: scalac can't unify `seq.A` (with `seq: S`) with the function's `{ type A = A0 }` refinement. The
+  alternative, duplicating the five-line body in the wrapper, would let the two copies drift apart.
+- **`IsTraversableLike` in 2.10–2.12**, which would allow `"abc".palindromize` before 2.13. It adds a third mechanism
+  without a new language feature, and it doesn't fit the implicit value class.
+
+### Limitations accepted
+
+- The suffix search is O(n²) on an `IndexedSeq` (up to n suffixes, each checked in O(n)), and O(n³) on a `List`,
+  where each check's `:+` recursion is itself O(n²). `palindromicSuffixStart` also copies a `String` once
+  (`ops.toSeq` / `xs.toSeq`).
+- 2.5–2.12 still can't use method syntax on a `String` (views don't chain), so their tests use the function form for
+  strings.
+- The 2.13 wrapper isn't a value class, reversing the 2.10/2.11 value-class beat. That's the documented 2.13 pattern.
+- 2.5's `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false` (no content-based equality), so the 2.5–2.7
+  tests compare with `.toList` and `.mkString`.
+- The talk's §2 budget was already full. Stage 5b adds about two slides, which is recorded as an open item in the
+  talk spec.
+
+### Verification
+
+- Each form was compiled and run in isolation first. The 2.5–2.7 form returns a `Seq`, with `.toList` equal to the
+  expected `List`. The `SeqLike`/`CanBuildFrom` form returns `String`/`List`/`Vector` on 2.8, 2.9 and 2.12. On 2.13
+  the same code fails for `String` ("found: WrappedString, required: String"). The `IsSeq`/`BuildFrom` form works on
+  2.13. The Scala 3 extension works on 3.0 and 3.9, and the `[Repr: IsSeq as seq]` form on 3.6 and 3.9.
+- The wrappers were prototyped on 2.8, 2.10, 2.12 and 2.13, including `"racecar".isPalindrome`, an explicit
+  `Eq.caseInsensitive` and a local implicit `Eq` on 2.13. The 2.13 wrapper needed the explicit type arguments
+  described above, and `-feature` required the `implicitConversions` import.
+- The 2.10–2.13 sources compile without warnings under `-deprecation -feature`.
+- The shortest-palindrome version was prototyped on 2.5 and 2.7 first: `"abc"`, `"abcb"`, `"abb"`, `"racecar"`, `""`,
+  `"a"` and `"abac"` give `"abcba"`, `"abcba"`, `"abba"`, `"racecar"`, `""`, `"a"` and `"abacaba"`, and `"abA"` stays
+  as it is with `Eq.caseInsensitive`.
+- `./mill __.test`: 2.10–2.13 and 3.0–3.9 pass (11 tests each, 12 in 3.7–3.9). `legacy/test.sh`: 2.5–2.9 pass (11
+  tests each). The tests cover the shortest cases (`"abcb"`, `"abb"`, `"racecar"`, `""`) and an `Eq` in scope.
+- `tools/evolution.py` required a new `2/13/NOTES.md`, and `--check` passes.
+
+---
+
 ## 2026-09-26 — `EVOLUTION.md`: generated per-version diffs as the basis for the slides
 
 ### What changed
@@ -129,7 +246,7 @@ versions would mix design changes with language changes and put features in vers
 
 ### Limitations accepted
 
-- Several versions are identical apart from the header: 2.5–2.7, 2.8–2.9, 2.12–2.13, 3.0–3.5 and 3.6–3.9 (3.7–3.9
+- Several versions are identical apart from the header: 2.5–2.7, 2.8–2.9, 3.0–3.5 and 3.6–3.9 (3.7–3.9
   differ from 3.6 only in the tests). Those releases changed nothing this example uses, and inventing a difference
   would break the "only real changes" rule.
 - From 2.10, the extractor recursion is O(n²) on a `List`, because `:+` needs `init`/`last`. It's linear on an

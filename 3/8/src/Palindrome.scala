@@ -1,5 +1,7 @@
 // Scala 3.8.4
 import scala.annotation.tailrec
+import scala.collection.BuildFrom
+import scala.collection.generic.IsSeq
 import PalindromeResult.*
 
 // Equality as a type class: the caller decides what "the same element" means.
@@ -30,3 +32,19 @@ extension [A: Eq as eq](xs: Seq[A])
     loop(xs, 0)
 
   def isPalindrome: Boolean = xs.checkPalindrome == Palindrome
+
+// The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
+// ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome.
+// IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
+extension [Repr: IsSeq as seq](xs: Repr)
+  def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
+    val ops = seq(xs)
+    val start = palindromicSuffixStart(ops.toSeq)
+    val b = bf.newBuilder(xs)
+    b ++= ops
+    b ++= ops.reverseIterator.drop(ops.length - start)
+    b.result()
+
+// Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
+private def palindromicSuffixStart[A](xs: Seq[A])(using Eq[A]): Int =
+  (0 to xs.length).find(i => xs.drop(i).isPalindrome).get

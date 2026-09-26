@@ -179,6 +179,82 @@ enum PalindromeResult:
 Keep it to two cases; resist growing it. Pulls a minimal slice of output-enrichment into
 service just to showcase `enum` — no Manacher's algorithm here (see §5).
 
+### Stage 5b — make one: the collections redesigns (2.8 `CanBuildFrom`, 2.13 `BuildFrom`)
+
+So far we only *read* collections, which is why the biggest library change in Scala's
+history — the 2.8 collections redesign — hasn't shown up. Turn the question around: once
+we can check palindromes, *build* one: the shortest palindrome that starts with the input.
+`palindromize("abcb") == "abcba"`. It finds the longest suffix that's already a palindrome,
+with our own `isPalindrome`, and mirrors only what comes before it. So it takes an `Eq`,
+and the type-class thread meets the collections thread in one signature. Only one new
+demand comes from the problem: give back the same kind of collection you were given.
+
+The name sits with `isPalindrome` and `checkPalindrome`, and it's a verb like the
+collection operations it's built from (`reverse`, `map`). It adds the fewest elements
+possible, which is also what "palindromize" means on puzzle sites.
+
+```scala
+// Every version: where the longest palindromic suffix starts (the Eq decides what counts)
+private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
+  (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+
+// Scala 2.7 — generic code can only promise a Seq
+def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] =
+  xs ++ xs.take(palindromicSuffixStart(xs)).reverse                // "abcb" gives a Seq[Char]
+
+// Scala 2.8 — CanBuildFrom: a builder for the caller's own collection type
+def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
+  val start = palindromicSuffixStart(xs.toSeq)
+  val b = bf(xs.repr)
+  b ++= xs.iterator
+  b ++= xs.reverseIterator.drop(xs.length - start)
+  b.result
+}                                                                 // "abcb" gives the String "abcba"
+
+// Scala 2.13 — CanBuildFrom is gone; IsSeq + BuildFrom (and a type-refinement wart)
+def palindromize[Repr, A0](xs: Repr)(
+    implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = { ... }
+
+// Scala 3 — same library, but a later using clause may depend on an earlier one
+extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
+  def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
+    val ops = seq(xs)
+    val start = palindromicSuffixStart(ops.toSeq)
+    val b = bf.newBuilder(xs)
+    b ++= ops
+    b ++= ops.reverseIterator.drop(ops.length - start)
+    b.result()
+```
+
+`reverseIterator.drop(length - start)` yields the elements before the suffix, reversed.
+If a slide needs to be shorter, drop the helper from it and just say "find the longest
+palindromic suffix". Say out loud that the helper is O(n²): a linear version exists
+(based on the KMP string-matching algorithm), but like Manacher's it's an algorithm topic,
+not a language one.
+
+Beats, in order:
+- **2.7 → 2.8:** "the answer keeps your type". The signature grows `Repr` and an
+  implicit, which is the famous "`CanBuildFrom` in the Scaladoc" moment. Be honest here:
+  it worked, but the signatures scared people.
+- **2.12 → 2.13:** the 2.8 version *stops compiling* for `String`: "found
+  `WrappedString`, required `String`", because `StringOps` is no longer a collection.
+  `IsSeq`/`BuildFrom` replace it, and the body barely changes (`bf(xs.repr)` →
+  `bf.newBuilder(xs)`). Ordinary code lost `CanBuildFrom` entirely, because `List(...).map`
+  gets its type from `SeqOps[A, CC, C]`. It survives only where the source isn't a
+  collection class, like `String`.
+- **Method syntax rides along** (`xs.palindromize`), and the wrapper changes shape with each
+  redesign. It wraps a `Seq[A]` up to 2.7, a `SeqLike[A, Repr]` in 2.8–2.12, and in 2.13 any
+  `Repr` with an `IsSeq`, via an `implicit def` to `PalindromeOps[Repr, seq.type]`. That
+  last one is no longer a value class and needs `import scala.language.implicitConversions`,
+  but it finally makes `"abc".palindromize` and `"racecar".isPalindrome` work on a Scala 2
+  `String`. Worth one sentence on the 2.13 slide; the code is in the repo, not on the slide.
+- **2.13 → 3:** the `{ type A = A0 }` refinement, the wrapper class, the `seq.type` trick
+  and the feature import all disappear, because a `using` clause can depend on an earlier
+  one. One extension gives both `"abc".palindromize` and `palindromize("abc")`.
+
+Cost: one slide for 2.7/2.8 and one for 2.13/3. If the clock is tight, show only the 2.8
+signature and the Scala 3 version, and mention 2.13 in one line.
+
 ### Stage 6 — the closer: extension method (`implicit class` → `extension`)
 
 ```scala
@@ -214,6 +290,9 @@ explains the choices. The samples differ from the slides above in two ways:
   `Seq("a", "b", "a")` working and case-sensitive checks the default.
 - **Stage 5 naming.** `checkPalindrome` returns the `PalindromeResult`; `isPalindrome`
   stays `Boolean` (`checkPalindrome == Palindrome`).
+- **Scala 2 wrapper shape.** For `xs.palindromize` to keep the collection type, the Scala 2
+  wrapper carries `Repr`: `SeqLike[A, Repr]` in 2.8–2.12, and an `IsSeq`-based wrapper in
+  2.13. The slides show only the `palindromize` signatures.
 
 ---
 
@@ -299,6 +378,9 @@ topic, not a language-history one, and would staple a second talk onto this one.
 ## 6. Open items
 
 - [ ] Confirm title: `A brief history Scala` → **A Brief History of Scala**?
+- [ ] Decide whether Stage 5b (`palindromize`, the 2.8 and 2.13 collections redesigns) stays:
+      it adds about two slides to a budget §2 already calls full. If it stays, consider
+      adding "the collections redesigns" to the description's paragraph-3 tour list.
 - [ ] Decide final scope: keep §4 CanEqual and/or §5 opaque types in, or leave cut
       (and keep description paragraph-3 list in sync either way).
 - [ ] Map the old-ways/new-ways split concretely to Odd vs Martin for the double act.

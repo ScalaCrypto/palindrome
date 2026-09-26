@@ -62,4 +62,20 @@ class PalindromeSuite extends FunSuite {
     assert(isPalindrome("Racecar"))
     assert(checkPalindrome("Racecar") == PalindromeResult.Palindrome)
   }
+
+  test("palindromize builds the shortest palindrome starting with the input") {
+    val s: Seq[Char] = palindromize("abcb")
+    assert(s.mkString("") == "abcba")
+    assert(palindromize(List(1, 2, 3)).toList == List(1, 2, 3, 2, 1))
+    assert(List(1, 2).palindromize.toList == List(1, 2, 1))
+    assert(palindromize("abb").mkString("") == "abba")
+    assert(palindromize("racecar").mkString("") == "racecar")
+    assert(palindromize("").length == 0)
+    assert(isPalindrome(palindromize("scala")))
+  }
+
+  test("palindromize uses the Eq in scope") {
+    implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
+    assert(palindromize("abA").mkString("") == "abA")
+  }
 }

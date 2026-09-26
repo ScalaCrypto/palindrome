@@ -2,7 +2,8 @@ A tour of Scala versions in the view of the isPalindrome
 
 One small program, written idiomatically in 19 Scala releases from 2.5 to 3.9, so you can watch the same code improve
 as language features arrive: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, a result
-ADT that reports where a non-palindrome breaks, and method syntax (`xs.isPalindrome`).
+ADT that reports where a non-palindrome breaks, method syntax (`xs.isPalindrome`), and `palindromize`, which builds the
+shortest palindrome starting with its input, of the same collection type (`"abcb"` → `"abcba"`).
 
 It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`).
 

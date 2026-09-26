@@ -35,7 +35,7 @@ class PalindromeSuite extends AnyFunSuite {
 
   test("isPalindrome and checkPalindrome are also methods on any Seq") {
     assert(Seq("a", "b", "a").isPalindrome)
-    assert("racecar".toList.isPalindrome)
+    assert("racecar".isPalindrome)
     assert(!Vector(1, 2).isPalindrome)
     assert(List(1, 2, 3).checkPalindrome == BreaksAt(0))
   }
@@ -54,12 +54,31 @@ class PalindromeSuite extends AnyFunSuite {
 
   test("another Eq can be passed explicitly") {
     assert(isPalindrome("Racecar")(Eq.caseInsensitive))
-    assert("Racecar".toList.isPalindrome(Eq.caseInsensitive))
+    assert("Racecar".isPalindrome(Eq.caseInsensitive))
   }
 
   test("an implicit Eq in scope takes precedence over the default") {
     implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
     assert(isPalindrome("Racecar"))
     assert(checkPalindrome("Racecar") == PalindromeResult.Palindrome)
+  }
+
+  test("palindromize builds the shortest palindrome starting with the input") {
+    val s: String = "abcb".palindromize
+    val l: List[Int] = List(1, 2, 3).palindromize
+    val v: Vector[Char] = palindromize(Vector('x', 'y'))
+    assert(s == "abcba")
+    assert(l == List(1, 2, 3, 2, 1))
+    assert(v == Vector('x', 'y', 'x'))
+    assert(palindromize("abb") == "abba")
+    assert(palindromize("racecar") == "racecar")
+    assert(palindromize("") == "")
+    assert("scala".palindromize.isPalindrome)
+    assert(Vector(1, 2).palindromize.isPalindrome)
+  }
+
+  test("palindromize uses the Eq in scope") {
+    implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
+    assert("abA".palindromize == "abA")
   }
 }

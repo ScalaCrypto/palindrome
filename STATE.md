@@ -117,13 +117,29 @@ Each `Palindrome.scala` defines, in every version:
 - **`Eq[A]`**: equality as a type class (`def eqv(x: A, y: A): Boolean`). Its companion holds the default, `universal` (plain `==`), which is found through `Eq`'s implicit scope, and an opt-in `caseInsensitive: Eq[Char]`. The opt-in instance is a plain `val`, not an implicit/given: callers pass it explicitly, or put it in scope as an implicit/given, which beats the companion default because lexical scope is searched first.
 - **`PalindromeResult`**: `Palindrome` or `BreaksAt(index)`, the index of the first mismatching element from the front.
 - **`checkPalindrome(xs): PalindromeResult`** and **`isPalindrome(xs): Boolean`**, generic over `Seq[A]`, with an `Eq[A]`. A `String` is accepted through the standard `String` → `Seq[Char]` conversion.
-- **Method syntax**: `xs.isPalindrome` and `xs.checkPalindrome` on any `Seq`.
+- **`palindromize(xs)`**: the shortest palindrome that starts with `xs` (`"abcb"` → `"abcba"`, `"abb"` → `"abba"`). A
+  shared private helper, `palindromicSuffixStart`, finds the longest palindromic suffix with `isPalindrome` (so
+  `palindromize` takes an `Eq[A]` too), and only the elements before that suffix are mirrored. The helper tries each
+  suffix in turn: O(n²) on an `IndexedSeq`, worse on a `List`. From 2.8 it returns the input's own collection type (`String`, `List`,
+  `Vector`, …), which shows the collections redesigns: a plain `Seq` in 2.5–2.7, `SeqLike` + `CanBuildFrom` in
+  2.8–2.12, and `IsSeq` + `BuildFrom` from 2.13.
+- **Method syntax**: `xs.isPalindrome`, `xs.checkPalindrome` and `xs.palindromize`. In Scala 2 a `PalindromeOps`
+  wrapper provides them, and it carries the collection type so `palindromize` can return it. It wraps a `Seq[A]` in
+  2.5–2.7, a `SeqLike[A, Repr]` in 2.8–2.12 (a value class from 2.10), and in 2.13 any `Repr` with an `IsSeq`,
+  through an `implicit def` to `PalindromeOps[Repr, seq.type]`. That last one isn't a value class, and it needs
+  `import scala.language.implicitConversions`. In Scala 3 there are two extensions: one on `Seq[A]` for the checks,
+  and one on any `Repr` with an `IsSeq` for `palindromize`.
 
 The check compares elements pairwise through `Eq`, never whole collections with `==`. That keeps it correct on 2.5–2.7, where `==` between collections isn't content-based (before the 2.8 collections redesign, `"racecar".reverse == "racecar"` is `false`).
 
 The tests are the same in every version, apart from the syntax of each version and these differences:
-- **Method syntax on a `String`**: Scala 3 accepts `"racecar".isPalindrome`, because an extension method's receiver may be converted (`String` → `Seq[Char]`). Scala 2 can't do that: implicit views don't chain (`String` → `WrappedString` → `PalindromeOps`), so the Scala 2 tests call `isPalindrome("racecar")` or `"racecar".toList.isPalindrome`.
+- **Method syntax on a `String`**: 2.5–2.12 can't do it, because implicit views don't chain (`String` →
+  `WrappedString` → `PalindromeOps`). Their tests call `isPalindrome("racecar")`, `"racecar".toList.isPalindrome`
+  and `palindromize("abc")`. 2.13's `IsSeq` wrapper starts from `String` itself, so its tests use `"racecar".isPalindrome`
+  and `"abc".palindromize`. Scala 3 accepts both forms, because an extension method's receiver may be converted.
 - **2.5–2.7** use `List` for every sequence: there's no `Vector` before 2.8, and no `Seq(...)` factory in 2.5 and 2.6.
+  Their `palindromize` returns a `Seq`, so the tests compare it with `.toList`/`.mkString`. From 2.8, the test states the
+  static result types (`val s: String = palindromize("abc")`).
 - **3.7–3.9** add a test that uses named pattern matching.
 
 ### Mapping of the Talk Stages to Versions
@@ -135,6 +151,7 @@ The tests are the same in every version, apart from the syntax of each version a
 | 3. `Eq` type class via `implicit` | 2.5 (lambda instances from 2.12) |
 | 4. `given`/`using`, optional braces | 3.0 (`[A: Eq as eq]` from 3.6) |
 | 5. Result ADT: `sealed trait` → `enum` | 2.5 → 3.0 |
+| 5b. `palindromize`: `Seq` → `CanBuildFrom` → `IsSeq`/`BuildFrom` → dependent `using` | 2.5 → 2.8 → 2.13 → 3.0 (`[Repr: IsSeq as seq]` from 3.6) |
 | 6. Extension method: `implicit def` → `implicit class` → `extension` | 2.5 → 2.10 → 3.0 |
 
 Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code.

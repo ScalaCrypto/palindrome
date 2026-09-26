@@ -62,6 +62,24 @@ class PalindromeSuite extends AnyFunSuite:
     assert("Racecar".checkPalindrome == Palindrome)
   }
 
+  test("palindromize builds the shortest palindrome starting with the input") {
+    val s: String = "abcb".palindromize
+    val l: List[Int] = List(1, 2, 3).palindromize
+    val v: Vector[Char] = Vector('x', 'y').palindromize
+    assert(s == "abcba")
+    assert(l == List(1, 2, 3, 2, 1))
+    assert(v == Vector('x', 'y', 'x'))
+    assert(palindromize("abb") == "abba")
+    assert("racecar".palindromize == "racecar")
+    assert("".palindromize == "")
+    assert("scala".palindromize.isPalindrome)
+  }
+
+  test("palindromize uses the Eq in scope") {
+    given Eq[Char] = Eq.caseInsensitive
+    assert("abA".palindromize == "abA")
+  }
+
   test("a BreaksAt can be matched by field name") {
     val index = "abcxba".checkPalindrome match
       case BreaksAt(index = i) => i

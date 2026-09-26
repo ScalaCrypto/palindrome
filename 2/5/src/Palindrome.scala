@@ -40,10 +40,20 @@ object Palindrome {
   def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean =
     checkPalindrome(xs) == PalindromeResult.Palindrome
 
+  // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
+  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+  // Without a way to build "the same collection type", generic code can only promise a Seq.
+  def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = xs ++ xs.take(palindromicSuffixStart(xs)).reverse
+
+  // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
+  private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
+    (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+
   // Method syntax (xs.isPalindrome) through an implicit conversion to a wrapper.
   class PalindromeOps[A](xs: Seq[A]) {
     def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs)
     def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs)
+    def palindromize(implicit eq: Eq[A]): Seq[A] = Palindrome.palindromize(xs)
   }
 
   implicit def palindromeOps[A](xs: Seq[A]): PalindromeOps[A] = new PalindromeOps(xs)

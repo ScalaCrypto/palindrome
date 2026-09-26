@@ -1,5 +1,7 @@
 // Scala 2.9.3
 import scala.annotation.tailrec
+import scala.collection.SeqLike
+import scala.collection.generic.CanBuildFrom
 
 // Equality as a type class: the caller decides what "the same element" means.
 trait Eq[A] {
@@ -41,11 +43,27 @@ object Palindrome {
   def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean =
     checkPalindrome(xs) == PalindromeResult.Palindrome
 
-  // Method syntax (xs.isPalindrome) through an implicit conversion to a wrapper.
-  class PalindromeOps[A](xs: Seq[A]) {
-    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs)
-    def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs)
+  // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
+  // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome.
+  // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
+  def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
+    val start = palindromicSuffixStart(xs.toSeq)
+    val b = bf(xs.repr)
+    b ++= xs.iterator
+    b ++= xs.reverseIterator.drop(xs.length - start)
+    b.result
   }
 
-  implicit def palindromeOps[A](xs: Seq[A]): PalindromeOps[A] = new PalindromeOps(xs)
+  // Where the longest palindromic suffix starts; xs.drop(xs.length) is empty, hence a palindrome.
+  private def palindromicSuffixStart[A](xs: Seq[A])(implicit eq: Eq[A]): Int =
+    (0 to xs.length).find(i => isPalindrome(xs.drop(i))).get
+
+  // Method syntax (xs.isPalindrome) through an implicit conversion; Repr lets palindromize keep the type.
+  class PalindromeOps[A, Repr](xs: SeqLike[A, Repr]) {
+    def checkPalindrome(implicit eq: Eq[A]): PalindromeResult = Palindrome.checkPalindrome(xs.toSeq)
+    def isPalindrome(implicit eq: Eq[A]): Boolean = Palindrome.isPalindrome(xs.toSeq)
+    def palindromize(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = Palindrome.palindromize(xs)
+  }
+
+  implicit def palindromeOps[A, Repr](xs: SeqLike[A, Repr]): PalindromeOps[A, Repr] = new PalindromeOps(xs)
 }
