@@ -5,6 +5,56 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-26 — `talk/morph.py`: a deck where the code changes in place
+
+### What changed
+
+`talk/morph.py` generates a second deck, `talk/morph/project/` (the claude.ai Slides format, artifact
+<https://claude.ai/artifact/D5M6ykhDMvCngXQxsWriTy>). It shows `checkPalindrome`, `isPalindrome`, `palindromize` and
+`palindromicSuffixStart`, without comments, on one slide per distinct state of that code. That's six slides: 2.5–2.7,
+2.8–2.9, 2.10–2.12, 2.13, 3.0–3.5 and 3.6–3.9. Each slide leaves with the format's magic-move transition, so tokens
+that survive into the next version glide to their new place, and the rest fade out or in.
+
+Every run of code is a pinned `<p>` placed from its line and column (IBM Plex Mono advances 0.6 em per character).
+A token that survives keeps its `id` from slide to slide. Tokens are matched per pair of versions: unchanged lines
+first (compared without indentation), then a token diff within the changed regions, then identifiers that moved out of
+order where there's exactly one candidate on each side.
+
+### Why
+
+A diff shows what changed; a morph shows where each part went (`(using eq: Eq[A])` moving up into the `extension`,
+`implicit` turning into `using`), and that's the talk's story. The Slides format's magic move animates in the presenter's
+own tempo, one click per version, and needs no script.
+
+### Alternatives rejected
+
+- **One element per token.** A slide has at most 200 elements and the code is about 250 tokens. Neighbouring tokens
+  are merged into runs. A run has to be the same run on both of its slide's transitions, or the ids stop matching, so
+  the cut points between runs are propagated along the whole chain of slides until they're stable (79–109 runs per
+  slide).
+- **A live `<x-embed>` that animates with JavaScript.** It would run on its own clock, not on the presenter's click.
+  It's limited to 16 KB, and PPTX/PDF export flattens it.
+- **A global token diff without the line pass.** Common tokens like `(` and `:` then match across unrelated lines and
+  fly around for no reason.
+- **Keeping the talk deck's two-line headings.** 2.13's code is 25 lines. At the 24px floor the code only fits with a
+  one-row header (version and year, and the version's `NOTES.md` summary). The slides use 80px top and bottom
+  margins instead of 128px.
+
+### Limitations accepted
+
+- The magic move's timing and easing are the artifact's. Nothing in the repo can play the animation. `morph.py` only
+  checks that matched runs have the same text.
+- A token that moves out of order and isn't a unique identifier (`eq` appearing twice, say) fades instead of moving.
+- The deck is generated, so hand edits in the artifact are overwritten on the next run.
+
+### Verification
+
+`talk/morph.py` reports the font size (24px) and the runs per slide. A check over the generated slides confirmed that
+every id shared by two neighbouring slides holds the same text: 75–98 shared runs per transition. Geometry by
+arithmetic: the longest line (111 characters) ends at x≈1726 and the lowest line at y≈968.
+
+---
+
 ## 2026-09-26 — `talk/`: the slide deck and a layout check in the repo
 
 ### What changed

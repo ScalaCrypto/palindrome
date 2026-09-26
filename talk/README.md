@@ -23,6 +23,14 @@ versioned copy of it. Keep the two in step:
 The code on the slides is copied from the version sources, sometimes re-wrapped to fit. Nothing checks it against
 the sources, so after a code change, compare the affected slides with `EVOLUTION.md`.
 
+## The code-morph deck
+
+`morph.py` generates a second deck, `morph/project/`, from the version sources: the palindrome methods on one slide
+per version where they change, each slide morphing into the next with a magic-move transition, so the code changes in
+place. Its artifact is <https://claude.ai/artifact/D5M6ykhDMvCngXQxsWriTy>. It's generated, so it's never edited by
+hand: after a code change, run `talk/morph.py` and publish `morph/project/` to the artifact with `morph/` as the root.
+How it matches tokens between versions is in `../DESIGN.md`.
+
 ## Checking the layout
 
 ```bash
