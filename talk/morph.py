@@ -34,6 +34,7 @@ LINE_HEIGHT = 1.35
 
 BG, FG, MUTED, ACCENT, TYPE, LITERAL = "#1B1F2A", "#E8E6DF", "#8A93A0", "#F2A65A", "#8FB8E8", "#A8D08D"
 KEYWORDS = {"def", "val", "if", "else", "then", "case", "match", "implicit", "using", "extension", "given", "private",
+            "extends", "trait", "import",
             "new", "class", "object", "type", "as"}
 
 TOKEN = re.compile(r"\s+|@?[A-Za-z_][A-Za-z0-9_]*|\d+|\"[^\"]*\"|[-+*/<>=!:&|^%~?#]+|.")
@@ -110,8 +111,9 @@ def glued(toks, i, other, pairs) -> bool:
             and other[b]["col"] - other[a]["col"] == toks[i + 1]["col"] - toks[i]["col"])
 
 
-def build():
-    states = []  # one per distinct code: versions, lines
+def load_states() -> list[dict]:
+    """One state per distinct code, oldest first: its first directory, its versions and its lines."""
+    states = []
     for d in VERSIONS:
         src = (ROOT / d / "src/Palindrome.scala").read_text()
         version = re.match(r"// Scala (\d+\.\d+)", src).group(1)
@@ -121,6 +123,11 @@ def build():
         else:
             states.append({"dir": d, "versions": [version], "lines": lines})
 
+    return states
+
+
+def chain(states) -> list[list[list[dict]]]:
+    """The runs of each state: lists of tokens, each run one element, ids shared across neighbouring states."""
     toks = [tokenize(s["lines"]) for s in states]
     fwd = [match(states[k]["lines"], states[k + 1]["lines"], toks[k], toks[k + 1]) for k in range(len(states) - 1)]
     bwd = [{v: k for k, v in p.items()} for p in fwd]
@@ -155,6 +162,22 @@ def build():
                         cut[dst][a] = True
                         changed = True
 
+    runs_per_state = []
+    for k in range(len(states)):
+        runs, run = [], [toks[k][0]]
+        for i in range(1, len(toks[k])):
+            if cut[k][i - 1]:
+                runs.append(run)
+                run = []
+            run.append(toks[k][i])
+        runs.append(run)
+        runs_per_state.append(runs)
+    return runs_per_state
+
+
+def build():
+    states = load_states()
+    runs_per_state = chain(states)
     width = max(len(l) for s in states for l in s["lines"])
     height = max(len(s["lines"]) for s in states)
     size = min(28, int(MAX_WIDTH / (0.6 * width)), int((MAX_BOTTOM - CODE_TOP) / (LINE_HEIGHT * height)))
@@ -167,13 +190,7 @@ def build():
     (OUT / "slides/cover.html").write_text(cover(states))
     counts = []
     for k, s in enumerate(states):
-        runs, run = [], [toks[k][0]]
-        for i in range(1, len(toks[k])):
-            if cut[k][i - 1]:
-                runs.append(run)
-                run = []
-            run.append(toks[k][i])
-        runs.append(run)
+        runs = runs_per_state[k]
         counts.append(len(runs))
         slide_id = "v" + s["versions"][0].replace(".", "-")
         order.append(slide_id)
@@ -234,6 +251,19 @@ def run_html(run) -> str:
     return "".join(parts)
 
 
+def code_runs_html(runs, size, lh, cw, left, top) -> list[str]:
+    """One pinned <p> per run, placed from its line and column; the id carries the morph."""
+    out = []
+    for run in runs:
+        first, end = run[0], run[-1]["col"] + len(run[-1]["text"])
+        w = round((end - first["col"]) * cw) + 4
+        out.append(f'<p id="t{first["id"]}" style="position:absolute; left:{round(left + first["col"] * cw)}px; '
+                   f'top:{top + first["line"] * lh}px; width:{w}px; font-family:\'IBM Plex Mono\', '
+                   f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap">'
+                   f"{run_html(run)}</p>")
+    return out
+
+
 def slide(slide_id, state, runs, size, lh, cw, last) -> str:
     head = (f'<section id="{slide_id}" data-transition="{"fade" if last else "magic"}" style="background:{BG}; '
             f"color:{FG}; font-family:'IBM Plex Sans', Arial, sans-serif; padding:80px 128px; display:flex; "
@@ -245,13 +275,7 @@ def slide(slide_id, state, runs, size, lh, cw, last) -> str:
             f'white-space:nowrap; color:{ACCENT}">{esc(label(state["versions"]))}</p>',
             f'<p style="font-size:24px; color:#C9CCD3; text-align:right">{esc(summary(state))}</p>',
             "</div>"]
-    for run in runs:
-        first, end = run[0], run[-1]["col"] + len(run[-1]["text"])
-        w = round((end - first["col"]) * cw) + 4
-        rows.append(f'<p id="t{first["id"]}" style="position:absolute; left:{round(LEFT + first["col"] * cw)}px; '
-                    f'top:{CODE_TOP + first["line"] * lh}px; width:{w}px; font-family:\'IBM Plex Mono\', '
-                    f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap">'
-                    f"{run_html(run)}</p>")
+    rows.extend(code_runs_html(runs, size, lh, cw, LEFT, CODE_TOP))
     rows.append("</section>")
     return "\n".join(rows) + "\n"
 

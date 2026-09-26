@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Renders the deck in talk/deck/ with headless Chrome and checks its layout.
+"""Renders a deck (talk/deck/ unless another is named) with headless Chrome and checks its layout.
 
 Usage: talk/render.py                 measure every slide; exit 1 if anything overflows
        talk/render.py --screenshots   also write one PNG per slide, plus contact sheets, to out/talk-render/
+       talk/render.py [--screenshots] talk/annotated    the same for another deck, into out/talk-render/annotated/
 
 Each slide is laid out on the deck's fixed 1920x1080 canvas with the deck's own fonts, then measured:
 - OUTSIDE MARGINS: an element crosses the 128px margins (fails the check).
@@ -146,9 +147,17 @@ def page(fonts: str, sections: str, script: str = "") -> str:
 
 
 def main() -> None:
-    screenshots = sys.argv[1:] == ["--screenshots"]
-    if sys.argv[1:] and not screenshots:
+    global DECK, OUT
+    args = sys.argv[1:]
+    screenshots = "--screenshots" in args
+    rest = [a for a in args if a != "--screenshots"]
+    if len(rest) > 1 or any(a.startswith("-") for a in rest):
         sys.exit(__doc__)
+    if rest:
+        DECK = (ROOT / rest[0]).resolve() / "project"
+        OUT = OUT / DECK.parent.name
+        if not (DECK / "deck.json").is_file():
+            sys.exit(f"talk/render.py: no deck at {DECK}")
     deck = json.loads((DECK / "deck.json").read_text())
     slides = {sid: (DECK / f"slides/{sid}.html").read_text() for sid in deck["order"]}
     fonts = local_fonts(deck)

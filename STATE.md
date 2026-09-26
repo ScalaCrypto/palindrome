@@ -86,7 +86,9 @@ palindrome/
 │   ├── deck/project/               # The slide deck: deck.json + slides/<id>.html (claude.ai Slides format)
 │   ├── render.py                   # Renders the deck in headless Chrome; exit 1 on overflow; --screenshots
 │   ├── morph.py                    # Generates the code-morph deck from the sources
-│   └── morph/project/              # GENERATED: the code-morph deck (magic-move transitions between versions)
+│   ├── morph/project/              # GENERATED: the code-morph deck (magic-move transitions between versions)
+│   ├── annotated.py                # Generates the annotated deck: talk slides + morph + handwritten notes
+│   └── annotated/project/          # GENERATED: the annotated deck
 ├── .github/workflows/
 │   └── evolution.yml               # CI: runs tools/evolution.py --check
 ├── .claude/settings.json           # Claude Code hook: regenerates EVOLUTION.md after edits to versions
@@ -189,7 +191,9 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   artifact, and `talk/deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
   copied from the sources and isn't checked against them: after a code change, compare the affected slides with
   `EVOLUTION.md`, and run `talk/render.py` after changing slides. The code-morph deck (`talk/morph/`) is different:
-  it's generated from the sources by `talk/morph.py`, so rerun that and republish it after a code change.
+  it's generated from the sources by `talk/morph.py`, so rerun that and republish it after a code change. The same
+  goes for the annotated deck (`talk/annotated/`, from `talk/annotated.py`), which also copies the talk deck's
+  slides: rerun it after changing either, and check that its notes still point at the right code.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -206,6 +210,8 @@ tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
 talk/render.py           # check the slide deck's layout (needs Chrome); --screenshots for PNGs
 talk/morph.py            # regenerate the code-morph deck in talk/morph/
+talk/annotated.py        # regenerate the annotated deck in talk/annotated/
+talk/render.py --screenshots talk/annotated   # check and screenshot another deck
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.

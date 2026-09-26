@@ -31,11 +31,24 @@ place. Its artifact is <https://claude.ai/artifact/RYU4d3bpEjxvV7MX1sfTKb>. It's
 hand: after a code change, run `talk/morph.py` and publish `morph/project/` to the artifact with `morph/` as the root.
 How it matches tokens between versions is in `../DESIGN.md`.
 
+## The annotated deck
+
+`annotated.py` generates a third deck, `annotated/project/`, that merges the other two. The talk deck's framing and
+side-topic slides (`Eq`, value classes, SAM, the 2 → 3 table) are copied in, restyled to its dark palette with their
+code highlighted like the code slides. The code slides are the morph deck's,
+with handwritten notes in speech bubbles that point at the code they explain and fade in one per click after each
+morph. Where a talk slide interrupts the morph, the code is shown again afterwards, so the next change still morphs.
+The notes and the slide order are in `annotated.py` (`NOTES`, `SEQUENCE`), and the bubbles are placed automatically
+next to their code. Its artifact is <https://claude.ai/artifact/36zpmLsjkc1dcmvW7n6JPr>. It's generated too: after changing the
+code, the talk deck's slides or the notes, run `talk/annotated.py`, check it with
+`talk/render.py --screenshots talk/annotated`, and publish `annotated/project/` with `annotated/` as the root.
+
 ## Checking the layout
 
 ```bash
 talk/render.py                 # measure every slide; exit 1 if anything overflows
 talk/render.py --screenshots   # also write out/talk-render/shots/*.png and contact sheets out/talk-render/sheet*.png
+talk/render.py --screenshots talk/annotated   # the same for another deck, into out/talk-render/annotated/
 ```
 
 Each slide is laid out on the deck's 1920×1080 canvas, with the deck's fonts, and measured:

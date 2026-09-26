@@ -5,6 +5,69 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-27 — `talk/annotated.py`: the morph with handwritten notes
+
+### What changed
+
+A third deck, `talk/annotated/project/` (artifact <https://claude.ai/artifact/36zpmLsjkc1dcmvW7n6JPr>), merges the
+other two. The talk deck's framing and side-topic slides are copied in. The code slides are the morph deck's, with
+14 handwritten notes in speech bubbles (Caveat, cream on a dark fill, a thin amber outline). Each bubble's slender
+tail ends at an amber underline beneath the code it explains. The notes fade in one per click after each morph, and
+the speaker notes carry the rest. Where a talk slide interrupts the morph (value classes and SAM after 2.10; the 2 → 3
+table before 3.0), the code is shown once more afterwards, so the next change still morphs. The copied slides are restyled on the way
+in: every slide gets the code slides' dark palette (dark cards, code panels one step lighter with a hairline edge,
+amber eyebrows), and their code is re-highlighted with `morph.py`'s highlighter. Removed diff lines stay dimmed and
+comments grey. The 2 → 3 table becomes two code panels side by side, because table cells can't hold coloured spans.
+`talk/morph.py` is split
+into `load_states`, `chain` and `code_runs_html`, which both generators use; the morph deck's output is unchanged.
+`talk/render.py` takes an optional deck directory.
+
+Bubbles are placed automatically. For each note, the generator searches the slide for the position nearest its anchor
+where the bubble overlaps no code and no other bubble, and where the tail's drawn curve crosses no code but its own.
+It fails if an anchor isn't in the code or nothing fits. Above or below the code, the tail lands on the anchored
+words. Beside it, the note is a margin note: the tail points at the end of the line, and the underline marks the
+words.
+
+### Why
+
+The morph shows *what* moves, and the talk deck says *why*. Put next to the code, a note needs no slide of its own and
+no reading back and forth between the slide and the speaker. Placing the bubbles automatically keeps the deck
+regenerable: when the code changes, the notes follow their anchors.
+
+### Alternatives rejected
+
+- **Hand-placed bubbles.** Every code change would mean re-placing them, and nothing would catch a bubble covering
+  code.
+- **`x-connector` arrows and plain boxes.** The format's connectors are straight or right-angled lines with a
+  constant arrowhead, which is diagram-like rather than handwritten. The bubble and its tail are one SVG outline
+  instead, so the tail joins the bubble without a seam.
+- **Tails that always point at the anchored words.** In dense code (2.10's `x +: middle :+ y`), every path to the words
+  crosses other lines. Margin notes that point at the line's end, with the words underlined, never do.
+- **Testing the tail as a straight line.** The first version did, and the 2.8 `@tailrec` tail curved through `Int` and
+  `1 - from`. The test now samples the drawn curve, and a tail bows at most 14px.
+- **Interleaving the talk slides without repeating the code.** Magic move only animates between neighbouring slides,
+  so the 2.10 → 2.13 and 2.13 → 3.0 morphs would be lost. The repeat costs one click each.
+- **Restyling the talk deck itself.** It's presented on its own too, in its light style. Restyling at build time
+  keeps the two decks independent, and the talk deck stays the single source of those slides' content.
+- **Dropping the side topics.** `Eq`, value classes, SAM and the given syntax aren't in the morphing methods. Their
+  slides stay, and the 3.6 given syntax moves into that slide's speaker notes.
+
+### Limitations accepted
+
+- Tight slides limit the notes. 2.10 has room for one margin note beside its pattern, so its two points share one
+  bubble. The 2.8 `@tailrec` note gets a long hairline tail, because nothing closer is free.
+- Bubble widths come from an estimate of Caveat's character width (0.38 em; 0.36 overflowed one note by 2px). The render check reports any text that
+  overflows its bubble.
+- Nothing in the repo plays the build-in and magic-move animations. The static render shows every note at once.
+
+### Verification
+
+`talk/render.py --screenshots talk/annotated`: all 21 slides pass (the takeaways heading wraps on purpose). I checked
+the code slides' screenshots: no bubble or tail covers code. `talk/morph.py` regenerates the morph deck byte for
+byte after the refactor.
+
+---
+
 ## 2026-09-26 — No result ADT: only `isPalindrome` and `palindromize`
 
 ### What changed

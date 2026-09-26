@@ -1,0 +1,18 @@
+<section id="s25-types" data-transition="fade" style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A65A">Scala 2.5 · 2007</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">Equality is a type class</h2>
+<div style="background:#242A38; border:1px solid #343B4C; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px; display:flex; flex-direction:column">
+<p style="font-size:28px; line-height:1.45; white-space:nowrap"><span style="color:#F2A65A">trait</span>&#160;<span style="color:#8FB8E8">Eq</span>[<span style="color:#8FB8E8">A</span>]&#160;{</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;<span style="color:#F2A65A">def</span>&#160;eqv(x:&#160;<span style="color:#8FB8E8">A</span>,&#160;y:&#160;<span style="color:#8FB8E8">A</span>):&#160;<span style="color:#8FB8E8">Boolean</span></p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">}</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap"><span style="color:#F2A65A">object</span>&#160;<span style="color:#8FB8E8">Eq</span>&#160;{</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;<span style="color:#F2A65A">implicit</span>&#160;<span style="color:#F2A65A">def</span>&#160;universal[<span style="color:#8FB8E8">A</span>]:&#160;<span style="color:#8FB8E8">Eq</span>[<span style="color:#8FB8E8">A</span>]&#160;=&#160;<span style="color:#F2A65A">new</span>&#160;<span style="color:#8FB8E8">Eq</span>[<span style="color:#8FB8E8">A</span>]&#160;{</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;<span style="color:#F2A65A">def</span>&#160;eqv(x:&#160;<span style="color:#8FB8E8">A</span>,&#160;y:&#160;<span style="color:#8FB8E8">A</span>):&#160;<span style="color:#8FB8E8">Boolean</span>&#160;=&#160;x&#160;==&#160;y</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;}</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;<span style="color:#F2A65A">val</span>&#160;caseInsensitive:&#160;<span style="color:#8FB8E8">Eq</span>[<span style="color:#8FB8E8">Char</span>]&#160;=&#160;<span style="color:#F2A65A">new</span>&#160;<span style="color:#8FB8E8">Eq</span>[<span style="color:#8FB8E8">Char</span>]&#160;{</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;<span style="color:#F2A65A">def</span>&#160;eqv(x:&#160;<span style="color:#8FB8E8">Char</span>,&#160;y:&#160;<span style="color:#8FB8E8">Char</span>):&#160;<span style="color:#8FB8E8">Boolean</span>&#160;=&#160;<span style="color:#8FB8E8">Character</span>.toLowerCase(x)&#160;==&#160;<span style="color:#8FB8E8">Character</span>.toLowerCase(y)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;}</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">}</p>
+</div>
+<aside>Stage 3, already in 2.5. Universal == is hardwired, so equality becomes a type class: the default instance lives in Eq's companion and is found through the implicit scope. Eq.caseInsensitive is an opt-in val you pass explicitly or put in scope as an implicit. No lambdas can implement a trait yet, hence the anonymous classes.</aside>
+</section>
