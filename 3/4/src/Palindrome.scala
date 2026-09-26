@@ -1,14 +1,32 @@
 // Scala 3.4.3
-import scala.annotation.targetName
+import scala.annotation.tailrec
+import PalindromeResult.*
 
-extension (s: String)
-  def isPalindrome: Boolean = isPalindrome(Set.empty[Char])
-  def isPalindrome(ignore: Set[Char]): Boolean =
-    if s == null then false
-    else
-      val clean = s.filter(c => !ignore.contains(c))
-      clean == clean.reverse
+// Equality as a type class: the caller decides what "the same element" means.
+trait Eq[A]:
+  def eqv(x: A, y: A): Boolean
 
-// Same JVM signature as the extension's isPalindrome(s)(ignore), hence the @targetName.
-@targetName("isPalindromeOf")
-def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = s.isPalindrome(ignore)
+object Eq:
+  // The default, found in Eq's implicit scope: universal equality.
+  given universal[A]: Eq[A] = _ == _
+
+  // Opt-in: pass it with `using`, or bring it into scope as a given.
+  val caseInsensitive: Eq[Char] = _.toLower == _.toLower
+
+// The answer says more than true or false: where a non-palindrome breaks.
+enum PalindromeResult:
+  case Palindrome
+  case BreaksAt(index: Int)
+
+// Top-level extension methods: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
+extension [A](xs: Seq[A])(using eq: Eq[A])
+  def checkPalindrome: PalindromeResult =
+    // x +: middle :+ y peels off the first and the last element in one pattern.
+    @tailrec
+    def loop(ys: Seq[A], from: Int): PalindromeResult = ys match
+      case x +: middle :+ y =>
+        if eq.eqv(x, y) then loop(middle, from + 1) else BreaksAt(from)
+      case _ => Palindrome
+    loop(xs, 0)
+
+  def isPalindrome: Boolean = xs.checkPalindrome == Palindrome

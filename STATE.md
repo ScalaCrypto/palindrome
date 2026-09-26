@@ -6,9 +6,11 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing a palindrome checker function in a specific Scala release from `2.5` to `3.9`, demonstrating language evolution (overloading, default arguments, extension methods, top-level definitions).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`).
 
-The point is the *comparison*: keep each variant small, self-contained, and focused on what changed between Scala versions, not on clever algorithms.
+Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, a `PalindromeResult` ADT that reports where a non-palindrome breaks, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
+
+The point is the *comparison*: keep each variant small, self-contained, and focused on what changed between Scala versions, not on clever algorithms. Following the talk's thesis, don't add machinery the problem doesn't need. Design decisions and rejected alternatives are logged in `DESIGN.md`.
 
 - **Repository**: `ScalaCrypto/palindrome`
 - **Main Branch**: `main`
@@ -19,27 +21,29 @@ The point is the *comparison*: keep each variant small, self-contained, and focu
 
 ## 2. Subproject & Version Matrix
 
-| Directory | Scala Version | Build | Test Framework | ScalaTest Version | Java / JVM Override | Language Features Used |
-|-----------|--------------|-------|----------------|-------------------|---------------------|------------------------|
-| `2/5`     | `2.5.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` | `object Palindrome`, method overloading (no default args, no extensions), `sameElements` (no content-based collection equality) |
-| `2/6`     | `2.6.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` | `object Palindrome`, method overloading, `sameElements` |
-| `2/7`     | `2.7.7`      | `legacy/test.sh` | ScalaTest | `1.0` | JDK 8, JDK 7 `rt.jar` | `object Palindrome`, method overloading, `sameElements` |
-| `2/8`     | `2.8.2`      | `legacy/test.sh` | ScalaTest | `1.8` | JDK 8, JDK 7 `rt.jar` | `object Palindrome`, default argument values (`ignore: Set[Char] = Set.empty`) |
-| `2/9`     | `2.9.3`      | `legacy/test.sh` | ScalaTest | `1.9.2` | JDK 8, JDK 7 `rt.jar` | `object Palindrome`, default arguments |
-| `2/10`    | `2.10.7`     | Mill | ScalaTest      | `3.0.9`           | Default             | `object Palindrome`, default arguments |
-| `2/11`    | `2.11.12`    | Mill | ScalaTest      | `3.2.18`          | Default             | `object Palindrome`, default arguments |
-| `2/12`    | `2.12.21`    | Mill | ScalaTest      | `3.2.19`          | Default             | `object Palindrome`, default arguments |
-| `2/13`    | `2.13.18`    | Mill | ScalaTest      | `3.2.19`          | Default             | `object Palindrome`, default arguments |
-| `3/0`     | `3.0.2`      | Mill | ScalaTest      | `3.2.11`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/1`     | `3.1.3`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/2`     | `3.2.2`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/3`     | `3.3.8`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/4`     | `3.4.3`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/5`     | `3.5.2`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/6`     | `3.6.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/7`     | `3.7.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/8`     | `3.8.4`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
-| `3/9`     | `3.9.0`      | Mill | ScalaTest      | `3.2.19`          | Default             | Significant indentation (optional braces), top-level `extension (s: String)`, top-level `def isPalindrome` (`@targetName`) |
+What each version changes in the code, with the diffs, is in `EVOLUTION.md` (see "The Evolution Document" in section 4).
+
+| Directory | Scala Version | Build | Test Framework | ScalaTest Version | Java / JVM Override |
+|-----------|--------------|-------|----------------|-------------------|---------------------|
+| `2/5`     | `2.5.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` |
+| `2/6`     | `2.6.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` |
+| `2/7`     | `2.7.7`      | `legacy/test.sh` | ScalaTest | `1.0` | JDK 8, JDK 7 `rt.jar` |
+| `2/8`     | `2.8.2`      | `legacy/test.sh` | ScalaTest | `1.8` | JDK 8, JDK 7 `rt.jar` |
+| `2/9`     | `2.9.3`      | `legacy/test.sh` | ScalaTest | `1.9.2` | JDK 8, JDK 7 `rt.jar` |
+| `2/10`    | `2.10.7`     | Mill | ScalaTest      | `3.0.9`           | Default             |
+| `2/11`    | `2.11.12`    | Mill | ScalaTest      | `3.2.18`          | Default             |
+| `2/12`    | `2.12.21`    | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `2/13`    | `2.13.18`    | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/0`     | `3.0.2`      | Mill | ScalaTest      | `3.2.11`          | `temurin:17`        |
+| `3/1`     | `3.1.3`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        |
+| `3/2`     | `3.2.2`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        |
+| `3/3`     | `3.3.8`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/4`     | `3.4.3`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/5`     | `3.5.2`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/6`     | `3.6.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/7`     | `3.7.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/8`     | `3.8.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `3/9`     | `3.9.0`      | Mill | ScalaTest      | `3.2.19`          | Default             |
 
 ---
 
@@ -59,6 +63,7 @@ palindrome/
 │   ├── package.mill.yaml           # Scala 2 group module definition (empty, but required)
 │   ├── <5..13>/
 │   │   ├── package.mill.yaml       # Subproject build definition, 2.10–2.13 only (extends VersionModule, scalaVersion, etc.)
+│   │   ├── NOTES.md                # What changed from the previous version (only where something did)
 │   │   ├── src/
 │   │   │   └── Palindrome.scala    # Implementation (starts with `// Scala <version>` comment)
 │   │   └── test/
@@ -68,12 +73,22 @@ palindrome/
 │   ├── package.mill.yaml           # Scala 3 group module definition (empty, but required)
 │   └── <0..9>/
 │       ├── package.mill.yaml       # Subproject build definition (extends VersionModule, scalaVersion, etc.)
+│       ├── NOTES.md                # What changed from the previous version (only where something did)
 │       ├── src/
 │       │   └── Palindrome.scala    # Implementation (starts with `// Scala <version>` comment)
 │       └── test/
 │           └── src/
 │               └── PalindromeSuite.scala # Test suite (AnyFunSuite)
+├── tools/
+│   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
+├── .github/workflows/
+│   └── evolution.yml               # CI: runs tools/evolution.py --check
+├── .claude/settings.json           # Claude Code hook: regenerates EVOLUTION.md after edits to versions
 ├── STATE.md                        # This project state file
+├── EVOLUTION.md                    # GENERATED: per-version diffs and notes, the basis for the slides
+├── DESIGN.md                       # Design log: decisions, rejected alternatives, verification
+├── scaladays-2026-talk.md          # Talk spec: proposal, thesis, the code progression (stages)
+├── scala-history-talk-problem-selection.md # Why isPalindrome is the running example
 ├── CLAUDE.md                       # Claude Code entry point; imports this file
 ├── .junie/guidelines.md            # Junie entry point; points to this file
 ├── readme.md                       # Repository readme
@@ -95,63 +110,47 @@ Every `Palindrome.scala` file begins with the Scala version comment at line 1:
 // Scala <version>
 ```
 
-All versions in each group below are identical apart from the header comment. Every variant implements `isPalindrome`, with an optional `ignore` collection of characters to skip (e.g. a space for sentence palindromes like `"race car"`).
+### The Common Design
 
-### Scala 2.5 – 2.7 (No Default Arguments, No Extensions)
-`object Palindrome` only; default arguments arrived in 2.8, so the empty `ignore` default is an overload.
+Each `Palindrome.scala` defines, in every version:
 
-The comparison is `clean.sameElements(clean.reverse)`, not `==`: before the 2.8 collections redesign, `String.filter` returns an `ArrayBuffer` and `.reverse` a lazy `RandomAccessSeq` view, and `==` between different collection types is `false` even when their elements match (on 2.7, even `"racecar".reverse == "racecar"` is `false`). From 2.8, `filter`/`reverse` on a `String` return a `String` and collections compare by content, so 2.8+ use `==`.
-```scala
-// Scala 2.5.1
-object Palindrome {
-  def isPalindrome(s: String): Boolean = isPalindrome(s, Set.empty[Char])
+- **`Eq[A]`**: equality as a type class (`def eqv(x: A, y: A): Boolean`). Its companion holds the default, `universal` (plain `==`), which is found through `Eq`'s implicit scope, and an opt-in `caseInsensitive: Eq[Char]`. The opt-in instance is a plain `val`, not an implicit/given: callers pass it explicitly, or put it in scope as an implicit/given, which beats the companion default because lexical scope is searched first.
+- **`PalindromeResult`**: `Palindrome` or `BreaksAt(index)`, the index of the first mismatching element from the front.
+- **`checkPalindrome(xs): PalindromeResult`** and **`isPalindrome(xs): Boolean`**, generic over `Seq[A]`, with an `Eq[A]`. A `String` is accepted through the standard `String` → `Seq[Char]` conversion.
+- **Method syntax**: `xs.isPalindrome` and `xs.checkPalindrome` on any `Seq`.
 
-  def isPalindrome(s: String, ignore: Set[Char]): Boolean = {
-    if (s == null) false
-    else {
-      val clean = s.filter(c => !ignore.contains(c))
-      clean.sameElements(clean.reverse)
-    }
-  }
-}
-```
+The check compares elements pairwise through `Eq`, never whole collections with `==`. That keeps it correct on 2.5–2.7, where `==` between collections isn't content-based (before the 2.8 collections redesign, `"racecar".reverse == "racecar"` is `false`).
 
-### Scala 2.8 – 2.13 (Default Parameters)
-```scala
-// Scala 2.13.18
-object Palindrome {
-  def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = {
-    if (s == null) false
-    else {
-      val clean = s.filter(c => !ignore.contains(c))
-      clean == clean.reverse
-    }
-  }
-}
-```
+The tests are the same in every version, apart from the syntax of each version and these differences:
+- **Method syntax on a `String`**: Scala 3 accepts `"racecar".isPalindrome`, because an extension method's receiver may be converted (`String` → `Seq[Char]`). Scala 2 can't do that: implicit views don't chain (`String` → `WrappedString` → `PalindromeOps`), so the Scala 2 tests call `isPalindrome("racecar")` or `"racecar".toList.isPalindrome`.
+- **2.5–2.7** use `List` for every sequence: there's no `Vector` before 2.8, and no `Seq(...)` factory in 2.5 and 2.6.
+- **3.7–3.9** add a test that uses named pattern matching.
 
-### Scala 3.0 – 3.9 (Significant Indentation, Top-Level Extension and Def)
-Written with significant indentation (optional braces), e.g. `if … then … else`. Scala 3 allows top-level definitions, so there's no `object Palindrome`: the logic lives in a top-level `extension (s: String)` (`"racecar".isPalindrome`, `"race car".isPalindrome(Set(' '))`), and a top-level `def isPalindrome(s, ignore = Set.empty)` wraps it (`isPalindrome("race car", Set(' '))`).
+### Mapping of the Talk Stages to Versions
 
-- **Why the extension holds the logic**: inside an extension, an unqualified `isPalindrome(...)` means `s.isPalindrome(...)`, so the extension can't call a top-level `def` of the same name, but the top-level `def` can call the extension.
-- **Why `@targetName`**: an extension method compiles to an ordinary method with the receiver as its first parameter, so `isPalindrome(s)(ignore)` and the top-level `isPalindrome(s, ignore)` have the same JVM signature. `@targetName("isPalindromeOf")` gives the top-level `def` a different JVM name.
-- **One-argument calls**: `isPalindrome("racecar")` resolves to the extension's `isPalindrome(s)` (Scala prefers the alternative that doesn't need a default argument). Both give the same result.
-```scala
-// Scala 3.9.0
-import scala.annotation.targetName
+| Talk stage (`scaladays-2026-talk.md` §3) | First version with that idiom in the code |
+|---|---|
+| 1. Generalize to `Seq[A]` | 2.5 |
+| 2. Recursion: `@tailrec` / `x +: middle :+ y` | 2.8 (`@tailrec`) / 2.10 (extractors) |
+| 3. `Eq` type class via `implicit` | 2.5 (lambda instances from 2.12) |
+| 4. `given`/`using`, optional braces | 3.0 (`[A: Eq as eq]` from 3.6) |
+| 5. Result ADT: `sealed trait` → `enum` | 2.5 → 3.0 |
+| 6. Extension method: `implicit def` → `implicit class` → `extension` | 2.5 → 2.10 → 3.0 |
 
-extension (s: String)
-  def isPalindrome: Boolean = isPalindrome(Set.empty[Char])
-  def isPalindrome(ignore: Set[Char]): Boolean =
-    if s == null then false
-    else
-      val clean = s.filter(c => !ignore.contains(c))
-      clean == clean.reverse
+Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code.
 
-// Same JVM signature as the extension's isPalindrome(s)(ignore), hence the @targetName.
-@targetName("isPalindromeOf")
-def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = s.isPalindrome(ignore)
-```
+### The Evolution Document
+
+`EVOLUTION.md` shows how the code changes from each version to the next. It is the basis for the talk's slides, and
+the reference for what each version looks like. It is **generated** by `tools/evolution.py` and never edited by hand:
+
+- **From the code**: the version list (from each `// Scala x.y.z` header), the overview table, the baseline and final
+  sources, and the diffs of `src/Palindrome.scala` and the test suite against the previous version (ignoring the
+  header). Where a file is mostly rewritten (2.13 → 3.0), both versions are shown in full instead of a diff.
+- **From `<version dir>/NOTES.md`**: the prose. Line 1 is `# <one-line summary>`, used as the section title and in
+  the overview. The rest explains the change and why the code looks that way. The script requires a `NOTES.md` for the
+  first version and for every version whose source or tests differ from the previous one, and rejects one anywhere
+  else. So adding, removing or merging a change forces the notes to follow.
 
 ---
 
@@ -160,6 +159,12 @@ def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = s.isPalind
 - **Git Branching**: Create feature branches off `main` named `feature/<feature-name>`.
 - **Commit Attribution**: Add trailer `--trailer "Co-authored-by: <Author> <<email>>"`.
 - **Pull Requests**: Push feature branches to `origin` and open PR against `main`. Don't commit feature work directly to `main`.
+- **Keep `EVOLUTION.md` current**: after changing any `Palindrome.scala`, `PalindromeSuite.scala` or `NOTES.md`, run
+  `tools/evolution.py` and commit the regenerated `EVOLUTION.md` with the change. Also check that the affected
+  `NOTES.md` still describes the diff; the script can only enforce that a note exists, not what it says. CI
+  (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
+  `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
+  a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -172,6 +177,8 @@ def isPalindrome(s: String, ignore: Set[Char] = Set.empty): Boolean = s.isPalind
 ./mill resolve __.test   # list test modules
 legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
+tools/evolution.py       # regenerate EVOLUTION.md
+tools/evolution.py --check  # fail if EVOLUTION.md is stale
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
