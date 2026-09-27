@@ -5,6 +5,38 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — Deck versions in the directory names
+
+### What changed
+
+The four decks share one version lineage, and each deck's directory starts with its version: `talk/1.2-deck`,
+`talk/2.3-morph`, `talk/3.2-annotated`, `talk/4.1-annotated-all`. The major number is the kind of deck, in the order
+each builds on the ones before it (1 explains, 2 animates, 3 does both, 4 does both for every change); the minor
+number counts the revisions that changed the code a deck shows or its look. `talk/README.md` has the table with each
+revision. The decks themselves are unchanged; the generators and `render.py` point at the new paths.
+
+### Why
+
+The decks are one line of development, each built from the previous ones, so one lineage says how they relate.
+Putting the version in the directory name keeps it visible in the repository without changing any slide.
+
+### Alternatives rejected
+
+- **A version per deck, each starting at 1.0.** It hides that 3 merges 1 and 2, and that 4 extends 3.
+- **Stamping the version on the cover slides and in `deck.json`.** It changes the decks, and a stamp can go stale.
+- **A slash as the delimiter (`3.2/annotated`).** It would make each version a directory level of its own.
+
+### Limitations accepted
+
+A revision renames the deck's directory, and the path in its generator. The artifacts keep their links.
+
+### Verification
+
+`git mv` keeps the history; regenerating the three generated decks into the new directories reproduces them byte for
+byte. `talk/render.py` finds all four decks under their new names.
+
+---
+
 ## 2026-09-27 — Review of the code, notes and slides
 
 ### What changed

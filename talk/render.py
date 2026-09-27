@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Renders a deck (talk/deck/ unless another is named) with headless Chrome and checks its layout.
+"""Renders a deck (talk/1.2-deck/ unless another is named) with headless Chrome and checks its layout.
 
 Usage: talk/render.py                 measure every slide; exit 1 if anything overflows
        talk/render.py --screenshots   also write one PNG per slide, plus contact sheets, to out/talk-render/
-       talk/render.py [--screenshots] talk/annotated    the same for another deck, into out/talk-render/annotated/
+       talk/render.py [--screenshots] talk/3.2-annotated    the same for another deck, into out/talk-render/3.2-annotated/
 
 Each slide is laid out on the deck's fixed 1920x1080 canvas with the deck's own fonts, then measured:
 - OUTSIDE MARGINS: an element crosses the 128px margins (fails the check).
@@ -28,7 +28,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/deck/project"
+DECK = ROOT / "talk/1.2-deck/project"
 OUT = ROOT / "out/talk-render"
 BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")

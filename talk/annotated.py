@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Generates the annotated deck in talk/annotated/: the talk deck's framing slides around the code morph, with
+"""Generates the annotated deck in talk/3.2-annotated/: the talk deck's framing slides around the code morph, with
 handwritten notes in speech bubbles that point at the code they explain.
 
-Usage: talk/annotated.py                 the deck in talk/annotated/, with the talk's notes
-       talk/annotated.py --all-changes   a variant in talk/annotated-all/, where every change is highlighted and
+Usage: talk/annotated.py                 the deck in talk/3.2-annotated/, with the talk's notes
+       talk/annotated.py --all-changes   a variant in talk/4.1-annotated-all/, where every change is highlighted and
                                          explained
 
 The code slides come from talk/morph.py (same states, same token ids, so they morph the same way). Each code slide
 gets the notes in NOTES below: a bubble placed next to the code it points at, with a tail ending at a highlight
-behind that code. The notes fade in one per click after the morph. The other slides are copied from talk/deck/, so
+behind that code. The notes fade in one per click after the morph. The other slides are copied from talk/1.2-deck/, so
 they stay in step with the talk deck, and restyled on the way: the code slides' dark palette, and their code
 highlighted the same way. Where a talk slide interrupts the morph, the code it interrupts is shown again
 afterwards, so the next change still morphs.
@@ -26,9 +26,9 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-TALK = ROOT / "talk/deck/project"
-OUT = ROOT / "talk/annotated/project"
-OUT_ALL = ROOT / "talk/annotated-all/project"  # the every-change variant
+TALK = ROOT / "talk/1.2-deck/project"
+OUT = ROOT / "talk/3.2-annotated/project"
+OUT_ALL = ROOT / "talk/4.1-annotated-all/project"  # the every-change variant
 
 # Every code slide looks like the talk deck's code slides: eyebrow, heading, then the code in a panel. One code size
 # for the whole deck, the largest at which the tallest code (2.8, 17 lines once wrapped) fits: 24px, line height 1.4.

@@ -83,13 +83,13 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── deck/project/               # The slide deck: deck.json + slides/<id>.html (claude.ai Slides format)
+│   ├── 1.2-deck/project/           # The slide deck: deck.json + slides/<id>.html (claude.ai Slides format)
 │   ├── render.py                   # Renders the deck in headless Chrome; exit 1 on overflow; --screenshots
 │   ├── morph.py                    # Generates the code-morph deck from the sources
-│   ├── morph/project/              # GENERATED: the code-morph deck (magic-move transitions between versions)
+│   ├── 2.3-morph/project/          # GENERATED: the code-morph deck (magic-move transitions between versions)
 │   ├── annotated.py                # Generates the annotated deck: talk slides + morph + handwritten notes
-│   ├── annotated/project/          # GENERATED: the annotated deck
-│   └── annotated-all/project/      # GENERATED: its variant with a note for every change (--all-changes)
+│   ├── 3.2-annotated/project/      # GENERATED: the annotated deck
+│   └── 4.1-annotated-all/project/  # GENERATED: its variant with a note for every change (--all-changes)
 ├── .github/workflows/
 │   └── evolution.yml               # CI: runs tools/evolution.py --check
 ├── .claude/settings.json           # Claude Code hook: regenerates EVOLUTION.md after edits to versions
@@ -188,12 +188,16 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
-- **Keep `talk/deck/` in step with the deck's artifact**: the deck is edited and presented as a claude.ai Slides
-  artifact, and `talk/deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
+- **Deck versions**: the decks share one version lineage, and each deck directory starts with its version
+  (`1.2-deck`, `2.3-morph`, `3.2-annotated`, `4.1-annotated-all`). The major number is the kind of deck, the minor
+  its revision; `talk/README.md` has the table. A revision that changes a deck's code or look renames its directory
+  (and the path in its generator).
+- **Keep `talk/1.2-deck/` in step with the deck's artifact**: the deck is edited and presented as a claude.ai Slides
+  artifact, and `talk/1.2-deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
   copied from the sources and isn't checked against them: after a code change, compare the affected slides with
-  `EVOLUTION.md`, and run `talk/render.py` after changing slides. The code-morph deck (`talk/morph/`) is different:
+  `EVOLUTION.md`, and run `talk/render.py` after changing slides. The code-morph deck (`talk/2.3-morph/`) is different:
   it's generated from the sources by `talk/morph.py`, so rerun that and republish it after a code change. The same
-  goes for the annotated deck (`talk/annotated/`, from `talk/annotated.py`), which also copies the talk deck's
+  goes for the annotated deck (`talk/3.2-annotated/`, from `talk/annotated.py`), which also copies the talk deck's
   slides: rerun it after changing either, and check that its notes still point at the right code.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
@@ -210,10 +214,10 @@ legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
 talk/render.py           # check the slide deck's layout (needs Chrome); --screenshots for PNGs
-talk/morph.py            # regenerate the code-morph deck in talk/morph/
-talk/annotated.py        # regenerate the annotated deck in talk/annotated/
-talk/annotated.py --all-changes   # its every-change variant, in talk/annotated-all/
-talk/render.py --screenshots talk/annotated   # check and screenshot another deck
+talk/morph.py            # regenerate the code-morph deck in talk/2.3-morph/
+talk/annotated.py        # regenerate the annotated deck in talk/3.2-annotated/
+talk/annotated.py --all-changes   # its every-change variant, in talk/4.1-annotated-all/
+talk/render.py --screenshots talk/3.2-annotated   # check and screenshot another deck
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
