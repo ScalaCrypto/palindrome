@@ -21,11 +21,9 @@ object Eq {
 object Palindrome {
   def isPalindrome[A](xs: Seq[A])(implicit eq: Eq[A]): Boolean = {
     // Tail-recursive, so scalac compiles it to a loop; @tailrec to check that arrives in 2.8.
-    def loop(from: Int): Boolean = {
-      val to = xs.length - 1 - from
-      from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))
-    }
-    loop(0)
+    def loop(from: Int, to: Int): Boolean =
+      from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1, to - 1))
+    loop(0, xs.length - 1)
   }
 
   // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix

@@ -112,9 +112,10 @@ def isPalindrome[A](xs: Seq[A]): Boolean = xs match {
 The pattern generalized from Stage 1 untouched — `+:`/`:+` never cared it used to be a
 `String`.
 
-Caveat: on `List`, `:+` (last/init) is O(n), so this lovely version is quietly O(n²).
-Perfect one-slide tie-in to "elegant by default, but know when the data structure
-betrays you" — `IndexedSeq`/`Vector` fixes it.
+Caveat: on `List`, `:+` (last/init) is O(n), and a `String` copies a substring on every
+step, so this lovely version is quietly O(n²). Perfect one-slide tie-in to "elegant by
+default, but know when the data structure betrays you": a `Vector` keeps it (effectively)
+linear.
 
 ### Stage 3 — equality as a type class (Scala 2 implicits)
 
@@ -181,10 +182,11 @@ def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = {
 
 // Scala 2.8 — CanBuildFrom: a builder for the caller's own collection type
 def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
-  val start = (0 to xs.length).find(i => isPalindrome(xs.toSeq.drop(i))).get
+  val elems = xs.toSeq
+  val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
   val b = bf(xs.repr)
-  b ++= xs.iterator
-  b ++= xs.reverseIterator.drop(xs.length - start)
+  b ++= elems
+  b ++= elems.take(start).reverse
   b.result
 }                                                                 // "abcb" gives the String "abcba"
 
@@ -195,16 +197,16 @@ def palindromize[Repr, A0](xs: Repr)(
 // Scala 3 — same library, but a later using clause may depend on an earlier one
 extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
-    val ops = seq(xs)
-    val start = (0 to ops.length).find(i => ops.toSeq.drop(i).isPalindrome).get
+    val elems = seq(xs).toSeq
+    val start = (0 to elems.length).find(i => elems.drop(i).isPalindrome).get
     val b = bf.newBuilder(xs)
-    b ++= ops
-    b ++= ops.reverseIterator.drop(ops.length - start)
+    b ++= elems
+    b ++= elems.take(start).reverse
     b.result()
 ```
 
-`reverseIterator.drop(length - start)` yields the elements before the suffix, reversed.
-The `start` line is the same search in every version: "find the longest palindromic
+Every version mirrors the same way, `take(start).reverse`; from 2.8 the elements go into a
+builder for the caller's type instead of a plain `Seq`. The `start` line is the same search in every version: "find the longest palindromic
 suffix". Say out loud that it's O(n²): a linear version exists
 (based on the KMP string-matching algorithm), but like Manacher's it's an algorithm topic,
 not a language one.

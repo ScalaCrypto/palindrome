@@ -3,7 +3,8 @@
 - **`CanBuildFrom`** (talk stage 5): 2.8 rebuilt the collections library so that operations return the type they
   were called on. Generic code gets the same power by taking the source collection as `SeqLike[A, Repr]` (`Repr` is
   its concrete type) and an implicit `CanBuildFrom[Repr, A, Repr]`, a factory for builders of `Repr`s.
-  `bf(xs.repr)` gives a builder, and `palindromize` fills it. Now `palindromize("abc")` is the `String` `"abcba"`,
+  `bf(xs.repr)` gives a builder, and `palindromize` fills it: the elements, then the ones before the palindromic
+  suffix, reversed. `xs.toSeq` reads the input as a `Seq` once, for `isPalindrome` and for the builder. Now `palindromize("abc")` is the `String` `"abcba"`,
   and a `List` or `Vector` gives back a `List` or `Vector`. The `String` case works because 2.8's `StringOps` is
   itself a `SeqLike[Char, String]`.
 - **The wrapper carries `Repr` too.** For `xs.palindromize` to return `Repr`, `PalindromeOps` now wraps a

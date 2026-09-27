@@ -3,8 +3,8 @@
 - **`case x +: middle :+ y`** (talk stage 2): the index arithmetic becomes one pattern that peels off the first and
   the last element. With no index to carry, the inner `loop` goes: `isPalindrome` recurses on `middle` itself, and
   `@tailrec` moves onto it. It parses as `(x +: middle) :+ y`, because an operator's first character sets its precedence and
-  `+` binds tighter than `:`. On a `List`, `:+` (`init`/`last`) is O(n), which makes the recursion O(n²); an
-  `IndexedSeq` such as `Vector` keeps it linear.
+  `+` binds tighter than `:`. On a `List`, `:+` (`init`/`last`) is O(n), and a `String` copies a substring
+  on every step, which makes the recursion O(n²); a `Vector` keeps it (effectively) linear.
 - **`implicit class … extends AnyVal`** (stage 6): the wrapper class plus conversion become one declaration, and as a
   value class it usually needs no allocation. In 2.10 a value class's field must be public, hence `val xs`. It keeps
   2.8's shape, `PalindromeOps[A, Repr](xs: SeqLike[A, Repr])`, so `xs.palindromize` still returns the caller's type.

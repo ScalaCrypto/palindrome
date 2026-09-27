@@ -31,11 +31,11 @@ object Palindrome {
   // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
   def palindromize[Repr, A0](xs: Repr)(
       implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
-    val ops = seq(xs)
-    val start = (0 to ops.length).find(i => isPalindrome(ops.toSeq.drop(i))).get
+    val elems = seq(xs).toSeq
+    val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
     val b = bf.newBuilder(xs)
-    b ++= ops
-    b ++= ops.reverseIterator.drop(ops.length - start)
+    b ++= elems
+    b ++= elems.take(start).reverse
     b.result()
   }
 

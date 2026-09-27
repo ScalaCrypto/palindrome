@@ -7,9 +7,9 @@ Every idea of the talk is already expressible in 2.5. What's missing is only the
   `Eq`'s companion and is found through the implicit scope. Instances are anonymous classes, because lambdas can't
   implement a trait yet.
 - **Method syntax** (stage 6): an `implicit def` converts any `Seq` to a `PalindromeOps` wrapper.
-- **An index-based loop.** There are no `+:`/`:+` extractors yet, so an inner `loop` walks an index inward:
-  `from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1))`. The recursive call is in tail position, even inside
-  `||` and `&&`, so scalac already compiles it to a jump, but nothing checks that.
+- **An index-based loop.** There are no `+:`/`:+` extractors yet, so an inner `loop` walks two indices inward:
+  `from >= to || (eq.eqv(xs(from), xs(to)) && loop(from + 1, to - 1))`. The recursive call is in tail position, even
+  inside `||` and `&&`, so scalac already compiles it to a jump, but nothing checks that.
 - **Making a palindrome** (stage 5): `palindromize(xs)`, or `xs.palindromize` through the wrapper, returns the
   shortest palindrome that starts with `xs`. It finds the longest suffix that's already a palindrome, using our own
   `isPalindrome`, and appends the reverse of what comes before it: `"abcb"` gives `"abcba"`, and `"racecar"` stays as

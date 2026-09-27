@@ -5,6 +5,51 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-27 — Review of the code, notes and slides
+
+### What changed
+
+A pass over every version's code, tests and notes, every talk slide and speaker note, and every note in the
+annotated decks, checking that each is correct, relevant and idiomatic Scala for its release.
+
+- **The 2.5–2.9 loop** walks two indices inward, `loop(from + 1, to - 1)` from `loop(0, xs.length - 1)`, instead of
+  recomputing the far end from `xs.length` on every step.
+- **`palindromize` from 2.8 on** reads the input as a `Seq` once (`val elems = xs.toSeq`, `seq(xs).toSeq` from 2.13)
+  and mirrors with `elems.take(start).reverse`, the same idiom as 2.5's `xs ++ xs.take(start).reverse`. Before,
+  2.13 and 3.x called `ops.toSeq` inside the search, copying a `String` input on every step, and the mirror was
+  `reverseIterator.drop(length - start)`. The 2.8 → 2.13 diff now changes exactly `xs.toSeq` → `seq(xs).toSeq`,
+  `bf(xs.repr)` → `bf.newBuilder(xs)` and `result` → `result()`.
+- **Test names** say what they expect: "accepts palindrome strings", "rejects non-palindrome strings".
+- **Prose corrections.** The O(n²) caveat for `x +: middle :+ y` now names `String` too (each step copies a
+  substring) and credits `Vector`, not every `IndexedSeq`, with staying linear. 3.0's notes and the 2 → 3 table no
+  longer mention `if … then … else`, which left the code with the result ADT. 2.13's notes quote the wrapper's call
+  with its `eq` argument, and say that leaving out `implicitConversions` draws a warning rather than being required.
+  The talk spec, `STATE.md`, the slides and the annotated notes follow the new code; resolved placeholders are gone
+  from the speaker notes.
+
+### Verified rather than assumed
+
+- The recursive call inside `||`/`&&` compiles to a jump in 2.5, 2.7 and 2.8, before and after the change (`javap`
+  shows `goto 0`), so "scalac already compiles it to a loop" holds.
+- `"racecar".reverse == "racecar"` is `false` on 2.7.7 and `true` on 2.8.2.
+- 3.5.2 rejects both `given universal: [A] => Eq[A]` and `[A: Eq as eq]`; 3.6.4 accepts both.
+- The repository is public; the release years in the timeline are right.
+
+### Alternatives rejected
+
+- **Renaming the `Eq` parameter from `eq`**, which shadows `AnyRef.eq`. It reads well, nothing in the code uses
+  reference equality, and the name appears on most slides.
+- **`tails.indexWhere(isPalindrome(_))` for the suffix search.** Neater, but 2.5–2.8 have no `tails`, and the talk
+  relies on the search being the same line in every version.
+
+### Verification
+
+All 19 versions pass: `./mill __.test` (14 versions, 11 tests each) and `legacy/test.sh` (2.5–2.9).
+`tools/evolution.py --check` passes. The every-change deck's coverage check passes after re-anchoring its notes on
+the new code. `talk/render.py` passes for all three decks, and I checked the changed slides' screenshots.
+
+---
+
 ## 2026-09-27 — The every-change variant, and a more exact token matcher
 
 ### What changed
