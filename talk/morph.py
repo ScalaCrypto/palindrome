@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the code-morph deck in talk/morph/: the palindrome methods, version by version, where each slide turns
+"""Generates the code-morph deck in talk/2.3-morph/: the palindrome methods, version by version, where each slide turns
 into the next with a magic-move transition, so the code changes in place.
 
 Usage: talk/morph.py
@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "talk/morph/project"
+OUT = ROOT / "talk/2.3-morph/project"
 
 # The version directories, oldest first.
 VERSIONS = ["2/5", "2/6", "2/7", "2/8", "2/9", "2/10", "2/11", "2/12", "2/13",
