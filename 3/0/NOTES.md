@@ -2,7 +2,7 @@
 
 The headline of the 2 → 3 transition, shown on one slide:
 
-- **Significant indentation**: braces go, `if … then … else`.
+- **Significant indentation**: braces go; `xs match` takes its cases by indentation.
 - **`implicit` → `given`/`using`** (talk stage 4): the companion default is a `given`, and the `Eq` arrives through a
   `using` clause.
 - **`implicit class` → `extension`** (stage 6), at top level. `object Palindrome` disappears, because Scala 3 has

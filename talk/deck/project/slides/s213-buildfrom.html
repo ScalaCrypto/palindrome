@@ -7,13 +7,13 @@
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;<span style="color:#F2A65A">seq: IsSeq[Repr] { type A = A0 }</span>,</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;eq: Eq[A0],</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;&#160;&#160;<span style="color:#F2A65A">bf: BuildFrom[Repr, A0, Repr]</span>): Repr = {</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val ops = seq(xs)</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val start = (0 to ops.length).find(i =&gt; isPalindrome(ops.toSeq.drop(i))).get</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val elems = seq(xs).toSeq</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val start = (0 to elems.length).find(i =&gt; isPalindrome(elems.drop(i))).get</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;val b = <span style="color:#F2A65A">bf.newBuilder(xs)</span></p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= ops</p>
-<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= ops.reverseIterator.drop(ops.length - start)</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= elems</p>
+<p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b ++= elems.take(start).reverse</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">&#160;&#160;b.result()</p>
 <p style="font-size:28px; line-height:1.45; white-space:nowrap">}</p>
 </div>
-<aside>The 2.8 version stops compiling for String: StringOps is no longer a collection, so a String only becomes a SeqLike by wrapping it in a WrappedString, and Repr is inferred as WrappedString. SeqLike and CanBuildFrom survive only as deprecated aliases. IsSeq accepts anything that can be read as a Seq, String and Array included; BuildFrom replaces CanBuildFrom, and bf.newBuilder(xs) plays the part of bf(xs.repr). The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element type becomes an extra type parameter A0 tied by a refinement. Ordinary code lost CanBuildFrom entirely: List(...).map gets its type from SeqOps[A, CC, C]. One sentence on method syntax: the 2.13 wrapper follows the documented IsSeq pattern, isn't a value class any more, needs import scala.language.implicitConversions, and finally makes "abc".palindromize work on a Scala 2 String.</aside>
+<aside>The 2.8 version stops compiling for String: StringOps is no longer a collection, so a String only becomes a SeqLike by wrapping it in a WrappedString, and Repr is inferred as WrappedString. SeqLike and CanBuildFrom survive only as deprecated aliases. IsSeq accepts anything that can be read as a Seq, String and Array included; BuildFrom replaces CanBuildFrom, and bf.newBuilder(xs) plays the part of bf(xs.repr); seq(xs).toSeq plays the part of xs.toSeq. The rest of the body is unchanged. The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element type becomes an extra type parameter A0 tied by a refinement. Ordinary code lost CanBuildFrom entirely: List(...).map gets its type from SeqOps[A, CC, C]. One sentence on method syntax: the 2.13 wrapper follows the documented IsSeq pattern, isn't a value class any more, draws a feature warning without import scala.language.implicitConversions, and finally makes "abc".palindromize work on a Scala 2 String.</aside>
 </section>

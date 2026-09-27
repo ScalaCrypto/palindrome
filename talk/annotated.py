@@ -80,9 +80,9 @@ TITLES = {
 # occurrence; with ⟨ ⟩ inside it, only the marked part is highlighted (the rest is context to find the right place).
 NOTES = {
     "2.5": ([
-        ("implicit eq: Eq[A]", "equality is a type class,\npassed in implicitly"),
-        ("from >= to ||", "no extractors yet:\nwalk an index inward"),
-        ("): ⟨Seq[A]⟩ = {", "generic code can only\npromise a Seq"),
+        ("implicit eq: Eq[A]", "equality: an implicit type class"),
+        ("from >= to ||", "no extractors yet:\nwalk two indices inward"),
+        ("): ⟨Seq[A]⟩ = {", "generic code can only promise a Seq"),
     ], "The whole design with 2007 machinery. No +: and :+ extractors yet, so it's index arithmetic; the call is in "
        "tail position, even inside || and &&, so scalac already compiles it to a jump, but nothing checks that. "
        "palindromize finds the longest palindromic suffix with our own isPalindrome, so it takes an Eq too, and "
@@ -100,8 +100,8 @@ NOTES = {
         ("x +: middle :+ y", "peel off both ends,\nrecurse on the middle"),
     ], "Talk stage 2. x +: middle :+ y parses as (x +: middle) :+ y: an operator's first character sets its "
        "precedence. With no index to carry, the inner loop goes and @tailrec moves onto isPalindrome itself. Say "
-       "the caveat: on a List, :+ needs init and last, which are O(n), so this is quietly O(n²); a Vector keeps it "
-       "linear."),
+       "the caveat: on a List, :+ needs init and last, which are O(n), and a String copies on every step, so this is "
+       "quietly O(n²); a Vector keeps it (effectively) linear."),
     "2.13": ([
         ("IsSeq[Repr] { type A = A0 }", "IsSeq reads any Repr as a Seq;\nthe refinement is the wart"),
         ("bf.newBuilder(xs)", "BuildFrom replaces\nCanBuildFrom"),
@@ -134,9 +134,10 @@ CHANGES = {
     "2.8": [
         (["@tailrec"], "now the compiler\nchecks the loop"),
         (["palindromize⟨[A, Repr]⟩", "⟨SeqLike[A, Repr]⟩", "⟨, bf: CanBuildFrom[Repr, A, Repr]⟩", "): ⟨Repr⟩ = {",
-          "xs.⟨toSeq.⟩drop"], "Repr: the caller's own type,\nwith a builder factory for it;\ntoSeq reads it as a Seq"),
-        (["⟨val b = bf(xs.repr)⟩", "⟨b ++= xs.iterator⟩", "⟨b ++= xs.reverseIterator.drop(xs.length - start)⟩",
-          "⟨b.result⟩"], "build it: the input, then its\nmirror; String in, String out"),
+          "⟨val elems = xs.toSeq⟩", "(0 to ⟨elems⟩.length)", "isPalindrome(⟨elems⟩.drop"],
+         "Repr: the caller's own type,\nwith a builder factory for it;\ntoSeq reads it as a Seq"),
+        (["⟨val b = bf(xs.repr)⟩", "⟨b ++= elems⟩", "⟨b ++= elems.take(start).reverse⟩", "⟨b.result⟩"],
+         "the input, then its reversed\nprefix: String in, String out"),
     ],
     "2.10": [
         (["⟨case x +: middle :+ y =>⟩", "=> ⟨eq.eqv(x, y)⟩"], "peel off both ends,\ncompare them directly"),
@@ -144,13 +145,11 @@ CHANGES = {
          "one match replaces the loop,\nrecursing on the middle"),
     ],
     "2.13": [
-        (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨seq: IsSeq[Repr] { type A = A0 }⟩"],
-         "any Repr IsSeq can read;\nA0 and its refinement\nare the wart"),
+        (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨seq: IsSeq[Repr] { type A = A0 }⟩", "val elems = ⟨seq(xs)⟩.toSeq"],
+         "any Repr IsSeq can read,\nas seq(xs); A0 and its\nrefinement are the wart"),
         (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "bf.⟨newBuilder⟩(xs)"],
          "BuildFrom and newBuilder\nreplace CanBuildFrom\nand bf(xs.repr)"),
-        (["⟨val ops = seq(xs)⟩", "(0 to ⟨ops⟩.length)", "isPalindrome(⟨ops⟩.toSeq", "b ++= ⟨ops⟩",
-          "b ++= ⟨ops⟩.reverseIterator", "drop(⟨ops⟩.length"], "ops: the input\nread as a sequence"),
-        (["b.result⟨()⟩"], "2.13 wants the ()"),
+        (["b.result⟨()⟩"], "2.13 deprecates\nleaving out the ()"),
     ],
     "3.0": [
         (["⟨extension [A](xs: Seq[A])⟩", "⟨(using eq: Eq[A])⟩"],
@@ -259,7 +258,7 @@ def place(note, span, blocked, bubbles, anchor_rects, area, tails=()):
             side, base, tip = geometry(box, span)
             length = math.dist(base, tip)
             score = length + (0 if side in ("top", "bottom") else 30)
-            if length < 40 or (best is not None and score >= best[0]):
+            if length < 16 or (best is not None and score >= best[0]):  # a bubble right above its code needs only a short tail
                 continue
             points = curve_points(base, tip)[2:-2]
             if any(crosses(points, r) for r in blocked if r not in anchor_rects) or \

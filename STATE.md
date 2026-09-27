@@ -124,11 +124,11 @@ Every `Palindrome.scala` file begins with the Scala version comment at line 1:
 Each `Palindrome.scala` defines, in every version:
 
 - **`Eq[A]`**: equality as a type class (`def eqv(x: A, y: A): Boolean`). Its companion holds the default, `universal` (plain `==`), which is found through `Eq`'s implicit scope, and an opt-in `caseInsensitive: Eq[Char]`. The opt-in instance is a plain `val`, not an implicit/given: callers pass it explicitly, or put it in scope as an implicit/given, which beats the companion default because lexical scope is searched first.
-- **`isPalindrome(xs): Boolean`**, generic over `Seq[A]`, with an `Eq[A]`. A `String` is accepted through the standard `String` → `Seq[Char]` conversion. 2.5–2.9 walk an index inward in an inner `loop`; from 2.10, `isPalindrome` recurses on itself through `case x +: middle :+ y`.
+- **`isPalindrome(xs): Boolean`**, generic over `Seq[A]`, with an `Eq[A]`. A `String` is accepted through the standard `String` → `Seq[Char]` conversion. 2.5–2.9 walk two indices inward in an inner `loop`; from 2.10, `isPalindrome` recurses on itself through `case x +: middle :+ y`.
 - **`palindromize(xs)`**: the shortest palindrome that starts with `xs` (`"abcb"` → `"abcba"`, `"abb"` → `"abba"`). It finds
   where the longest palindromic suffix starts, `(0 to xs.length).find(i => isPalindrome(xs.drop(i))).get`, with
-  `isPalindrome` (so `palindromize` takes an `Eq[A]` too), and mirrors only the elements before it. The search tries
-  each suffix in turn: O(n²) on an `IndexedSeq`, worse on a `List`. From 2.8 it returns the input's own collection type (`String`, `List`,
+  `isPalindrome` (so `palindromize` takes an `Eq[A]` too), and mirrors only the elements before it (`take(start).reverse`). The search tries
+  each suffix in turn: O(n²) on a `Vector`, worse on a `List` or a `String`. From 2.8 it returns the input's own collection type (`String`, `List`,
   `Vector`, …), which shows the collections redesigns: a plain `Seq` in 2.5–2.7, `SeqLike` + `CanBuildFrom` in
   2.8–2.12, and `IsSeq` + `BuildFrom` from 2.13.
 - **Method syntax**: `xs.isPalindrome` and `xs.palindromize`. In Scala 2 a `PalindromeOps`

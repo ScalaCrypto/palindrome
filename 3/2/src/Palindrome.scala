@@ -27,10 +27,10 @@ extension [A](xs: Seq[A])(using eq: Eq[A])
 // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
 extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
-    val ops = seq(xs)
-    val start = (0 to ops.length).find(i => ops.toSeq.drop(i).isPalindrome).get
+    val elems = seq(xs).toSeq
+    val start = (0 to elems.length).find(i => elems.drop(i).isPalindrome).get
     val b = bf.newBuilder(xs)
-    b ++= ops
-    b ++= ops.reverseIterator.drop(ops.length - start)
+    b ++= elems
+    b ++= elems.take(start).reverse
     b.result()
 

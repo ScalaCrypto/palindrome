@@ -8,7 +8,7 @@ class PalindromeSuite extends AnyFunSuite:
     assert(Seq(1).isPalindrome)
   }
 
-  test("isPalindrome checks palindrome strings") {
+  test("isPalindrome accepts palindrome strings") {
     assert("racecar".isPalindrome)
     assert("noon".isPalindrome)
     assert("kayak".isPalindrome)
@@ -16,7 +16,7 @@ class PalindromeSuite extends AnyFunSuite:
     assert("12321".isPalindrome)
   }
 
-  test("isPalindrome checks non-palindrome strings") {
+  test("isPalindrome rejects non-palindrome strings") {
     assert(!"hello".isPalindrome)
     assert(!"world".isPalindrome)
     assert(!"scala".isPalindrome)
