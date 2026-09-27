@@ -88,7 +88,8 @@ palindrome/
 │   ├── morph.py                    # Generates the code-morph deck from the sources
 │   ├── morph/project/              # GENERATED: the code-morph deck (magic-move transitions between versions)
 │   ├── annotated.py                # Generates the annotated deck: talk slides + morph + handwritten notes
-│   └── annotated/project/          # GENERATED: the annotated deck
+│   ├── annotated/project/          # GENERATED: the annotated deck
+│   └── annotated-all/project/      # GENERATED: its variant with a note for every change (--all-changes)
 ├── .github/workflows/
 │   └── evolution.yml               # CI: runs tools/evolution.py --check
 ├── .claude/settings.json           # Claude Code hook: regenerates EVOLUTION.md after edits to versions
@@ -211,6 +212,7 @@ tools/evolution.py --check  # fail if EVOLUTION.md is stale
 talk/render.py           # check the slide deck's layout (needs Chrome); --screenshots for PNGs
 talk/morph.py            # regenerate the code-morph deck in talk/morph/
 talk/annotated.py        # regenerate the annotated deck in talk/annotated/
+talk/annotated.py --all-changes   # its every-change variant, in talk/annotated-all/
 talk/render.py --screenshots talk/annotated   # check and screenshot another deck
 ```
 

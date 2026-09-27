@@ -1,7 +1,12 @@
-<section id="m2-10-again" data-transition="magic" style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<section id="m2-10" data-transition="fade" style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
 <div id="code-panel" style="position:absolute; left:128px; top:304px; width:1664px; height:544.4px; background:#242A38; border:1px solid #343B4C; border-radius:16px"></div>
 <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A65A">Scala 2.10 – 2.12 · 2013</p>
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">x +: middle :+ y peels off both ends</h2>
+<div data-build-in="fade 1" style="position:absolute; left:196.8px; top:410.2px; width:355.6px; height:29.6px; background:rgba(227, 168, 105, 0.22); border-radius:6px"></div>
+<div data-build-in="fade 1" style="position:absolute; left:556.8px; top:410.2px; width:182.8px; height:29.6px; background:rgba(227, 168, 105, 0.22); border-radius:6px"></div>
+<div data-build-in="fade 2" style="position:absolute; left:1075.2px; top:376.6px; width:125.2px; height:29.6px; background:rgba(227, 168, 105, 0.22); border-radius:6px"></div>
+<div data-build-in="fade 2" style="position:absolute; left:787.2px; top:410.2px; width:298.0px; height:29.6px; background:rgba(227, 168, 105, 0.22); border-radius:6px"></div>
+<div data-build-in="fade 2" style="position:absolute; left:196.8px; top:443.8px; width:211.6px; height:29.6px; background:rgba(227, 168, 105, 0.22); border-radius:6px"></div>
 <p id="t147" style="position:absolute; left:173px; top:341.0px; width:119px; font-family:'IBM Plex Mono', 'Courier New', monospace; font-size:24px; line-height:33.6px; white-space:nowrap"><span style="color:#8A93A0">@tailrec</span></p>
 <p id="t0" style="position:absolute; left:173px; top:374.6px; width:234px; font-family:'IBM Plex Mono', 'Courier New', monospace; font-size:24px; line-height:33.6px; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;isPalindrome</p>
 <p id="t2" style="position:absolute; left:403px; top:374.6px; width:62px; font-family:'IBM Plex Mono', 'Courier New', monospace; font-size:24px; line-height:33.6px; white-space:nowrap">[<span style="color:#8FB8E8">A</span>](</p>
@@ -85,5 +90,9 @@
 <p id="t144" style="position:absolute; left:216px; top:744.2px; width:18px; font-family:'IBM Plex Mono', 'Courier New', monospace; font-size:24px; line-height:33.6px; white-space:nowrap">.</p>
 <p id="t191" style="position:absolute; left:231px; top:744.2px; width:90px; font-family:'IBM Plex Mono', 'Courier New', monospace; font-size:24px; line-height:33.6px; white-space:nowrap">result</p>
 <p id="t146" style="position:absolute; left:173px; top:777.8px; width:18px; font-family:'IBM Plex Mono', 'Courier New', monospace; font-size:24px; line-height:33.6px; white-space:nowrap">}</p>
-<aside>Back to the methods as they stand in 2.10, before the next version changes them.</aside>
+<svg aria-label="" data-build-in="fade 1" width="576" height="112" viewBox="0 0 576 112" style="position:absolute; left:1084px; top:324px; width:576px; height:112px"><path d="M208,6 L552,6 Q570,6 570,24 L570,88 Q570,106 552,106 L208,106 Q190,106 190,88 L190,88.0 Q99.9,108.4 6.2,101.0 Q99.9,97.4 190,66.0 L190,24 Q190,6 208,6 Z" fill="#3A4358" fill-opacity="0.97" stroke="#E3A869" stroke-width="1.75" stroke-linejoin="round"/></svg>
+<p data-build-in="fade 1" style="position:absolute; left:1300px; top:346px; width:328px; font-family:'Fuzzy Bubbles', 'Trebuchet MS', sans-serif; font-size:26px; font-weight:400; line-height:34px; white-space:nowrap; color:#F3E6D3">peel off both ends,<br>compare them directly</p>
+<svg aria-label="" data-build-in="fade 2" width="501" height="128" viewBox="0 0 501 128" style="position:absolute; left:1060px; top:436px; width:501px; height:128px"><path d="M24,22 L35.0,22 Q18.9,21.2 8.2,6.8 Q29.9,21.2 57.0,22 L477,22 Q495,22 495,40 L495,104 Q495,122 477,122 L24,122 Q6,122 6,104 L6,40 Q6,22 24,22 Z" fill="#3A4358" fill-opacity="0.97" stroke="#E3A869" stroke-width="1.75" stroke-linejoin="round"/></svg>
+<p data-build-in="fade 2" style="position:absolute; left:1092px; top:474px; width:437px; font-family:'Fuzzy Bubbles', 'Trebuchet MS', sans-serif; font-size:26px; font-weight:400; line-height:34px; white-space:nowrap; color:#F3E6D3">one match replaces the loop,<br>recursing on the middle</p>
+<aside>Talk stage 2. x +: middle :+ y parses as (x +: middle) :+ y: an operator's first character sets its precedence. With no index to carry, the inner loop goes and @tailrec moves onto isPalindrome itself. Say the caveat: on a List, :+ needs init and last, which are O(n), so this is quietly O(n²); a Vector keeps it linear.</aside>
 </section>
