@@ -5,18 +5,73 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-27 — The every-change variant, and a more exact token matcher
+
+### What changed
+
+`talk/annotated.py --all-changes` builds `talk/annotated-all/project/`, a variant of the annotated deck in which
+every change between two versions is highlighted and explained. The changes are declared per version in `CHANGES`:
+each is one or more highlighted code spans and one note, with the tail pointing at whichever highlight gives the
+best spot. The build fails if any token that's new in a version (one the previous version has no counterpart for)
+lies outside every highlight. 2.5, the first version, keeps the talk's notes, since it has nothing to compare with.
+The variant has 17 notes.
+
+The token matcher in `talk/morph.py` now works in phases: identical lines; similar lines, paired across the whole
+code; what's left within each changed region; then identifiers that moved. Before, it matched tokens across a whole
+changed region at once, so a token on an almost unchanged line could pair with one on another line. The 2.10
+signature was flagged as changed, and its tokens flew around in the morph. All three generated decks use the new
+matcher.
+
+Note placement in `annotated.py` became more thorough: notes are placed largest first (they still appear in reading
+order), a note may point at any of its highlights, a note that finds no room moves to the front and the layout
+starts over, and tails keep clear of other tails.
+
+### Why
+
+The annotated deck's notes were written by hand from the talk's points, two or three per slide, so smaller changes
+(`b.result()`, `val ops = seq(xs)`) had none, and nothing checked the notes against the diffs. Deriving the changes
+from the morph's own token matching makes coverage checkable.
+
+### Alternatives rejected
+
+- **One note per changed span.** 2.8 alone has 14 spans. Related edits share a note instead (the three builder
+  lines in 2.8, `BuildFrom` and `newBuilder` in 2.13), each still highlighted.
+- **Replacing the annotated deck.** The variant is denser: the talk's version keeps the main points; this one is for
+  reading closely. Both are generated from the same code.
+- **Letting tails cross code or each other on crowded slides.** Merging notes about one idea kept every slide clean
+  instead: 2.8 has three notes, 2.13 four, 3.0 three.
+
+### Limitations accepted
+
+- The notes are grouped by hand. The check guarantees that every change is highlighted, not that the grouping is
+  the best one.
+- Removed code (2.10's index loop, 3.0's braces) isn't on the new slide, so only its note can mention it.
+
+### Verification
+
+`talk/annotated.py --all-changes` passes its coverage check for every version. `talk/render.py --screenshots` passes
+for both annotated decks, and I checked the variant's code slides in the screenshots: no bubble or tail covers code,
+and no tails cross. The morph deck regenerates with the new matcher, 69–92 runs per slide.
+
+---
+
 ## 2026-09-27 — `talk/annotated.py`: the morph with handwritten notes
 
 ### What changed
 
 A third deck, `talk/annotated/project/` (artifact <https://claude.ai/artifact/36zpmLsjkc1dcmvW7n6JPr>), merges the
 other two. The talk deck's framing and side-topic slides are copied in. The code slides are the morph deck's, with
-14 handwritten notes in speech bubbles (Caveat, cream on a dark fill, a thin amber outline). Each bubble's slender
-tail ends at an amber underline beneath the code it explains. The notes fade in one per click after each morph, and
+14 handwritten notes in speech bubbles (Fuzzy Bubbles, cream on a fill clearly lighter than the code panel, a thin amber
+outline). Each bubble's slender tail ends at a soft amber highlight behind the code it explains; the highlight fades
+in with its note, and paints behind the code so the text stays crisp. The notes fade in one per click after each morph, and
 the speaker notes carry the rest. Where a talk slide interrupts the morph (value classes and SAM after 2.10; the 2 → 3
-table before 3.0), the code is shown once more afterwards, so the next change still morphs. The copied slides are restyled on the way
-in: every slide gets the code slides' dark palette (dark cards, code panels one step lighter with a hairline edge,
-amber eyebrows), and their code is re-highlighted with `morph.py`'s highlighter. Removed diff lines stay dimmed and
+table before 3.0), the code is shown once more afterwards, so the next change still morphs. All slides share one style, the talk deck's code slides' in a dark palette:
+an amber eyebrow, a 64px heading, and the code in a panel one step lighter than the background with a hairline edge.
+The code slides are built that way too. Their panel is pinned, with one id on every code slide, so a morph resizes it
+instead of fading it, and their notes stay inside it. All code in the deck is 24px with line height 1.4: the largest
+size at which the tallest code (2.8, 17 lines) fits under the heading. Lines too long for the panel are wrapped
+where the talk deck wraps them: after a `)(` between parameter lists, else after a `, ` between parameters. The copied
+slides' code is re-highlighted with `morph.py`'s highlighter, and their panels get the same padding and code size. Removed diff lines stay dimmed and
 comments grey. The 2 → 3 table becomes two code panels side by side, because table cells can't hold coloured spans.
 `talk/morph.py` is split
 into `load_states`, `chain` and `code_runs_html`, which both generators use; the morph deck's output is unchanged.
@@ -25,7 +80,7 @@ into `load_states`, `chain` and `code_runs_html`, which both generators use; the
 Bubbles are placed automatically. For each note, the generator searches the slide for the position nearest its anchor
 where the bubble overlaps no code and no other bubble, and where the tail's drawn curve crosses no code but its own.
 It fails if an anchor isn't in the code or nothing fits. Above or below the code, the tail lands on the anchored
-words. Beside it, the note is a margin note: the tail points at the end of the line, and the underline marks the
+words. Beside it, the note is a margin note: the tail points at the end of the line, and the highlight marks the
 words.
 
 ### Why
@@ -42,11 +97,24 @@ regenerable: when the code changes, the notes follow their anchors.
   constant arrowhead, which is diagram-like rather than handwritten. The bubble and its tail are one SVG outline
   instead, so the tail joins the bubble without a seam.
 - **Tails that always point at the anchored words.** In dense code (2.10's `x +: middle :+ y`), every path to the words
-  crosses other lines. Margin notes that point at the line's end, with the words underlined, never do.
+  crosses other lines. Margin notes that point at the line's end, with the words highlighted, never do.
 - **Testing the tail as a straight line.** The first version did, and the 2.8 `@tailrec` tail curved through `Int` and
   `1 - from`. The test now samples the drawn curve, and a tail bows at most 14px.
 - **Interleaving the talk slides without repeating the code.** Magic move only animates between neighbouring slides,
   so the 2.10 → 2.13 and 2.13 → 3.0 morphs would be lost. The repeat costs one click each.
+- **Code at the talk deck's 28px.** With the heading above it, a 28px panel holds about 14 lines, and 2.8's code
+  is 17. Dropping the heading from the tallest slides, or shrinking only their code, would break the uniformity
+  asked for; 24px everywhere is the size that fits every slide.
+- **The morph deck's layout (no panel, a one-row header) for the code slides.** It made the code slides look unlike
+  every other slide in the deck.
+- **An underline beneath the code a note is about**, the first version. A highlight behind the code marks it more
+  clearly from a distance. The first bubble fill, one shade off the code panel, also blended in; the fill is now
+  clearly lighter.
+- **Other fonts for the notes** (tried in the deck: Caveat, Mynerve, Shantell Sans, Handlee). Fuzzy Bubbles was
+  picked from 21 Google fonts compared side by side on a sample page, each in a note bubble at matched sizes. Its
+  soft, round letters set the notes apart from the code while staying legible from the back of a room. The
+  connected scripts were slower to read. Its fallback is Trebuchet MS, not Comic Sans, which would turn the notes
+  cartoonish if the font failed to load.
 - **Restyling the talk deck itself.** It's presented on its own too, in its light style. Restyling at build time
   keeps the two decks independent, and the talk deck stays the single source of those slides' content.
 - **Dropping the side topics.** `Eq`, value classes, SAM and the given syntax aren't in the morphing methods. Their
@@ -56,7 +124,9 @@ regenerable: when the code changes, the notes follow their anchors.
 
 - Tight slides limit the notes. 2.10 has room for one margin note beside its pattern, so its two points share one
   bubble. The 2.8 `@tailrec` note gets a long hairline tail, because nothing closer is free.
-- Bubble widths come from an estimate of Caveat's character width (0.38 em; 0.36 overflowed one note by 2px). The render check reports any text that
+- Bubble widths come from an estimate of Fuzzy Bubbles's character width (0.60 em at 26px; 0.56 overflowed one
+  note by 8px). The render check reports any
+  text that overflows its bubble.
   overflows its bubble.
 - Nothing in the repo plays the build-in and magic-move animations. The static render shows every note at once.
 

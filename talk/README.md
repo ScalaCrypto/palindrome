@@ -43,6 +43,14 @@ next to their code. Its artifact is <https://claude.ai/artifact/36zpmLsjkc1dcmvW
 code, the talk deck's slides or the notes, run `talk/annotated.py`, check it with
 `talk/render.py --screenshots talk/annotated`, and publish `annotated/project/` with `annotated/` as the root.
 
+### The every-change variant
+
+`talk/annotated.py --all-changes` builds a variant, `annotated-all/project/`, whose notes cover every change instead
+of the talk's main points. From 2.8 on, each change between two versions is highlighted and explained. The changes
+are declared in `CHANGES` in `annotated.py`, and the build fails if any code that's new in a version lies outside
+every highlight. Its artifact is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t>; publish it with `annotated-all/` as
+the root.
+
 ## Checking the layout
 
 ```bash

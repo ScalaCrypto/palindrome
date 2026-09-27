@@ -67,23 +67,44 @@ def tokenize(lines: list[str]) -> list[dict]:
     return toks
 
 
+def match_tokens(a, b, ai, bj, pairs):
+    """Pair the tokens ai of a with the tokens bj of b where their texts form common subsequences."""
+    tsm = difflib.SequenceMatcher(None, [a[i]["text"] for i in ai], [b[j]["text"] for j in bj], autojunk=False)
+    for blk in tsm.get_matching_blocks():
+        for k in range(blk.size):
+            pairs[ai[blk.a + k]] = bj[blk.b + k]
+
+
 def match(a_lines, b_lines, a, b) -> dict[int, int]:
-    """Token index in a -> token index in b: unchanged lines first, then tokens within changed regions, then
-    identifiers that moved further but are unambiguous."""
+    """Token index in a -> token index in b, in phases: identical lines; similar lines, paired across the whole code
+    (a line may move past others, like a signature below an annotation that moved above it); what's left within each
+    changed region; then identifiers that moved further but are unambiguous."""
     pairs: dict[int, int] = {}
     by_line = lambda toks, n: [i for i, t in enumerate(toks) if t["line"] == n]
     sm = difflib.SequenceMatcher(None, [l.strip() for l in a_lines], [l.strip() for l in b_lines], autojunk=False)
-    for tag, i1, i2, j1, j2 in sm.get_opcodes():
-        ai = [i for n in range(i1, i2) for i in by_line(a, n)]
-        bj = [j for n in range(j1, j2) for j in by_line(b, n)]
+    ops = sm.get_opcodes()
+    same_a, same_b = set(), set()
+    for tag, i1, i2, j1, j2 in ops:
         if tag == "equal":
-            pairs.update(zip(ai, bj))
-        elif tag == "replace":
-            tsm = difflib.SequenceMatcher(None, [a[i]["text"] for i in ai], [b[j]["text"] for j in bj], autojunk=False)
-            for blk in tsm.get_matching_blocks():
-                for k in range(blk.size):
-                    pairs[ai[blk.a + k]] = bj[blk.b + k]
-    # A second pass for identifiers that moved out of order, when there is exactly one candidate on each side.
+            for x, y in zip(range(i1, i2), range(j1, j2)):
+                pairs.update(zip(by_line(a, x), by_line(b, y)))
+                same_a.add(x)
+                same_b.add(y)
+    ratio = lambda x, y: difflib.SequenceMatcher(None, a_lines[x].strip(), b_lines[y].strip()).ratio()
+    cands = sorted(((ratio(x, y), x, y) for x in range(len(a_lines)) if x not in same_a and a_lines[x].strip()
+                    for y in range(len(b_lines)) if y not in same_b and b_lines[y].strip()), reverse=True)
+    taken_a, taken_b = set(), set()
+    for r, x, y in cands:
+        if r >= 0.6 and x not in taken_a and y not in taken_b:
+            taken_a.add(x)
+            taken_b.add(y)
+            match_tokens(a, b, by_line(a, x), by_line(b, y), pairs)
+    for tag, i1, i2, j1, j2 in ops:
+        if tag == "replace":
+            used = set(pairs.values())
+            ai = [i for n in range(i1, i2) for i in by_line(a, n) if i not in pairs]
+            bj = [j for n in range(j1, j2) for j in by_line(b, n) if j not in used]
+            match_tokens(a, b, ai, bj, pairs)
     free_a = [i for i in range(len(a)) if i not in pairs]
     used_b = set(pairs.values())
     free_b = [j for j in range(len(b)) if j not in used_b]
@@ -258,7 +279,7 @@ def code_runs_html(runs, size, lh, cw, left, top) -> list[str]:
         first, end = run[0], run[-1]["col"] + len(run[-1]["text"])
         w = round((end - first["col"]) * cw) + 4
         out.append(f'<p id="t{first["id"]}" style="position:absolute; left:{round(left + first["col"] * cw)}px; '
-                   f'top:{top + first["line"] * lh}px; width:{w}px; font-family:\'IBM Plex Mono\', '
+                   f'top:{round(top + first["line"] * lh, 1)}px; width:{w}px; font-family:\'IBM Plex Mono\', '
                    f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap">'
                    f"{run_html(run)}</p>")
     return out
