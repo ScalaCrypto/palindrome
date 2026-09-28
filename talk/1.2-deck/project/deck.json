@@ -3,7 +3,7 @@
   "createdOnFiles": {"v": 1, "at": "2026-09-26T12:00:00Z"},
   "title": "A Brief History of Scala",
   "order": [
-    "cover", "premise", "timeline", "oneliner",
+    "cover", "oneliner",
     "scala2", "s25-types", "s25-loop", "s28-tailrec", "s28-cbf", "s210-extractors", "s210-valueclass", "s212-sam", "s213-buildfrom",
     "scala3", "s30-collapse", "s30-extension", "s30-palindromize", "s36-syntax",
     "final", "takeaways", "thanks"
