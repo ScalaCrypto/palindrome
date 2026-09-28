@@ -9,6 +9,16 @@ class PalindromeSuite extends FunSuite {
     assert(isPalindrome(List(1)))
   }
 
+  test("two-element sequences with equal elements are palindromes") {
+    assert(isPalindrome("aa"))
+    assert(isPalindrome(List(1, 1)))
+  }
+
+  test("two-element sequences with different elements are not palindromes") {
+    assert(!isPalindrome("ab"))
+    assert(!isPalindrome(List(1, 2)))
+  }
+
   test("isPalindrome accepts palindrome strings") {
     assert(isPalindrome("racecar"))
     assert(isPalindrome("noon"))
