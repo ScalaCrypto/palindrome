@@ -58,7 +58,7 @@ palindrome/
 │       └── VersionModule.scala     # Shared trait VersionModule with test module & default scalaTestDep
 ├── legacy/
 │   ├── test.sh                     # Builds and tests 2.5–2.9 without Mill
-│   └── scalatest-stand-in/         # Minimal FunSuite + Runner stand-in for 2.5 and 2.6
+│   └── scalatest-stand-in/         # Minimal FunSuite + ShouldMatchers + Runner stand-in for 2.5 and 2.6
 ├── v2_<5..13>/                     # One directory per Scala 2 version: v2_5 … v2_13
 │   ├── package.mill.yaml           # Subproject build definition, 2.10–2.13 only (extends VersionModule, scalaVersion, etc.)
 │   ├── NOTES.md                    # What changed from the previous version (only where something did)
@@ -145,6 +145,10 @@ The tests are the same in every version, apart from the syntax of each version a
   static result types (`val s: String = palindromize("abc")`).
 - **Test blocks**: 3.3–3.9 write `test("…"):` with an indented body (colon block argument, standard from 3.3);
   Scala 2 and 3.0–3.2 keep `test("…") { … }`.
+- **Checks**: the tests use ScalaTest's matchers, not `assert`: `x shouldBe true`, `x shouldBe false`,
+  `x shouldBe expected`. 2.5–2.9 write `x should be (true)`, because ScalaTest 1.x (and the stand-in) only has
+  `ShouldMatchers`; `shouldBe` arrives with ScalaTest 3 in 2.10. The mixin is `ShouldMatchers` up to 2.9,
+  `org.scalatest.Matchers` in 2.10, and `org.scalatest.matchers.should.Matchers` from 2.11.
 
 ### Mapping of the Talk Stages to Versions
 
@@ -233,5 +237,5 @@ So `v2_5`–`v2_9` have no `package.mill.yaml`; `legacy/test.sh` builds and test
 
 - **JDK**: these compilers can't read JDK 8+ class files ("bad constant pool tag 18"), and JDK 6/7 aren't available for Apple Silicon. So `scalac` runs on JDK 8 (`cs java-home --jvm zulu:8`) but reads the Java standard library from a JDK 7 `rt.jar` (Azul Zulu 7u352, pinned by SHA-256; x86_64, but it's only read, never run). The option is `-javabootclasspath` on 2.8/2.9 and `-bootclasspath` on 2.5–2.7.
 - **ScalaTest**: a ScalaTest release must be built with the same Scala version, because older compilers can't read newer Scala signatures. 2.7 uses ScalaTest `1.0`, 2.8 `1.8`, and 2.9 `1.9.2`, all fetched intransitively.
-- **Stand-in for 2.5 and 2.6**: no ScalaTest release with `FunSuite` can be read by those compilers, so `legacy/scalatest-stand-in/` provides a minimal `org.scalatest.FunSuite` (`test`, `assert`) and `org.scalatest.tools.Runner`, compiled together with each version's sources. The test files are the same as for the other versions.
+- **Stand-in for 2.5 and 2.6**: no ScalaTest release with `FunSuite` can be read by those compilers, so `legacy/scalatest-stand-in/` provides a minimal `org.scalatest.FunSuite` (`test`), `org.scalatest.matchers.ShouldMatchers` (`should be (…)`) and `org.scalatest.tools.Runner`, compiled together with each version's sources. The test files are the same as for the other versions.
 - **Consistency check**: the script's version table must match each `// Scala x.y.z` header comment, or it fails.

@@ -5,6 +5,46 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — Matchers instead of `assert` in the tests
+
+### What changed
+
+Every suite mixes in ScalaTest's matchers and writes its checks as `x shouldBe true`, `x shouldBe false` and
+`x shouldBe expected` instead of `assert(x)`, `assert(!x)` and `assert(x == expected)`. 2.5–2.9 write
+`x should be (true)`: ScalaTest 1.x only has `ShouldMatchers`, and `shouldBe` arrives with ScalaTest 3 in 2.10. The
+stand-in for 2.5 and 2.6 gains a minimal `ShouldMatchers` (`should be (…)` only) and loses its unused `assert`.
+
+### Why
+
+The checks read as statements, with no `assert(…)` parentheses and no `!` on the negative cases. Comparing values
+gets better failure messages: `"abcb[a]" was not equal to "abcb[]"` shows both values and where they differ.
+
+### Alternatives rejected
+
+- **`AnyFlatSpec` or `AnyFreeSpec`.** They change how a test is named (`"x" should "y" in {`), not the checks, and
+  the stand-in would need their naming syntax.
+- **utest, whose `assert` takes several conditions.** It's only published for 2.11+ and Scala 3.
+- **A custom `palindrome` matcher (`"aa" shouldBe palindrome`).** It needs a matcher for both `String` and
+  `Seq[A]` with an `Eq` in every version: test machinery the talk would have to explain.
+- **Table-driven loops.** They'd shorten the suites, but inputs checked in a loop need a clue to say which one
+  failed. They can still be added on top.
+
+### Limitations accepted
+
+A failed Boolean check only says `false was not equal to true` plus its line. `assert` names the expression, but in
+Scala 3 in its compiler-expanded form (`Palindrome$package.isPalindrome[scala.Char](scala.Predef.wrapString("ab"))(…)
+was false`), so little is lost.
+
+### Verification
+
+Tried on 3.9 first, then applied to the other versions by a script (`assert(!x)` → `x shouldBe false`,
+`assert(x == y)` → `x shouldBe y`, `assert(x)` → `x shouldBe true`); its 3.8 output is identical to the
+hand-written 3.9 suite. `./mill __.test` passes all 14, and `legacy/test.sh` passes 2.5–2.9 (13 tests each), including
+real ScalaTest 1.0, 1.8 and 1.9.2. Two deliberately broken checks in 2.5 fail in the stand-in (`false was not true`,
+`abba was not abb`). A throwaway 3.9 suite showed the failure messages quoted above.
+
+---
+
 ## 2026-09-28 — Version directories at the top level: `v2_5` … `v3_9`
 
 ### What changed

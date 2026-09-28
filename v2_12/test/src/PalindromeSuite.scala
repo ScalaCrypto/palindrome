@@ -1,88 +1,89 @@
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import Palindrome._
 
-class PalindromeSuite extends AnyFunSuite {
+class PalindromeSuite extends AnyFunSuite with Matchers {
   test("empty and single-element sequences are palindromes") {
-    assert(isPalindrome(""))
-    assert(isPalindrome("a"))
-    assert(isPalindrome(Seq.empty[Int]))
-    assert(isPalindrome(Seq(1)))
+    isPalindrome("") shouldBe true
+    isPalindrome("a") shouldBe true
+    isPalindrome(Seq.empty[Int]) shouldBe true
+    isPalindrome(Seq(1)) shouldBe true
   }
 
   test("two-element sequences with equal elements are palindromes") {
-    assert(isPalindrome("aa"))
-    assert(isPalindrome(Seq(1, 1)))
+    isPalindrome("aa") shouldBe true
+    isPalindrome(Seq(1, 1)) shouldBe true
   }
 
   test("two-element sequences with different elements are not palindromes") {
-    assert(!isPalindrome("ab"))
-    assert(!isPalindrome(Seq(1, 2)))
+    isPalindrome("ab") shouldBe false
+    isPalindrome(Seq(1, 2)) shouldBe false
   }
 
   test("isPalindrome accepts palindrome strings") {
-    assert(isPalindrome("racecar"))
-    assert(isPalindrome("noon"))
-    assert(isPalindrome("kayak"))
-    assert(isPalindrome("madam"))
-    assert(isPalindrome("12321"))
+    isPalindrome("racecar") shouldBe true
+    isPalindrome("noon") shouldBe true
+    isPalindrome("kayak") shouldBe true
+    isPalindrome("madam") shouldBe true
+    isPalindrome("12321") shouldBe true
   }
 
   test("isPalindrome rejects non-palindrome strings") {
-    assert(!isPalindrome("hello"))
-    assert(!isPalindrome("world"))
-    assert(!isPalindrome("scala"))
-    assert(!isPalindrome("palindrome"))
-    assert(!isPalindrome("race car"))
+    isPalindrome("hello") shouldBe false
+    isPalindrome("world") shouldBe false
+    isPalindrome("scala") shouldBe false
+    isPalindrome("palindrome") shouldBe false
+    isPalindrome("race car") shouldBe false
   }
 
   test("isPalindrome is generic over Seq[A]") {
-    assert(isPalindrome(Seq(1, 2, 3, 2, 1)))
-    assert(isPalindrome(List("a", "b", "a")))
-    assert(isPalindrome(Vector('x', 'y', 'y', 'x')))
-    assert(!isPalindrome(Seq(1, 2, 3)))
+    isPalindrome(Seq(1, 2, 3, 2, 1)) shouldBe true
+    isPalindrome(List("a", "b", "a")) shouldBe true
+    isPalindrome(Vector('x', 'y', 'y', 'x')) shouldBe true
+    isPalindrome(Seq(1, 2, 3)) shouldBe false
   }
 
   test("isPalindrome is also a method on any Seq") {
-    assert(Seq("a", "b", "a").isPalindrome)
-    assert("racecar".toList.isPalindrome)
-    assert(!Vector(1, 2).isPalindrome)
+    Seq("a", "b", "a").isPalindrome shouldBe true
+    "racecar".toList.isPalindrome shouldBe true
+    Vector(1, 2).isPalindrome shouldBe false
   }
 
   test("isPalindrome finds a mismatch inside matching ends") {
-    assert(!isPalindrome("abcxba"))
-    assert(!isPalindrome(Seq(1, 2, 3, 4, 2, 1)))
+    isPalindrome("abcxba") shouldBe false
+    isPalindrome(Seq(1, 2, 3, 4, 2, 1)) shouldBe false
   }
 
   test("equality is case-sensitive by default") {
-    assert(!isPalindrome("Racecar"))
+    isPalindrome("Racecar") shouldBe false
   }
 
   test("another Eq can be passed explicitly") {
-    assert(isPalindrome("Racecar")(Eq.caseInsensitive))
-    assert("Racecar".toList.isPalindrome(Eq.caseInsensitive))
+    isPalindrome("Racecar")(Eq.caseInsensitive) shouldBe true
+    "Racecar".toList.isPalindrome(Eq.caseInsensitive) shouldBe true
   }
 
   test("an implicit Eq in scope takes precedence over the default") {
     implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
-    assert(isPalindrome("Racecar"))
+    isPalindrome("Racecar") shouldBe true
   }
 
   test("palindromize builds the shortest palindrome starting with the input") {
     val s: String = palindromize("abcb")
     val l: List[Int] = List(1, 2, 3).palindromize
     val v: Vector[Char] = palindromize(Vector('x', 'y'))
-    assert(s == "abcba")
-    assert(l == List(1, 2, 3, 2, 1))
-    assert(v == Vector('x', 'y', 'x'))
-    assert(palindromize("abb") == "abba")
-    assert(palindromize("racecar") == "racecar")
-    assert(palindromize("") == "")
-    assert(isPalindrome(palindromize("scala")))
-    assert(Vector(1, 2).palindromize.isPalindrome)
+    s shouldBe "abcba"
+    l shouldBe List(1, 2, 3, 2, 1)
+    v shouldBe Vector('x', 'y', 'x')
+    palindromize("abb") shouldBe "abba"
+    palindromize("racecar") shouldBe "racecar"
+    palindromize("") shouldBe ""
+    isPalindrome(palindromize("scala")) shouldBe true
+    Vector(1, 2).palindromize.isPalindrome shouldBe true
   }
 
   test("palindromize uses the Eq in scope") {
     implicit val caseInsensitive: Eq[Char] = Eq.caseInsensitive
-    assert(palindromize("abA") == "abA")
+    palindromize("abA") shouldBe "abA"
   }
 }

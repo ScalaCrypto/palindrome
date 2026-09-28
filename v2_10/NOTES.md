@@ -8,3 +8,6 @@
 - **`implicit class … extends AnyVal`** (stage 6): the wrapper class plus conversion become one declaration, and as a
   value class it usually needs no allocation. In 2.10 a value class's field must be public, hence `val xs`. It keeps
   2.8's shape, `PalindromeOps[A, Repr](xs: SeqLike[A, Repr])`, so `xs.palindromize` still returns the caller's type.
+- **Tests**: 2.10 is the first version on ScalaTest 3 (3.0.9), whose `Matchers` has `shouldBe`, so
+  `x should be (true)` becomes `x shouldBe true`. ScalaTest 1.x, used up to 2.9, only has `ShouldMatchers` with
+  `should be (…)`. This is a library change, not a language one.
