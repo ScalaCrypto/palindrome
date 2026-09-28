@@ -80,7 +80,7 @@ palindrome/
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
 │   ├── 1.2-deck/project/           # The talk deck, by hand: deck.json + slides/<id>.html (claude.ai Slides format)
-│   ├── render.py                   # Renders the deck in headless Chrome; exit 1 on overflow; --screenshots
+│   ├── render.py                   # Renders a deck (default: the main deck) in headless Chrome; exit 1 on overflow
 │   ├── morph.py                    # Generates the code-morph deck from the sources
 │   ├── 2.3-morph/project/          # GENERATED: the code-morph deck (magic-move transitions between versions)
 │   ├── annotated.py                # Generates the annotated deck: talk slides + morph + handwritten notes
@@ -193,12 +193,12 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (and the path in its generator).
 - **The main deck is `talk/4.1-annotated-all/`**: it's the one presented, so after any change to the code, the talk
   deck's slides or the notes in `talk/annotated.py`, regenerate it (`talk/annotated.py --all-changes`), check it
-  (`talk/render.py --screenshots talk/4.1-annotated-all`) and republish its artifact. The other decks are its inputs
+  (`talk/render.py --screenshots`) and republish its artifact. The other decks are its inputs
   (1.2, 2.3) or alternatives to it (3.2).
 - **Keep `talk/1.2-deck/` in step with the deck's artifact**: the talk deck is edited as a claude.ai Slides
   artifact, and `talk/1.2-deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
   copied from the sources and isn't checked against them: after a code change, compare the affected slides with
-  `EVOLUTION.md`, and run `talk/render.py` after changing slides. The code-morph deck (`talk/2.3-morph/`) is different:
+  `EVOLUTION.md`, and run `talk/render.py talk/1.2-deck` after changing slides. The code-morph deck (`talk/2.3-morph/`) is different:
   it's generated from the sources by `talk/morph.py`, so rerun that and republish it after a code change. The same
   goes for the annotated decks (`talk/4.1-annotated-all/` and `talk/3.2-annotated/`, from `talk/annotated.py`), which
   also copy the talk deck's slides: rerun them after changing either, and check that their notes still point at the
@@ -217,12 +217,12 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/render.py           # check the talk deck's layout (needs Chrome); --screenshots for PNGs
+talk/render.py           # check the main deck's layout (needs Chrome); --screenshots for PNGs
 talk/morph.py            # regenerate the code-morph deck in talk/2.3-morph/
 talk/annotated.py        # regenerate the annotated deck in talk/3.2-annotated/
 talk/annotated.py --all-changes   # regenerate the main deck, the every-change variant, in talk/4.1-annotated-all/
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
-talk/render.py --screenshots talk/4.1-annotated-all   # check and screenshot the main deck (or any other)
+talk/render.py --screenshots talk/1.2-deck   # check and screenshot another deck
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.

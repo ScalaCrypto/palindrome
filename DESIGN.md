@@ -11,7 +11,7 @@ how it was verified. Current project facts live in `STATE.md`.
 
 `talk/4.1-annotated-all/` is now the talk's main deck, the one presented. `talk/README.md` and `STATE.md` name it
 first, and the conventions say to regenerate, check and republish it after any change to the code, the talk deck or
-the notes. No deck or generator changed.
+the notes. `talk/render.py` checks the main deck when no deck is named. No deck or generator changed.
 
 ### Why
 
@@ -26,14 +26,18 @@ the one to present. The other decks stay as its inputs (`1.2-deck`, `2.3-morph`)
 - **Renumbering the lineage to put the main deck first.** The major number is the kind of deck, in the order they
   build on each other; which one is presented is a separate fact, and renaming would churn every path.
 - **Deleting `3.2-annotated`.** It's generated from the same code for free, and remains an option for a shorter slot.
+- **Keeping `1.2-deck` as `render.py`'s default.** The check exists to catch problems on the slides that are
+  presented, so it should run on the main deck.
 
-### Limitations accepted
-
-- `talk/render.py` still defaults to the talk deck (`1.2-deck`); the main deck needs its path as an argument.
+`render.py` now writes every deck's output to `out/talk-render/<deck>/`, the default one included, and keeps one
+shared font cache in `out/talk-render/fonts/`. Before, the default deck wrote straight into `out/talk-render/`, and
+each named deck downloaded its own copy of the fonts.
 
 ### Verification
 
-Documentation only: `STATE.md` and `talk/README.md` checked for every mention of which deck is presented.
+`talk/render.py --screenshots` with no argument checks `4.1-annotated-all` into `out/talk-render/4.1-annotated-all/`;
+`talk/render.py talk/1.2-deck` still checks the talk deck. `STATE.md` and `talk/README.md` checked for every mention
+of which deck is presented or rendered.
 
 ---
 

@@ -13,7 +13,7 @@ the talk deck or the notes, regenerate the main deck, check it and republish it.
   Slides artifact uses; the paths match the artifact's own.
 - `2.3-morph/`, `3.2-annotated/`, `4.1-annotated-all/`: the generated decks, below.
 - `tag-cloud/`: a deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
-- `render.py`: renders the deck in headless Chrome and checks the layout.
+- `render.py`: renders a deck, the main deck unless another is named, in headless Chrome and checks the layout.
 
 ## Deck versions
 
@@ -74,7 +74,7 @@ of the talk's main points. From 2.8 on, each change between two versions is high
 are declared in `CHANGES` in `annotated.py`, and the build fails if any code that's new in a version lies outside
 every highlight. Its artifact is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t>. After changing the code, the talk
 deck's slides or the notes, run `talk/annotated.py --all-changes`, check it with
-`talk/render.py --screenshots talk/4.1-annotated-all`, and publish `4.1-annotated-all/project/` with
+`talk/render.py --screenshots`, and publish `4.1-annotated-all/project/` with
 `4.1-annotated-all/` as the root.
 
 ## The tag-cloud deck
@@ -96,9 +96,9 @@ artifact is <https://claude.ai/artifact/BBnmYfzdH7pmk3VQybdQdm>.
 ## Checking the layout
 
 ```bash
-talk/render.py                 # measure every slide; exit 1 if anything overflows
-talk/render.py --screenshots   # also write out/talk-render/shots/*.png and contact sheets out/talk-render/sheet*.png
-talk/render.py --screenshots talk/3.2-annotated   # the same for another deck, into out/talk-render/3.2-annotated/
+talk/render.py                 # measure every slide of the main deck; exit 1 if anything overflows
+talk/render.py --screenshots   # also write out/talk-render/4.1-annotated-all/shots/*.png and contact sheets sheet*.png
+talk/render.py --screenshots talk/1.2-deck   # the same for another deck, into out/talk-render/1.2-deck/
 ```
 
 Each slide is laid out on the deck's 1920×1080 canvas, with the deck's fonts, and measured:
