@@ -9,6 +9,13 @@ class PalindromeSuite extends AnyFunSuite {
     assert(isPalindrome(Seq(1)))
   }
 
+  test("two-element sequences are palindromes when both elements are equal") {
+    assert(isPalindrome("aa"))
+    assert(!isPalindrome("ab"))
+    assert(isPalindrome(Seq(1, 1)))
+    assert(!isPalindrome(Seq(1, 2)))
+  }
+
   test("isPalindrome accepts palindrome strings") {
     assert(isPalindrome("racecar"))
     assert(isPalindrome("noon"))

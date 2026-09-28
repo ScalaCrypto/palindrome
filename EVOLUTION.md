@@ -203,7 +203,7 @@ object Palindrome {
 ```diff
 --- 2/7/test/src/PalindromeSuite.scala
 +++ 2/8/test/src/PalindromeSuite.scala
-@@ -5,8 +5,8 @@
+@@ -5,15 +5,15 @@
    test("empty and single-element sequences are palindromes") {
      assert(isPalindrome(""))
      assert(isPalindrome("a"))
@@ -213,8 +213,17 @@ object Palindrome {
 +    assert(isPalindrome(Seq(1)))
    }
  
+   test("two-element sequences are palindromes when both elements are equal") {
+     assert(isPalindrome("aa"))
+     assert(!isPalindrome("ab"))
+-    assert(isPalindrome(List(1, 1)))
+-    assert(!isPalindrome(List(1, 2)))
++    assert(isPalindrome(Seq(1, 1)))
++    assert(!isPalindrome(Seq(1, 2)))
+   }
+ 
    test("isPalindrome accepts palindrome strings") {
-@@ -26,21 +26,21 @@
+@@ -33,21 +33,21 @@
    }
  
    test("isPalindrome is generic over Seq[A]") {
@@ -242,7 +251,7 @@ object Palindrome {
    }
  
    test("equality is case-sensitive by default") {
-@@ -58,18 +58,21 @@
+@@ -65,18 +65,21 @@
    }
  
    test("palindromize builds the shortest palindrome starting with the input") {
@@ -491,7 +500,7 @@ still needed where the source type isn't a collection class, as with `String` he
 ```diff
 --- 2/12/test/src/PalindromeSuite.scala
 +++ 2/13/test/src/PalindromeSuite.scala
-@@ -34,7 +34,7 @@
+@@ -41,7 +41,7 @@
  
    test("isPalindrome is also a method on any Seq") {
      assert(Seq("a", "b", "a").isPalindrome)
@@ -500,7 +509,7 @@ still needed where the source type isn't a collection class, as with `String` he
      assert(!Vector(1, 2).isPalindrome)
    }
  
-@@ -49,7 +49,7 @@
+@@ -56,7 +56,7 @@
  
    test("another Eq can be passed explicitly") {
      assert(isPalindrome("Racecar")(Eq.caseInsensitive))
@@ -509,7 +518,7 @@ still needed where the source type isn't a collection class, as with `String` he
    }
  
    test("an implicit Eq in scope takes precedence over the default") {
-@@ -58,7 +58,7 @@
+@@ -65,7 +65,7 @@
    }
  
    test("palindromize builds the shortest palindrome starting with the input") {
@@ -518,7 +527,7 @@ still needed where the source type isn't a collection class, as with `String` he
      val l: List[Int] = List(1, 2, 3).palindromize
      val v: Vector[Char] = palindromize(Vector('x', 'y'))
      assert(s == "abcba")
-@@ -67,12 +67,12 @@
+@@ -74,12 +74,12 @@
      assert(palindromize("abb") == "abba")
      assert(palindromize("racecar") == "racecar")
      assert(palindromize("") == "")
@@ -661,7 +670,7 @@ extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
 ```diff
 --- 2/13/test/src/PalindromeSuite.scala
 +++ 3/0/test/src/PalindromeSuite.scala
-@@ -1,78 +1,75 @@
+@@ -1,85 +1,82 @@
  import org.scalatest.funsuite.AnyFunSuite
 -import Palindrome._
  
@@ -676,6 +685,17 @@ extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
 +    assert("a".isPalindrome)
 +    assert(Seq.empty[Int].isPalindrome)
 +    assert(Seq(1).isPalindrome)
+   }
+ 
+   test("two-element sequences are palindromes when both elements are equal") {
+-    assert(isPalindrome("aa"))
+-    assert(!isPalindrome("ab"))
+-    assert(isPalindrome(Seq(1, 1)))
+-    assert(!isPalindrome(Seq(1, 2)))
++    assert("aa".isPalindrome)
++    assert(!"ab".isPalindrome)
++    assert(Seq(1, 1).isPalindrome)
++    assert(!Seq(1, 2).isPalindrome)
    }
  
    test("isPalindrome accepts palindrome strings") {
@@ -793,7 +813,7 @@ The source is unchanged. 3.4 and 3.5 are identical.
 ```diff
 --- 3/2/test/src/PalindromeSuite.scala
 +++ 3/3/test/src/PalindromeSuite.scala
-@@ -1,62 +1,53 @@
+@@ -1,69 +1,59 @@
  import org.scalatest.funsuite.AnyFunSuite
  
  class PalindromeSuite extends AnyFunSuite:
@@ -803,6 +823,14 @@ The source is unchanged. 3.4 and 3.5 are identical.
      assert("a".isPalindrome)
      assert(Seq.empty[Int].isPalindrome)
      assert(Seq(1).isPalindrome)
+-  }
+ 
+-  test("two-element sequences are palindromes when both elements are equal") {
++  test("two-element sequences are palindromes when both elements are equal"):
+     assert("aa".isPalindrome)
+     assert(!"ab".isPalindrome)
+     assert(Seq(1, 1).isPalindrome)
+     assert(!Seq(1, 2).isPalindrome)
 -  }
  
 -  test("isPalindrome accepts palindrome strings") {
@@ -866,7 +894,7 @@ The source is unchanged. 3.4 and 3.5 are identical.
      val s: String = "abcb".palindromize
      val l: List[Int] = List(1, 2, 3).palindromize
      val v: Vector[Char] = Vector('x', 'y').palindromize
-@@ -67,9 +58,7 @@
+@@ -74,9 +64,7 @@
      assert("racecar".palindromize == "racecar")
      assert("".palindromize == "")
      assert("scala".palindromize.isPalindrome)
