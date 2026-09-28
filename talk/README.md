@@ -7,6 +7,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
   `slides/<id>.html` holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai
   Slides artifact uses; the paths match the artifact's own.
 - `2.3-morph/`, `3.2-annotated/`, `4.1-annotated-all/`: the generated decks, below.
+- `tag-cloud/`: a deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
 - `render.py`: renders the deck in headless Chrome and checks the layout.
 
 ## Deck versions
@@ -69,6 +70,22 @@ are declared in `CHANGES` in `annotated.py`, and the build fails if any code tha
 every highlight. Its artifact is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t>; publish it with
 `4.1-annotated-all/` as the root.
 
+## The tag-cloud deck
+
+`tag-cloud.py` generates `tag-cloud/project/`: a cover, then one slide per Scala release from 2.5 to 3.9, with a
+cloud of the authors of the commits that went into it. Each slide leads with the release and its year; the commit
+and author counts sit centred in amber below the cloud. The commit range and its footnotes are in the speaker
+notes, to keep the slide to the cloud. A name's size follows its commit count within that release,
+and the release's top committer is in amber. A timeline of the releases runs along the bottom of every slide, with
+the slide's release marked in amber; it fades out at the left edge past 2.5, into the releases the deck doesn't
+cover. The slides change with a sliding (`push`) transition. The data is `tag-cloud/authors.json`: per release, the commit range, the
+totals and the top 60 authors, plus the method, every merge of one person's aliases, and every exclusion (bots,
+unattributable SVN commits). It was gathered from history-only clones of scala/scala and scala/scala3 on 2026-09-28;
+its `method` says how, including the releases that needed another range (2.7, 3.6, 3.8). Slide text can't be under
+24px, so the generator shows as many names as fit on a slide (at most 60), and the speaker notes say when it's the
+top ones. The deck isn't part of the version lineage above: it shows who wrote Scala, not this repository's code. Its
+artifact is <https://claude.ai/artifact/BBnmYfzdH7pmk3VQybdQdm>.
+
 ## Checking the layout
 
 ```bash
@@ -82,6 +99,8 @@ Each slide is laid out on the deck's 1920×1080 canvas, with the deck's fonts, a
 - **Failures:** an element crossing the 128px margins, or text running past its container (a code line past its
   panel, say).
 - **Reported only:** a heading that wraps without a `<br>`; the takeaways statement does this on purpose.
+- **Skipped:** elements marked `data-bleed`, which run to or off the slide's edge on purpose (the tag-cloud
+  deck's timeline).
 - **Also printed:** each slide's lowest content edge, against the 952px limit.
 
 It needs Python 3 and Google Chrome or Chromium (set `CHROME` to its path if it isn't found). Fonts are downloaded

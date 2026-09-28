@@ -1,0 +1,4770 @@
+{
+ "method": "Commit authors per Scala minor version, from bare blob-less clones of github.com/scala/scala (2.5-2.13) and github.com/scala/scala3 (3.0-3.9, formerly lampepfl/dotty), cloned 2026-09-28. Each version counts `git log --no-merges --use-mailmap` over <previous minor's first release tag>..<this minor's first release tag> (e.g. v2.12.0..v2.13.0); 2.5 starts at v2.4.0; 3.0 is the whole scala3 history up to 3.0.0. Deviations: 2.7 has no v2.7.0 tag, so its end (and 2.8's start) is trunk commit bee89ecede8f, the last one on or before the 2.7.0 release date 2008-03-06; 3.6 uses 3.6.2 (the official first 3.6 release; 3.6.0 was an accidental publish and has no tag); 3.8 excludes the 6011 imported Scala 2 stdlib commits (^7a75a09b13ae). Pre-2.11 tags sit on release branches, so a range is 'reachable from the new tag but not from the old one'. Authors are the repo .mailmap names (%aN), then merged into one identity when they share an email address, a GitHub noreply login, or the same name up to case, accents, punctuation and word order; merges are listed under 'merges'. Commits by dependabot[bot], github-actions[bot] and the AI agent 'Claude' (noreply@anthropic.com) are excluded and listed under 'excluded', as are the 37 SVN-era commits (2.7, 2.8) whose author was recorded as a placeholder (e.g. 'NAME <USER@epfl.ch>'), which the scala/scala .mailmap maps to 'Unknown Committer'. Counts are by author (not committer), one per commit, with no weighting by size.",
+ "versions": [
+  {
+   "version": "2.5",
+   "repo": "scala/scala",
+   "range": "v2.4.0..v2.5.0",
+   "commits": 289,
+   "authors": 10,
+   "top": [
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 89
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 41
+    },
+    {
+     "name": "Lex Spoon",
+     "commits": 32
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 26
+    },
+    {
+     "name": "Nikolay Mihaylov",
+     "commits": 25
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 23
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 23
+    },
+    {
+     "name": "Sean McDirmid",
+     "commits": 17
+    },
+    {
+     "name": "Burak Emir",
+     "commits": 7
+    },
+    {
+     "name": "Gilles Dubochet",
+     "commits": 6
+    }
+   ],
+   "notes": "v2.4.0 and v2.5.0 are SVN release tags on release branches, not ancestors of each other; the range is the commits reachable from v2.5.0 but not from v2.4.0 (trunk work after the 2.4 branch point, plus the 2.5 release branch). The same holds for 2.5-2.10."
+  },
+  {
+   "version": "2.6",
+   "repo": "scala/scala",
+   "range": "v2.5.0..v2.6.0",
+   "commits": 598,
+   "authors": 10,
+   "top": [
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 151
+    },
+    {
+     "name": "Burak Emir",
+     "commits": 104
+    },
+    {
+     "name": "Lex Spoon",
+     "commits": 84
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 78
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 38
+    },
+    {
+     "name": "Nikolay Mihaylov",
+     "commits": 37
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 35
+    },
+    {
+     "name": "Sean McDirmid",
+     "commits": 30
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 29
+    },
+    {
+     "name": "Gilles Dubochet",
+     "commits": 12
+    }
+   ],
+   "notes": "Tags are on SVN release branches (see 2.5)."
+  },
+  {
+   "version": "2.7",
+   "repo": "scala/scala",
+   "range": "v2.6.0..bee89ecede8f",
+   "commits": 725,
+   "authors": 12,
+   "top": [
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 230
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 121
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 66
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 65
+    },
+    {
+     "name": "Sean McDirmid",
+     "commits": 56
+    },
+    {
+     "name": "Lex Spoon",
+     "commits": 55
+    },
+    {
+     "name": "Burak Emir",
+     "commits": 49
+    },
+    {
+     "name": "Geoffrey Washburn",
+     "commits": 40
+    },
+    {
+     "name": "Gilles Dubochet",
+     "commits": 20
+    },
+    {
+     "name": "Nikolay Mihaylov",
+     "commits": 9
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 8
+    },
+    {
+     "name": "Sebastian Hack",
+     "commits": 6
+    }
+   ],
+   "notes": "There is no v2.7.0 tag in scala/scala (the first 2.7 tag is v2.7.1). Used the last trunk commit on or before the official 2.7.0 release date (2008-03-06): bee89ecede8f (Iulian Dragos, 2008-03-06 21:45 UTC, 'Switched to scala.StringBuilder'). Using v2.7.1 instead would give v2.6.0..v2.7.1 = 937 commits. Excluded: Unknown Committer 7."
+  },
+  {
+   "version": "2.8",
+   "repo": "scala/scala",
+   "range": "bee89ecede8f..v2.8.0",
+   "commits": 2557,
+   "authors": 31,
+   "top": [
+    {
+     "name": "Paul Phillips",
+     "commits": 599
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 320
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 268
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 217
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 192
+    },
+    {
+     "name": "Geoffrey Washburn",
+     "commits": 179
+    },
+    {
+     "name": "Antonio Cunei",
+     "commits": 139
+    },
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 85
+    },
+    {
+     "name": "David MacIver",
+     "commits": 80
+    },
+    {
+     "name": "Gilles Dubochet",
+     "commits": 80
+    },
+    {
+     "name": "Miles Sabin",
+     "commits": 65
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 55
+    },
+    {
+     "name": "Ingo Maier",
+     "commits": 47
+    },
+    {
+     "name": "Sean McDirmid",
+     "commits": 43
+    },
+    {
+     "name": "Stepan Koltsov",
+     "commits": 35
+    },
+    {
+     "name": "Tiark Rompf",
+     "commits": 22
+    },
+    {
+     "name": "Burak Emir",
+     "commits": 18
+    },
+    {
+     "name": "Daniel Lorch",
+     "commits": 18
+    },
+    {
+     "name": "Ilya Sergei",
+     "commits": 16
+    },
+    {
+     "name": "Julien Eberle",
+     "commits": 14
+    },
+    {
+     "name": "Michael Pradel",
+     "commits": 13
+    },
+    {
+     "name": "nielsen",
+     "commits": 10
+    },
+    {
+     "name": "Hubert Plociniczak",
+     "commits": 9
+    },
+    {
+     "name": "Lex Spoon",
+     "commits": 9
+    },
+    {
+     "name": "Josh Suereth",
+     "commits": 7
+    },
+    {
+     "name": "Aleksandar Prokopec",
+     "commits": 6
+    },
+    {
+     "name": "Derek Chen-Beker",
+     "commits": 4
+    },
+    {
+     "name": "Nikolay Mihaylov",
+     "commits": 4
+    },
+    {
+     "name": "Alex Cruise",
+     "commits": 1
+    },
+    {
+     "name": "Donna Malayeri",
+     "commits": 1
+    },
+    {
+     "name": "Mohsen Lesani",
+     "commits": 1
+    }
+   ],
+   "notes": "Starts at the same 2.7.0 stand-in commit bee89ecede8f (no v2.7.0 tag). Includes the long 2.8 development cycle (2008-2010, collections redesign). Excluded: Unknown Committer 30."
+  },
+  {
+   "version": "2.9",
+   "repo": "scala/scala",
+   "range": "v2.8.0..v2.9.0",
+   "commits": 2693,
+   "authors": 26,
+   "top": [
+    {
+     "name": "Paul Phillips",
+     "commits": 1023
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 347
+    },
+    {
+     "name": "Aleksandar Prokopec",
+     "commits": 259
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 194
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 142
+    },
+    {
+     "name": "Gilles Dubochet",
+     "commits": 126
+    },
+    {
+     "name": "Hubert Plociniczak",
+     "commits": 113
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 99
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 98
+    },
+    {
+     "name": "Antonio Cunei",
+     "commits": 65
+    },
+    {
+     "name": "Eugene Vigdorchik",
+     "commits": 38
+    },
+    {
+     "name": "Miles Sabin",
+     "commits": 34
+    },
+    {
+     "name": "Donna Malayeri",
+     "commits": 30
+    },
+    {
+     "name": "Tiark Rompf",
+     "commits": 29
+    },
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 23
+    },
+    {
+     "name": "Ilya Sergei",
+     "commits": 16
+    },
+    {
+     "name": "Ingo Maier",
+     "commits": 14
+    },
+    {
+     "name": "Caoyuan Deng",
+     "commits": 10
+    },
+    {
+     "name": "Pedro Furlanetto",
+     "commits": 7
+    },
+    {
+     "name": "Kato Kazuyoshi",
+     "commits": 6
+    },
+    {
+     "name": "moix",
+     "commits": 5
+    },
+    {
+     "name": "Derek Chen-Beker",
+     "commits": 4
+    },
+    {
+     "name": "Miguel Garcia",
+     "commits": 4
+    },
+    {
+     "name": "Chris James",
+     "commits": 3
+    },
+    {
+     "name": "Josh Suereth",
+     "commits": 3
+    },
+    {
+     "name": "David Pollak",
+     "commits": 1
+    }
+   ],
+   "notes": "Tags are on SVN/git release branches (see 2.5)."
+  },
+  {
+   "version": "2.10",
+   "repo": "scala/scala",
+   "range": "v2.9.0..v2.10.0",
+   "commits": 3775,
+   "authors": 79,
+   "top": [
+    {
+     "name": "Paul Phillips",
+     "commits": 1295
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 385
+    },
+    {
+     "name": "Eugene Burmako",
+     "commits": 373
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 211
+    },
+    {
+     "name": "Aleksandar Prokopec",
+     "commits": 195
+    },
+    {
+     "name": "Josh Suereth",
+     "commits": 137
+    },
+    {
+     "name": "Vlad Ureche",
+     "commits": 95
+    },
+    {
+     "name": "Jason Zaugg",
+     "commits": 93
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 81
+    },
+    {
+     "name": "Hubert Plociniczak",
+     "commits": 72
+    },
+    {
+     "name": "Heather Miller",
+     "commits": 71
+    },
+    {
+     "name": "Miguel Garcia",
+     "commits": 71
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 65
+    },
+    {
+     "name": "Kato Kazuyoshi",
+     "commits": 61
+    },
+    {
+     "name": "Grzegorz Kossakowski",
+     "commits": 51
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 49
+    },
+    {
+     "name": "Erik Rozendaal",
+     "commits": 37
+    },
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 33
+    },
+    {
+     "name": "Simon Ochsenreither",
+     "commits": 26
+    },
+    {
+     "name": "Viktor Klang",
+     "commits": 25
+    },
+    {
+     "name": "Dominik Gruntz",
+     "commits": 24
+    },
+    {
+     "name": "Donna Malayeri",
+     "commits": 23
+    },
+    {
+     "name": "Daniel C. Sobral",
+     "commits": 22
+    },
+    {
+     "name": "Rüdiger Klaehn",
+     "commits": 21
+    },
+    {
+     "name": "Mirco Dotta",
+     "commits": 18
+    },
+    {
+     "name": "Roland Kuhn",
+     "commits": 18
+    },
+    {
+     "name": "Szabolcs Berecz",
+     "commits": 18
+    },
+    {
+     "name": "Vojin Jovanovic",
+     "commits": 17
+    },
+    {
+     "name": "Antonio Cunei",
+     "commits": 15
+    },
+    {
+     "name": "Ingo Maier",
+     "commits": 13
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 13
+    },
+    {
+     "name": "Christopher Vogt",
+     "commits": 12
+    },
+    {
+     "name": "Nada Amin",
+     "commits": 11
+    },
+    {
+     "name": "Stefan Zeiger",
+     "commits": 11
+    },
+    {
+     "name": "Paolo G. Giarrusso",
+     "commits": 9
+    },
+    {
+     "name": "Erik Osheim",
+     "commits": 8
+    },
+    {
+     "name": "Alex Cruise",
+     "commits": 7
+    },
+    {
+     "name": "Pavel Pavlov",
+     "commits": 7
+    },
+    {
+     "name": "Johannes Rudolph",
+     "commits": 5
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 5
+    },
+    {
+     "name": "Lucien Pereira",
+     "commits": 5
+    },
+    {
+     "name": "Pedro Furlanetto",
+     "commits": 5
+    },
+    {
+     "name": "Havoc Pennington",
+     "commits": 4
+    },
+    {
+     "name": "Tiark Rompf",
+     "commits": 4
+    },
+    {
+     "name": "Blair Zajac",
+     "commits": 3
+    },
+    {
+     "name": "Chris Hodapp",
+     "commits": 3
+    },
+    {
+     "name": "Dmitry Nadezhin",
+     "commits": 3
+    },
+    {
+     "name": "Eugene Vigdorchik",
+     "commits": 3
+    },
+    {
+     "name": "Juha Heljoranta",
+     "commits": 3
+    },
+    {
+     "name": "Kota Mizushima",
+     "commits": 3
+    },
+    {
+     "name": "Damien Obristi",
+     "commits": 2
+    },
+    {
+     "name": "Geoff Reedy",
+     "commits": 2
+    },
+    {
+     "name": "Ismael Juma",
+     "commits": 2
+    },
+    {
+     "name": "Josh Marcus",
+     "commits": 2
+    },
+    {
+     "name": "Leif Wickland",
+     "commits": 2
+    },
+    {
+     "name": "Luc Bourlier",
+     "commits": 2
+    },
+    {
+     "name": "Scott R. Parish",
+     "commits": 2
+    },
+    {
+     "name": "Connor Doyle",
+     "commits": 1
+    },
+    {
+     "name": "Cristian Tălău",
+     "commits": 1
+    },
+    {
+     "name": "Dan Brown",
+     "commits": 1
+    }
+   ],
+   "notes": "v2.9.0 is on a release branch; range is commits reachable from v2.10.0 not from v2.9.0."
+  },
+  {
+   "version": "2.11",
+   "repo": "scala/scala",
+   "range": "v2.10.0..v2.11.0",
+   "commits": 2918,
+   "authors": 130,
+   "top": [
+    {
+     "name": "Jason Zaugg",
+     "commits": 592
+    },
+    {
+     "name": "Paul Phillips",
+     "commits": 548
+    },
+    {
+     "name": "Eugene Burmako",
+     "commits": 374
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 300
+    },
+    {
+     "name": "Denys Shabalin",
+     "commits": 164
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 122
+    },
+    {
+     "name": "Simon Ochsenreither",
+     "commits": 121
+    },
+    {
+     "name": "James Iry",
+     "commits": 83
+    },
+    {
+     "name": "Miguel Garcia",
+     "commits": 63
+    },
+    {
+     "name": "Eugene Vigdorchik",
+     "commits": 42
+    },
+    {
+     "name": "Grzegorz Kossakowski",
+     "commits": 42
+    },
+    {
+     "name": "Iain McGinniss",
+     "commits": 40
+    },
+    {
+     "name": "Rex Kerr",
+     "commits": 32
+    },
+    {
+     "name": "François Garillot",
+     "commits": 24
+    },
+    {
+     "name": "Vladimir Nikolaev",
+     "commits": 21
+    },
+    {
+     "name": "Hubert Plociniczak",
+     "commits": 14
+    },
+    {
+     "name": "Mirco Dotta",
+     "commits": 14
+    },
+    {
+     "name": "Kato Kazuyoshi",
+     "commits": 13
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 13
+    },
+    {
+     "name": "Paolo G. Giarrusso",
+     "commits": 12
+    },
+    {
+     "name": "Jean-Remi Desjardins",
+     "commits": 11
+    },
+    {
+     "name": "Viktor Klang",
+     "commits": 11
+    },
+    {
+     "name": "Rüdiger Klaehn",
+     "commits": 10
+    },
+    {
+     "name": "Vlad Ureche",
+     "commits": 10
+    },
+    {
+     "name": "Aleksandar Prokopec",
+     "commits": 9
+    },
+    {
+     "name": "Antoine Gourlay",
+     "commits": 9
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 9
+    },
+    {
+     "name": "Simon Schaefer",
+     "commits": 9
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 8
+    },
+    {
+     "name": "Heather Miller",
+     "commits": 7
+    },
+    {
+     "name": "Josh Suereth",
+     "commits": 7
+    },
+    {
+     "name": "Luc Bourlier",
+     "commits": 7
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 6
+    },
+    {
+     "name": "Andrew Phillips",
+     "commits": 5
+    },
+    {
+     "name": "Lex Spoon",
+     "commits": 5
+    },
+    {
+     "name": "Nada Amin",
+     "commits": 5
+    },
+    {
+     "name": "Andriy Polishchuk",
+     "commits": 4
+    },
+    {
+     "name": "George Leontiev",
+     "commits": 4
+    },
+    {
+     "name": "Jan Niehusmann",
+     "commits": 4
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 4
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 4
+    },
+    {
+     "name": "Christoffer Sawicki",
+     "commits": 3
+    },
+    {
+     "name": "Daniel C. Sobral",
+     "commits": 3
+    },
+    {
+     "name": "Erik Osheim",
+     "commits": 3
+    },
+    {
+     "name": "Heejong Lee",
+     "commits": 3
+    },
+    {
+     "name": "Michael Thorpe",
+     "commits": 3
+    },
+    {
+     "name": "Pavel Pavlov",
+     "commits": 3
+    },
+    {
+     "name": "Prashant Sharma",
+     "commits": 3
+    },
+    {
+     "name": "Valerian",
+     "commits": 3
+    },
+    {
+     "name": "Vinicius Miana",
+     "commits": 3
+    },
+    {
+     "name": "Vojin Jovanovic",
+     "commits": 3
+    },
+    {
+     "name": "martende",
+     "commits": 3
+    },
+    {
+     "name": "Alexander Clare",
+     "commits": 2
+    },
+    {
+     "name": "Antonio Cunei",
+     "commits": 2
+    },
+    {
+     "name": "Brian McKenna",
+     "commits": 2
+    },
+    {
+     "name": "Chris Hodapp",
+     "commits": 2
+    },
+    {
+     "name": "Dan Hopkins",
+     "commits": 2
+    },
+    {
+     "name": "Dan Rosen",
+     "commits": 2
+    },
+    {
+     "name": "David Hall",
+     "commits": 2
+    },
+    {
+     "name": "Dmitry Bushev",
+     "commits": 2
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "version": "2.12",
+   "repo": "scala/scala",
+   "range": "v2.11.0..v2.12.0",
+   "commits": 2088,
+   "authors": 184,
+   "top": [
+    {
+     "name": "Lukas Rytz",
+     "commits": 430
+    },
+    {
+     "name": "Jason Zaugg",
+     "commits": 389
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 242
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 176
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 84
+    },
+    {
+     "name": "Janek Bogucki",
+     "commits": 67
+    },
+    {
+     "name": "Antoine Gourlay",
+     "commits": 53
+    },
+    {
+     "name": "Rex Kerr",
+     "commits": 53
+    },
+    {
+     "name": "Stefan Zeiger",
+     "commits": 50
+    },
+    {
+     "name": "Simon Ochsenreither",
+     "commits": 42
+    },
+    {
+     "name": "Michał Pociecha",
+     "commits": 28
+    },
+    {
+     "name": "Felix Mulder",
+     "commits": 27
+    },
+    {
+     "name": "Grzegorz Kossakowski",
+     "commits": 27
+    },
+    {
+     "name": "Performant Data LLC",
+     "commits": 17
+    },
+    {
+     "name": "Eugene Burmako",
+     "commits": 16
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 16
+    },
+    {
+     "name": "Gerard Basler",
+     "commits": 13
+    },
+    {
+     "name": "Rui Gonçalves",
+     "commits": 13
+    },
+    {
+     "name": "Kato Kazuyoshi",
+     "commits": 11
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 10
+    },
+    {
+     "name": "Denton Cockburn",
+     "commits": 9
+    },
+    {
+     "name": "Max Bileschi",
+     "commits": 9
+    },
+    {
+     "name": "Robert Hoedicke",
+     "commits": 9
+    },
+    {
+     "name": "Heather Miller",
+     "commits": 8
+    },
+    {
+     "name": "Maks Atygaev",
+     "commits": 8
+    },
+    {
+     "name": "Miles Sabin",
+     "commits": 8
+    },
+    {
+     "name": "Dominik Gruntz",
+     "commits": 6
+    },
+    {
+     "name": "Viktor Klang",
+     "commits": 6
+    },
+    {
+     "name": "vsalvis",
+     "commits": 6
+    },
+    {
+     "name": "Brian McKenna",
+     "commits": 5
+    },
+    {
+     "name": "Denys Shabalin",
+     "commits": 5
+    },
+    {
+     "name": "François Garillot",
+     "commits": 5
+    },
+    {
+     "name": "Martijn Hoekstra",
+     "commits": 5
+    },
+    {
+     "name": "Simon Schaefer",
+     "commits": 5
+    },
+    {
+     "name": "Evgeny Vereshchagin",
+     "commits": 4
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 4
+    },
+    {
+     "name": "Jakob Odersky",
+     "commits": 4
+    },
+    {
+     "name": "Kota Mizushima",
+     "commits": 4
+    },
+    {
+     "name": "Masato Sogame",
+     "commits": 4
+    },
+    {
+     "name": "Paolo G. Giarrusso",
+     "commits": 4
+    },
+    {
+     "name": "Philipp Haller",
+     "commits": 4
+    },
+    {
+     "name": "Tobias Roeser",
+     "commits": 4
+    },
+    {
+     "name": "Todd Vierling",
+     "commits": 4
+    },
+    {
+     "name": "Vlad Ureche",
+     "commits": 4
+    },
+    {
+     "name": "Zhong Sheng",
+     "commits": 4
+    },
+    {
+     "name": "wpopielarski",
+     "commits": 4
+    },
+    {
+     "name": "Alexey Romanov",
+     "commits": 3
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 3
+    },
+    {
+     "name": "Jean-Remi Desjardins",
+     "commits": 3
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 3
+    },
+    {
+     "name": "Shane Delmore",
+     "commits": 3
+    },
+    {
+     "name": "qilab gamma",
+     "commits": 3
+    },
+    {
+     "name": "Aleksandar Prokopec",
+     "commits": 2
+    },
+    {
+     "name": "Arno den Hartog",
+     "commits": 2
+    },
+    {
+     "name": "Chris Hodapp",
+     "commits": 2
+    },
+    {
+     "name": "Dan Garrette",
+     "commits": 2
+    },
+    {
+     "name": "Daniel Dietrich",
+     "commits": 2
+    },
+    {
+     "name": "Dick Wall",
+     "commits": 2
+    },
+    {
+     "name": "Dima Tkach",
+     "commits": 2
+    },
+    {
+     "name": "Dongjoon Hyun",
+     "commits": 2
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "version": "2.13",
+   "repo": "scala/scala",
+   "range": "v2.12.0..v2.13.0",
+   "commits": 4123,
+   "authors": 231,
+   "top": [
+    {
+     "name": "Jason Zaugg",
+     "commits": 668
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 467
+    },
+    {
+     "name": "Julien Richard-Foy",
+     "commits": 408
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 366
+    },
+    {
+     "name": "Adriaan Moors",
+     "commits": 249
+    },
+    {
+     "name": "Stefan Zeiger",
+     "commits": 194
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 144
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 125
+    },
+    {
+     "name": "Diego E. Alonso Blas",
+     "commits": 94
+    },
+    {
+     "name": "Josh Lemer",
+     "commits": 92
+    },
+    {
+     "name": "NthPortal",
+     "commits": 85
+    },
+    {
+     "name": "Harrison Houghton",
+     "commits": 83
+    },
+    {
+     "name": "Miles Sabin",
+     "commits": 80
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 62
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 46
+    },
+    {
+     "name": "Marcelo Cenerino",
+     "commits": 39
+    },
+    {
+     "name": "Mike Skells",
+     "commits": 39
+    },
+    {
+     "name": "Martijn Hoekstra",
+     "commits": 37
+    },
+    {
+     "name": "Eugene Yokota",
+     "commits": 36
+    },
+    {
+     "name": "Odd Möller",
+     "commits": 35
+    },
+    {
+     "name": "Martin Odersky",
+     "commits": 34
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 33
+    },
+    {
+     "name": "Allan Renucci",
+     "commits": 30
+    },
+    {
+     "name": "Georgi Krastev",
+     "commits": 30
+    },
+    {
+     "name": "Aaron S. Hawley",
+     "commits": 27
+    },
+    {
+     "name": "exoego",
+     "commits": 27
+    },
+    {
+     "name": "Janek Bogucki",
+     "commits": 26
+    },
+    {
+     "name": "jvican",
+     "commits": 26
+    },
+    {
+     "name": "Viktor Klang",
+     "commits": 24
+    },
+    {
+     "name": "Pap Lőrinc",
+     "commits": 20
+    },
+    {
+     "name": "Rex Kerr",
+     "commits": 20
+    },
+    {
+     "name": "Ólafur Páll Geirsson",
+     "commits": 18
+    },
+    {
+     "name": "Jasper Moeys",
+     "commits": 17
+    },
+    {
+     "name": "hepin1989",
+     "commits": 14
+    },
+    {
+     "name": "Isaac Levy",
+     "commits": 13
+    },
+    {
+     "name": "Matthew de Detrich",
+     "commits": 13
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 13
+    },
+    {
+     "name": "Iulian Dragos",
+     "commits": 12
+    },
+    {
+     "name": "Greg Methvin",
+     "commits": 9
+    },
+    {
+     "name": "Rory Graves",
+     "commits": 9
+    },
+    {
+     "name": "Aggelos Biboudis",
+     "commits": 8
+    },
+    {
+     "name": "wholock",
+     "commits": 8
+    },
+    {
+     "name": "Dan Skells",
+     "commits": 7
+    },
+    {
+     "name": "Matthias Sperl",
+     "commits": 7
+    },
+    {
+     "name": "Adianto Wibisono",
+     "commits": 6
+    },
+    {
+     "name": "Antoine Gourlay",
+     "commits": 6
+    },
+    {
+     "name": "Cong Zhao",
+     "commits": 6
+    },
+    {
+     "name": "Daniel Barclay",
+     "commits": 6
+    },
+    {
+     "name": "Masaru Nomura",
+     "commits": 6
+    },
+    {
+     "name": "Xavier Fernández Salas",
+     "commits": 6
+    },
+    {
+     "name": "yui-knk",
+     "commits": 6
+    },
+    {
+     "name": "杨博 (Yang Bo)",
+     "commits": 6
+    },
+    {
+     "name": "Edmund Noble",
+     "commits": 5
+    },
+    {
+     "name": "Enno Runne",
+     "commits": 5
+    },
+    {
+     "name": "Ethan Pronovost",
+     "commits": 5
+    },
+    {
+     "name": "Eyal Farago",
+     "commits": 5
+    },
+    {
+     "name": "Jonathan Frawley",
+     "commits": 5
+    },
+    {
+     "name": "Earl St Sauver",
+     "commits": 4
+    },
+    {
+     "name": "Jimin Hsieh",
+     "commits": 4
+    },
+    {
+     "name": "Tomas Mikula",
+     "commits": 4
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "version": "3.0",
+   "repo": "scala/scala3",
+   "range": "3.0.0",
+   "commits": 21269,
+   "authors": 321,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 8713
+    },
+    {
+     "name": "Nicolas Stucki",
+     "commits": 3186
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 1436
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 1141
+    },
+    {
+     "name": "Dmitry Petrashko",
+     "commits": 977
+    },
+    {
+     "name": "Felix Mulder",
+     "commits": 774
+    },
+    {
+     "name": "Allan Renucci",
+     "commits": 407
+    },
+    {
+     "name": "Anatolii Kmetiuk",
+     "commits": 326
+    },
+    {
+     "name": "Olivier Blanvillain",
+     "commits": 324
+    },
+    {
+     "name": "Martin Duhem",
+     "commits": 323
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 307
+    },
+    {
+     "name": "Aleksander Boruch-Gruszecki",
+     "commits": 224
+    },
+    {
+     "name": "Krzysztof Romanowski",
+     "commits": 217
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 200
+    },
+    {
+     "name": "Paolo G. Giarrusso",
+     "commits": 172
+    },
+    {
+     "name": "Bryan Abate",
+     "commits": 171
+    },
+    {
+     "name": "Aggelos Biboudis",
+     "commits": 163
+    },
+    {
+     "name": "Robert Stoll",
+     "commits": 129
+    },
+    {
+     "name": "Guillaume Raffin",
+     "commits": 108
+    },
+    {
+     "name": "Filip Zybała",
+     "commits": 103
+    },
+    {
+     "name": "Miles Sabin",
+     "commits": 101
+    },
+    {
+     "name": "Antoine Brunner",
+     "commits": 82
+    },
+    {
+     "name": "poechsel",
+     "commits": 64
+    },
+    {
+     "name": "Tom Grigg",
+     "commits": 62
+    },
+    {
+     "name": "Lan, Jian",
+     "commits": 61
+    },
+    {
+     "name": "noti0na1",
+     "commits": 55
+    },
+    {
+     "name": "Andrzej Ratajczak",
+     "commits": 54
+    },
+    {
+     "name": "Nikita Eshkeev",
+     "commits": 50
+    },
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 43
+    },
+    {
+     "name": "Enno Runne",
+     "commits": 37
+    },
+    {
+     "name": "Sara Alemanno",
+     "commits": 33
+    },
+    {
+     "name": "Jonathan Brachthäuser",
+     "commits": 31
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 31
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 30
+    },
+    {
+     "name": "Abel Nieto",
+     "commits": 29
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 29
+    },
+    {
+     "name": "Arnaud ESTEVE",
+     "commits": 27
+    },
+    {
+     "name": "Ruslan Shevchenko",
+     "commits": 26
+    },
+    {
+     "name": "Vladimir Nikolaev",
+     "commits": 25
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 24
+    },
+    {
+     "name": "Michał Pałka",
+     "commits": 22
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 22
+    },
+    {
+     "name": "Tobias Bordenca",
+     "commits": 20
+    },
+    {
+     "name": "vsalvis",
+     "commits": 20
+    },
+    {
+     "name": "Martijn Hoekstra",
+     "commits": 19
+    },
+    {
+     "name": "Maxime Kjaer",
+     "commits": 19
+    },
+    {
+     "name": "Phil Walker",
+     "commits": 19
+    },
+    {
+     "name": "Samuel Gruetter",
+     "commits": 19
+    },
+    {
+     "name": "Jendrik Wenke",
+     "commits": 18
+    },
+    {
+     "name": "Jason Zaugg",
+     "commits": 17
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 15
+    },
+    {
+     "name": "Varunram Ganesh",
+     "commits": 15
+    },
+    {
+     "name": "Greg Zoller",
+     "commits": 14
+    },
+    {
+     "name": "Jaemin Hong",
+     "commits": 14
+    },
+    {
+     "name": "Vlad Ureche",
+     "commits": 13
+    },
+    {
+     "name": "Ólafur Páll Geirsson",
+     "commits": 13
+    },
+    {
+     "name": "Miron Aseev",
+     "commits": 12
+    },
+    {
+     "name": "Wojtek Swiderski",
+     "commits": 12
+    },
+    {
+     "name": "Dmytro Melnychenko",
+     "commits": 11
+    },
+    {
+     "name": "Grzegorz Bielski",
+     "commits": 11
+    }
+   ],
+   "notes": "Whole history of scala/scala3 (formerly lampepfl/dotty) up to tag 3.0.0: all of Dotty's development since the first commit on 2012-12-06, so it covers ~8.5 years, not one release cycle. Alternative (author date after the 2.13.0 release, 2019-06-07, up to 3.0.0) is given in 'since_2_13' below. Also includes the scaladoc (scala3doc) project, merged into the repo in 2020 with its own history.",
+   "since_2_13": {
+    "range": "3.0.0, author date after 2019-06-07",
+    "commits": 7355,
+    "authors": 177,
+    "top": [
+     {
+      "name": "Martin Odersky",
+      "commits": 2220
+     },
+     {
+      "name": "Nicolas Stucki",
+      "commits": 1481
+     },
+     {
+      "name": "Fengyun Liu",
+      "commits": 640
+     },
+     {
+      "name": "Guillaume Martres",
+      "commits": 426
+     },
+     {
+      "name": "Jamie Thompson",
+      "commits": 307
+     },
+     {
+      "name": "Anatolii Kmetiuk",
+      "commits": 256
+     },
+     {
+      "name": "Krzysztof Romanowski",
+      "commits": 217
+     },
+     {
+      "name": "Aleksander Boruch-Gruszecki",
+      "commits": 150
+     },
+     {
+      "name": "Sébastien Doeraene",
+      "commits": 148
+     },
+     {
+      "name": "Robert Stoll",
+      "commits": 120
+     },
+     {
+      "name": "Guillaume Raffin",
+      "commits": 108
+     },
+     {
+      "name": "Filip Zybała",
+      "commits": 103
+     },
+     {
+      "name": "Antoine Brunner",
+      "commits": 82
+     },
+     {
+      "name": "Tom Grigg",
+      "commits": 62
+     },
+     {
+      "name": "Lan, Jian",
+      "commits": 61
+     },
+     {
+      "name": "noti0na1",
+      "commits": 55
+     },
+     {
+      "name": "Andrzej Ratajczak",
+      "commits": 54
+     },
+     {
+      "name": "Nikita Eshkeev",
+      "commits": 50
+     },
+     {
+      "name": "Miles Sabin",
+      "commits": 45
+     },
+     {
+      "name": "Olivier Blanvillain",
+      "commits": 43
+     },
+     {
+      "name": "Aggelos Biboudis",
+      "commits": 42
+     },
+     {
+      "name": "Bryan Abate",
+      "commits": 34
+     },
+     {
+      "name": "Stéphane Micheloud",
+      "commits": 34
+     },
+     {
+      "name": "Paweł Marks",
+      "commits": 31
+     },
+     {
+      "name": "Som Snytt",
+      "commits": 29
+     },
+     {
+      "name": "Arnaud ESTEVE",
+      "commits": 27
+     },
+     {
+      "name": "Ruslan Shevchenko",
+      "commits": 26
+     },
+     {
+      "name": "Adrien Piquerez",
+      "commits": 24
+     },
+     {
+      "name": "Michał Pałka",
+      "commits": 22
+     },
+     {
+      "name": "Raphael Jolly",
+      "commits": 21
+     },
+     {
+      "name": "Phil Walker",
+      "commits": 19
+     },
+     {
+      "name": "Maxime Kjaer",
+      "commits": 18
+     },
+     {
+      "name": "Greg Zoller",
+      "commits": 14
+     },
+     {
+      "name": "Martijn Hoekstra",
+      "commits": 13
+     },
+     {
+      "name": "Grzegorz Bielski",
+      "commits": 11
+     },
+     {
+      "name": "Yichen Xu",
+      "commits": 11
+     },
+     {
+      "name": "Bjorn Regnell",
+      "commits": 10
+     },
+     {
+      "name": "Jonathan Brachthäuser",
+      "commits": 9
+     },
+     {
+      "name": "yu-croco",
+      "commits": 9
+     },
+     {
+      "name": "Dale Wijnand",
+      "commits": 8
+     },
+     {
+      "name": "Sara Alemanno",
+      "commits": 7
+     },
+     {
+      "name": "Akhtiam Sakaev",
+      "commits": 6
+     },
+     {
+      "name": "Kenji Yoshida",
+      "commits": 6
+     },
+     {
+      "name": "Natsu Kagami",
+      "commits": 6
+     },
+     {
+      "name": "Oron Port",
+      "commits": 6
+     },
+     {
+      "name": "Reto Hablützel",
+      "commits": 6
+     },
+     {
+      "name": "Ólafur Páll Geirsson",
+      "commits": 6
+     },
+     {
+      "name": "Alex Merritt",
+      "commits": 5
+     },
+     {
+      "name": "Ausmarton Zarino Fernandes",
+      "commits": 5
+     },
+     {
+      "name": "Ayush",
+      "commits": 5
+     },
+     {
+      "name": "Julien Richard-Foy",
+      "commits": 5
+     },
+     {
+      "name": "Lionel Parreaux",
+      "commits": 5
+     },
+     {
+      "name": "Michael Pilquist",
+      "commits": 5
+     },
+     {
+      "name": "Seth Tisue",
+      "commits": 5
+     },
+     {
+      "name": "Travis Brown",
+      "commits": 5
+     },
+     {
+      "name": "Tudor Voicu",
+      "commits": 5
+     },
+     {
+      "name": "Andrew Valencik",
+      "commits": 4
+     },
+     {
+      "name": "Ben Elliott",
+      "commits": 4
+     },
+     {
+      "name": "Eric K Richardson",
+      "commits": 4
+     },
+     {
+      "name": "Hanns Holger Rutz",
+      "commits": 4
+     }
+    ]
+   }
+  },
+  {
+   "version": "3.1",
+   "repo": "scala/scala3",
+   "range": "3.0.0..3.1.0",
+   "commits": 1407,
+   "authors": 82,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 279
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 179
+    },
+    {
+     "name": "Nicolas Stucki",
+     "commits": 151
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 87
+    },
+    {
+     "name": "Rikito Taniguchi",
+     "commits": 77
+    },
+    {
+     "name": "Andrzej Ratajczak",
+     "commits": 62
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 54
+    },
+    {
+     "name": "Filip Zybała",
+     "commits": 48
+    },
+    {
+     "name": "Olivier Blanvillain",
+     "commits": 43
+    },
+    {
+     "name": "Phil Walker",
+     "commits": 34
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 32
+    },
+    {
+     "name": "Tom Grigg",
+     "commits": 29
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 23
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 23
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 20
+    },
+    {
+     "name": "Krzysztof Romanowski",
+     "commits": 18
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 17
+    },
+    {
+     "name": "Anatolii Kmetiuk",
+     "commits": 17
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 16
+    },
+    {
+     "name": "Aleksander Boruch-Gruszecki",
+     "commits": 14
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 13
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 12
+    },
+    {
+     "name": "Bjorn Regnell",
+     "commits": 11
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 11
+    },
+    {
+     "name": "Dylan Halperin",
+     "commits": 8
+    },
+    {
+     "name": "Michał Pałka",
+     "commits": 7
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 7
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 7
+    },
+    {
+     "name": "noti0na1",
+     "commits": 7
+    },
+    {
+     "name": "Maxime Kjaer",
+     "commits": 6
+    },
+    {
+     "name": "Alec Theriault",
+     "commits": 5
+    },
+    {
+     "name": "changvvb",
+     "commits": 5
+    },
+    {
+     "name": "Dmitrii Naumenko",
+     "commits": 4
+    },
+    {
+     "name": "Kai",
+     "commits": 4
+    },
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 4
+    },
+    {
+     "name": "Vadim Chelyshov",
+     "commits": 4
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 3
+    },
+    {
+     "name": "Kevin Lee",
+     "commits": 3
+    },
+    {
+     "name": "Magnolia.K",
+     "commits": 3
+    },
+    {
+     "name": "Oron Port",
+     "commits": 3
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 3
+    },
+    {
+     "name": "Adam Warski",
+     "commits": 2
+    },
+    {
+     "name": "Ben Plommer",
+     "commits": 2
+    },
+    {
+     "name": "Florian Schmaus",
+     "commits": 2
+    },
+    {
+     "name": "Johannes Rudolph",
+     "commits": 2
+    },
+    {
+     "name": "Julien Richard-Foy",
+     "commits": 2
+    },
+    {
+     "name": "Maciej Gorywoda",
+     "commits": 2
+    },
+    {
+     "name": "Markus Sutter",
+     "commits": 2
+    },
+    {
+     "name": "Martin",
+     "commits": 2
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 2
+    },
+    {
+     "name": "Roman Kotelnikov",
+     "commits": 2
+    },
+    {
+     "name": "Ruslan Shevchenko",
+     "commits": 2
+    },
+    {
+     "name": "adampauls",
+     "commits": 2
+    },
+    {
+     "name": "vincenzobaz",
+     "commits": 2
+    },
+    {
+     "name": "Alexander Ioffe",
+     "commits": 1
+    },
+    {
+     "name": "Anselm von Wangenheim",
+     "commits": 1
+    },
+    {
+     "name": "Anton Sviridov",
+     "commits": 1
+    },
+    {
+     "name": "Arnout Engelen",
+     "commits": 1
+    },
+    {
+     "name": "Boris",
+     "commits": 1
+    },
+    {
+     "name": "David Barri",
+     "commits": 1
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "version": "3.2",
+   "repo": "scala/scala3",
+   "range": "3.1.0..3.2.0",
+   "commits": 1702,
+   "authors": 91,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 354
+    },
+    {
+     "name": "Nicolas Stucki",
+     "commits": 169
+    },
+    {
+     "name": "Filip Zybała",
+     "commits": 123
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 108
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 72
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 70
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 53
+    },
+    {
+     "name": "Tom Grigg",
+     "commits": 47
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 45
+    },
+    {
+     "name": "noti0na1",
+     "commits": 45
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 44
+    },
+    {
+     "name": "Olivier Blanvillain",
+     "commits": 43
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 36
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 30
+    },
+    {
+     "name": "Andrzej Ratajczak",
+     "commits": 29
+    },
+    {
+     "name": "Phil Walker",
+     "commits": 27
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 26
+    },
+    {
+     "name": "Chris Kipp",
+     "commits": 25
+    },
+    {
+     "name": "Guillaume Raffin",
+     "commits": 25
+    },
+    {
+     "name": "Anatolii Kmetiuk",
+     "commits": 22
+    },
+    {
+     "name": "Rikito Taniguchi",
+     "commits": 22
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 21
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 18
+    },
+    {
+     "name": "Xavientois",
+     "commits": 17
+    },
+    {
+     "name": "Michał Pałka",
+     "commits": 16
+    },
+    {
+     "name": "Oron Port",
+     "commits": 16
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 14
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 14
+    },
+    {
+     "name": "Julien Richard-Foy",
+     "commits": 11
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 9
+    },
+    {
+     "name": "Stéphane Micheloud",
+     "commits": 9
+    },
+    {
+     "name": "Gagandeep Kalra",
+     "commits": 8
+    },
+    {
+     "name": "adampauls",
+     "commits": 8
+    },
+    {
+     "name": "Arman Bilge",
+     "commits": 7
+    },
+    {
+     "name": "Daniel Esik",
+     "commits": 7
+    },
+    {
+     "name": "Kasper Kondzielski",
+     "commits": 7
+    },
+    {
+     "name": "Szymon Rodziewicz",
+     "commits": 6
+    },
+    {
+     "name": "Vadim Chelyshov",
+     "commits": 6
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 6
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 5
+    },
+    {
+     "name": "Michael Pilquist",
+     "commits": 5
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 5
+    },
+    {
+     "name": "Dmitrii Naumenko",
+     "commits": 4
+    },
+    {
+     "name": "Andrzej Ressel",
+     "commits": 3
+    },
+    {
+     "name": "Bjorn Regnell",
+     "commits": 3
+    },
+    {
+     "name": "Eric Torreborre",
+     "commits": 3
+    },
+    {
+     "name": "Ruslan Shevchenko",
+     "commits": 3
+    },
+    {
+     "name": "Albert Chen",
+     "commits": 2
+    },
+    {
+     "name": "Arnout Engelen",
+     "commits": 2
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 2
+    },
+    {
+     "name": "Lan, Jian",
+     "commits": 2
+    },
+    {
+     "name": "Manohar Jonnalagedda",
+     "commits": 2
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 2
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 2
+    },
+    {
+     "name": "Robert Stoll",
+     "commits": 2
+    },
+    {
+     "name": "Tim Spence",
+     "commits": 2
+    },
+    {
+     "name": "cgccuser",
+     "commits": 2
+    },
+    {
+     "name": "Łukasz Wroński",
+     "commits": 2
+    },
+    {
+     "name": "Артём",
+     "commits": 2
+    },
+    {
+     "name": "Aleksander Boruch-Gruszecki",
+     "commits": 1
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "version": "3.3",
+   "repo": "scala/scala3",
+   "range": "3.2.0..3.3.0",
+   "commits": 1630,
+   "authors": 73,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 516
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 131
+    },
+    {
+     "name": "Szymon Rodziewicz",
+     "commits": 112
+    },
+    {
+     "name": "Filip Łukasik",
+     "commits": 94
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 85
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 64
+    },
+    {
+     "name": "Nicolas Stucki",
+     "commits": 63
+    },
+    {
+     "name": "Filip Zybała",
+     "commits": 61
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 59
+    },
+    {
+     "name": "Paul Coral",
+     "commits": 52
+    },
+    {
+     "name": "Kamil Szewczyk",
+     "commits": 48
+    },
+    {
+     "name": "Mikołaj Fornal",
+     "commits": 31
+    },
+    {
+     "name": "Quentin Bernet",
+     "commits": 25
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 23
+    },
+    {
+     "name": "Michael Pollmeier",
+     "commits": 22
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 22
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 20
+    },
+    {
+     "name": "Guillaume Raffin",
+     "commits": 18
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 17
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 16
+    },
+    {
+     "name": "Chris Kipp",
+     "commits": 13
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 11
+    },
+    {
+     "name": "Michał Pałka",
+     "commits": 11
+    },
+    {
+     "name": "Chris Birchall",
+     "commits": 7
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 7
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 6
+    },
+    {
+     "name": "Tom Grigg",
+     "commits": 6
+    },
+    {
+     "name": "jdudrak",
+     "commits": 6
+    },
+    {
+     "name": "nizhikov",
+     "commits": 5
+    },
+    {
+     "name": "noti0na1",
+     "commits": 5
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 4
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 4
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 4
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 3
+    },
+    {
+     "name": "Anatolii Kmetiuk",
+     "commits": 3
+    },
+    {
+     "name": "Julien Richard-Foy",
+     "commits": 3
+    },
+    {
+     "name": "Rikito Taniguchi",
+     "commits": 3
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 3
+    },
+    {
+     "name": "Alex",
+     "commits": 2
+    },
+    {
+     "name": "Arman Bilge",
+     "commits": 2
+    },
+    {
+     "name": "Ben Hutchison",
+     "commits": 2
+    },
+    {
+     "name": "Dmitrii Naumenko",
+     "commits": 2
+    },
+    {
+     "name": "João Costa",
+     "commits": 2
+    },
+    {
+     "name": "Michael Pilquist",
+     "commits": 2
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 2
+    },
+    {
+     "name": "Vasil Vasilev",
+     "commits": 2
+    },
+    {
+     "name": "adampauls",
+     "commits": 2
+    },
+    {
+     "name": "naveen",
+     "commits": 2
+    },
+    {
+     "name": "nmcb",
+     "commits": 2
+    },
+    {
+     "name": "yoshinorin",
+     "commits": 2
+    },
+    {
+     "name": "Alexander Slesarenko",
+     "commits": 1
+    },
+    {
+     "name": "Anton Sviridov",
+     "commits": 1
+    },
+    {
+     "name": "Gabi Volpe",
+     "commits": 1
+    },
+    {
+     "name": "Gagandeep Kalra",
+     "commits": 1
+    },
+    {
+     "name": "Jakub Kozłowski",
+     "commits": 1
+    },
+    {
+     "name": "Jan-Pieter van den Heuvel",
+     "commits": 1
+    },
+    {
+     "name": "Jentsch",
+     "commits": 1
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 1
+    },
+    {
+     "name": "Kieren Davies",
+     "commits": 1
+    },
+    {
+     "name": "Liang Yan",
+     "commits": 1
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "version": "3.4",
+   "repo": "scala/scala3",
+   "range": "3.3.0..3.4.0",
+   "commits": 2224,
+   "authors": 91,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 539
+    },
+    {
+     "name": "Nicolas Stucki",
+     "commits": 444
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 168
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 147
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 91
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 80
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 73
+    },
+    {
+     "name": "Chris Kipp",
+     "commits": 70
+    },
+    {
+     "name": "Szymon Rodziewicz",
+     "commits": 65
+    },
+    {
+     "name": "Quentin Bernet",
+     "commits": 56
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 41
+    },
+    {
+     "name": "Lucas Leblanc",
+     "commits": 40
+    },
+    {
+     "name": "David Hua",
+     "commits": 32
+    },
+    {
+     "name": "Rikito Taniguchi",
+     "commits": 27
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 25
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 19
+    },
+    {
+     "name": "ysthakur",
+     "commits": 18
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 14
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 14
+    },
+    {
+     "name": "Carl",
+     "commits": 13
+    },
+    {
+     "name": "Jakub Ciesluk",
+     "commits": 13
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 13
+    },
+    {
+     "name": "Julien Richard-Foy",
+     "commits": 12
+    },
+    {
+     "name": "Katarzyna Marek",
+     "commits": 12
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 12
+    },
+    {
+     "name": "Mikołaj Fornal",
+     "commits": 12
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 12
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 10
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 9
+    },
+    {
+     "name": "Timothée Andres",
+     "commits": 9
+    },
+    {
+     "name": "Eugene Flesselle",
+     "commits": 8
+    },
+    {
+     "name": "Kasper Kondzielski",
+     "commits": 8
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 8
+    },
+    {
+     "name": "Hamza Remmal",
+     "commits": 7
+    },
+    {
+     "name": "Guillaume Raffin",
+     "commits": 6
+    },
+    {
+     "name": "Decel",
+     "commits": 5
+    },
+    {
+     "name": "Lorenzo Gabriele",
+     "commits": 5
+    },
+    {
+     "name": "Michał Pałka",
+     "commits": 5
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 5
+    },
+    {
+     "name": "Yuito Murase",
+     "commits": 5
+    },
+    {
+     "name": "Anatolii Kmetiuk",
+     "commits": 4
+    },
+    {
+     "name": "Paul Coral",
+     "commits": 4
+    },
+    {
+     "name": "Pascal Weisenburger",
+     "commits": 3
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 2
+    },
+    {
+     "name": "Aleksander Rainko",
+     "commits": 2
+    },
+    {
+     "name": "Arman Bilge",
+     "commits": 2
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 2
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 2
+    },
+    {
+     "name": "Martin Kučera",
+     "commits": 2
+    },
+    {
+     "name": "Michael Pilquist",
+     "commits": 2
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 2
+    },
+    {
+     "name": "Oron Port",
+     "commits": 2
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 2
+    },
+    {
+     "name": "Vasil Vasilev",
+     "commits": 2
+    },
+    {
+     "name": "Yadu Krishnan",
+     "commits": 2
+    },
+    {
+     "name": "danecek",
+     "commits": 2
+    },
+    {
+     "name": "Adam Dąbrowski",
+     "commits": 1
+    },
+    {
+     "name": "Aleksey Troitskiy",
+     "commits": 1
+    },
+    {
+     "name": "Arnout Engelen",
+     "commits": 1
+    },
+    {
+     "name": "Ausmarton Zarino Fernandes",
+     "commits": 1
+    }
+   ],
+   "notes": "Excluded: dependabot[bot] 5, github-actions[bot] 1."
+  },
+  {
+   "version": "3.5",
+   "repo": "scala/scala3",
+   "range": "3.4.0..3.5.0",
+   "commits": 931,
+   "authors": 59,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 239
+    },
+    {
+     "name": "Nicolas Stucki",
+     "commits": 124
+    },
+    {
+     "name": "Eugene Flesselle",
+     "commits": 59
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 58
+    },
+    {
+     "name": "Hamza Remmal",
+     "commits": 47
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 45
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 30
+    },
+    {
+     "name": "noti0na1",
+     "commits": 29
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 28
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 27
+    },
+    {
+     "name": "Szymon Rodziewicz",
+     "commits": 26
+    },
+    {
+     "name": "i10416",
+     "commits": 25
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 20
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 15
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 14
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 14
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 13
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 12
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 11
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 7
+    },
+    {
+     "name": "Katarzyna Marek",
+     "commits": 7
+    },
+    {
+     "name": "Yilin Wei",
+     "commits": 7
+    },
+    {
+     "name": "Mikołaj Fornal",
+     "commits": 6
+    },
+    {
+     "name": "Stephane Bersier",
+     "commits": 6
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 5
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 5
+    },
+    {
+     "name": "Anna Herlihy",
+     "commits": 4
+    },
+    {
+     "name": "Dan13llljws",
+     "commits": 4
+    },
+    {
+     "name": "Jakub Ciesluk",
+     "commits": 4
+    },
+    {
+     "name": "Aviv Keller",
+     "commits": 3
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 3
+    },
+    {
+     "name": "João Costa",
+     "commits": 2
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 2
+    },
+    {
+     "name": "Pascal Weisenburger",
+     "commits": 2
+    },
+    {
+     "name": "Quentin Bernet",
+     "commits": 2
+    },
+    {
+     "name": "Taro L. Saito",
+     "commits": 2
+    },
+    {
+     "name": "willerf",
+     "commits": 2
+    },
+    {
+     "name": "Aleksander Boruch-Gruszecki",
+     "commits": 1
+    },
+    {
+     "name": "Chris Pado",
+     "commits": 1
+    },
+    {
+     "name": "Eugene Yokota",
+     "commits": 1
+    },
+    {
+     "name": "Fabián Heredia Montiel",
+     "commits": 1
+    },
+    {
+     "name": "Filip Zybała",
+     "commits": 1
+    },
+    {
+     "name": "Georgi Krastev",
+     "commits": 1
+    },
+    {
+     "name": "Jisoo Park",
+     "commits": 1
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 1
+    },
+    {
+     "name": "Lucas Nouguier",
+     "commits": 1
+    },
+    {
+     "name": "Lucy Martin",
+     "commits": 1
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 1
+    },
+    {
+     "name": "Mehdi Alaoui",
+     "commits": 1
+    },
+    {
+     "name": "Nikita Gazarov",
+     "commits": 1
+    },
+    {
+     "name": "Ola Flisbäck",
+     "commits": 1
+    },
+    {
+     "name": "Olga Mazhara",
+     "commits": 1
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 1
+    },
+    {
+     "name": "Oron Port",
+     "commits": 1
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 1
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 1
+    },
+    {
+     "name": "Robert Stoll",
+     "commits": 1
+    },
+    {
+     "name": "Valentin Schneeberger",
+     "commits": 1
+    },
+    {
+     "name": "Yoonjae Jeon",
+     "commits": 1
+    }
+   ],
+   "notes": "Excluded: dependabot[bot] 10."
+  },
+  {
+   "version": "3.6",
+   "repo": "scala/scala3",
+   "range": "3.5.0..3.6.2",
+   "commits": 694,
+   "authors": 50,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 200
+    },
+    {
+     "name": "Hamza Remmal",
+     "commits": 83
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 65
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 49
+    },
+    {
+     "name": "Eugene Flesselle",
+     "commits": 41
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 35
+    },
+    {
+     "name": "Katarzyna Marek",
+     "commits": 24
+    },
+    {
+     "name": "noti0na1",
+     "commits": 22
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 21
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 15
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 13
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 11
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 11
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 11
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 11
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 10
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 8
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 6
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 5
+    },
+    {
+     "name": "Derek Wickern",
+     "commits": 3
+    },
+    {
+     "name": "Martin Duhem",
+     "commits": 3
+    },
+    {
+     "name": "Mikołaj Fornal",
+     "commits": 3
+    },
+    {
+     "name": "OlegYch",
+     "commits": 3
+    },
+    {
+     "name": "Oliver Bračevac",
+     "commits": 3
+    },
+    {
+     "name": "Piotr Chabelski",
+     "commits": 3
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 3
+    },
+    {
+     "name": "Aleksander Rainko",
+     "commits": 2
+    },
+    {
+     "name": "David Hua",
+     "commits": 2
+    },
+    {
+     "name": "Eugene Yokota",
+     "commits": 2
+    },
+    {
+     "name": "HarrisL2",
+     "commits": 2
+    },
+    {
+     "name": "Joel Wilsson",
+     "commits": 2
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 2
+    },
+    {
+     "name": "Lucy Martin",
+     "commits": 2
+    },
+    {
+     "name": "Paweł Marks",
+     "commits": 2
+    },
+    {
+     "name": "Arnout Engelen",
+     "commits": 1
+    },
+    {
+     "name": "João Ferreira",
+     "commits": 1
+    },
+    {
+     "name": "Kasper Kondzielski",
+     "commits": 1
+    },
+    {
+     "name": "Kavin Satheeskumar",
+     "commits": 1
+    },
+    {
+     "name": "Lorenzo Gabriele",
+     "commits": 1
+    },
+    {
+     "name": "Lucas Nouguier",
+     "commits": 1
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 1
+    },
+    {
+     "name": "Michel Charpentier",
+     "commits": 1
+    },
+    {
+     "name": "Nafer Sanabria",
+     "commits": 1
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 1
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 1
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 1
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 1
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 1
+    },
+    {
+     "name": "Yuito Murase",
+     "commits": 1
+    },
+    {
+     "name": "crunchyfrog",
+     "commits": 1
+    }
+   ],
+   "notes": "There is no 3.6.0 tag: 3.6.0 was published to Maven Central by accident during the 3.6.0-RC1 release (Oct 2024) and 3.6.1 was a hotfix to supersede it; the Scala team says 3.6.2 (2024-12-10) is to be regarded as 3.6.0. Used 3.6.2. (3.5.0..3.6.1 would give 645 commits.) 3.7 starts from 3.6.2 accordingly. Excluded: dependabot[bot] 11."
+  },
+  {
+   "version": "3.7",
+   "repo": "scala/scala3",
+   "range": "3.6.2..3.7.0",
+   "commits": 747,
+   "authors": 57,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 118
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 63
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 57
+    },
+    {
+     "name": "noti0na1",
+     "commits": 54
+    },
+    {
+     "name": "Hamza Remmal",
+     "commits": 53
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 52
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 46
+    },
+    {
+     "name": "Adrien Piquerez",
+     "commits": 35
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 30
+    },
+    {
+     "name": "Anna Herlihy",
+     "commits": 28
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 28
+    },
+    {
+     "name": "Katarzyna Marek",
+     "commits": 23
+    },
+    {
+     "name": "HarrisL2",
+     "commits": 15
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 14
+    },
+    {
+     "name": "Eugene Flesselle",
+     "commits": 11
+    },
+    {
+     "name": "Oliver Bračevac",
+     "commits": 11
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 11
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 10
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 9
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 9
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 7
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 6
+    },
+    {
+     "name": "Piotr Chabelski",
+     "commits": 5
+    },
+    {
+     "name": "Joel Wilsson",
+     "commits": 4
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 4
+    },
+    {
+     "name": "David Hua",
+     "commits": 3
+    },
+    {
+     "name": "Friendseeker",
+     "commits": 3
+    },
+    {
+     "name": "João Ferreira",
+     "commits": 3
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 3
+    },
+    {
+     "name": "Roman Janusz",
+     "commits": 3
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 2
+    },
+    {
+     "name": "Pascal Weisenburger",
+     "commits": 2
+    },
+    {
+     "name": "Alden Torres",
+     "commits": 1
+    },
+    {
+     "name": "Alec Theriault",
+     "commits": 1
+    },
+    {
+     "name": "Alexander",
+     "commits": 1
+    },
+    {
+     "name": "Daisy Li",
+     "commits": 1
+    },
+    {
+     "name": "Daniel Thoma",
+     "commits": 1
+    },
+    {
+     "name": "Dmitrii Naumenko",
+     "commits": 1
+    },
+    {
+     "name": "Eugene Yokota",
+     "commits": 1
+    },
+    {
+     "name": "Felix Herrmann",
+     "commits": 1
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 1
+    },
+    {
+     "name": "Georgi Krastev",
+     "commits": 1
+    },
+    {
+     "name": "Jentsch",
+     "commits": 1
+    },
+    {
+     "name": "Lunfu Zhong",
+     "commits": 1
+    },
+    {
+     "name": "Mathias",
+     "commits": 1
+    },
+    {
+     "name": "Michał Pałka",
+     "commits": 1
+    },
+    {
+     "name": "Mikołaj Fornal",
+     "commits": 1
+    },
+    {
+     "name": "Niklas Fiekas",
+     "commits": 1
+    },
+    {
+     "name": "Oleg Zenzin",
+     "commits": 1
+    },
+    {
+     "name": "Phil Walker",
+     "commits": 1
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 1
+    },
+    {
+     "name": "Rocco Mathijn Andela",
+     "commits": 1
+    },
+    {
+     "name": "Rui Chen",
+     "commits": 1
+    },
+    {
+     "name": "Vadim Chelyshov",
+     "commits": 1
+    },
+    {
+     "name": "fan-tom",
+     "commits": 1
+    },
+    {
+     "name": "hepin1989",
+     "commits": 1
+    },
+    {
+     "name": "xiaoshihou",
+     "commits": 1
+    }
+   ],
+   "notes": "Starts from 3.6.2 (see 3.6). Excluded: dependabot[bot] 9."
+  },
+  {
+   "version": "3.8",
+   "repo": "scala/scala3",
+   "range": "3.7.0..3.8.0 ^7a75a09b13ae791090a7e7642235698684b492d7",
+   "commits": 1616,
+   "authors": 67,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 475
+    },
+    {
+     "name": "Hamza Remmal",
+     "commits": 252
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 142
+    },
+    {
+     "name": "noti0na1",
+     "commits": 137
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 123
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 41
+    },
+    {
+     "name": "Eugene Flesselle",
+     "commits": 39
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 36
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 32
+    },
+    {
+     "name": "Oliver Bračevac",
+     "commits": 26
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 25
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 25
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 21
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 20
+    },
+    {
+     "name": "Anna Herlihy",
+     "commits": 16
+    },
+    {
+     "name": "HarrisL2",
+     "commits": 15
+    },
+    {
+     "name": "Li Haoyi",
+     "commits": 14
+    },
+    {
+     "name": "Piotr Chabelski",
+     "commits": 13
+    },
+    {
+     "name": "Zieliński Patryk",
+     "commits": 12
+    },
+    {
+     "name": "Kacper Korban",
+     "commits": 11
+    },
+    {
+     "name": "Katarzyna Marek",
+     "commits": 10
+    },
+    {
+     "name": "Matthias Berndt",
+     "commits": 10
+    },
+    {
+     "name": "Yoonjae Jeon",
+     "commits": 10
+    },
+    {
+     "name": "Seyon Sivatharan",
+     "commits": 9
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 7
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 6
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 6
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 6
+    },
+    {
+     "name": "Rikito Taniguchi",
+     "commits": 6
+    },
+    {
+     "name": "Alexander",
+     "commits": 5
+    },
+    {
+     "name": "Emil Ejbyfeldt",
+     "commits": 5
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 5
+    },
+    {
+     "name": "Quentin Bernet",
+     "commits": 5
+    },
+    {
+     "name": "Raphael Jolly",
+     "commits": 5
+    },
+    {
+     "name": "Mikołaj Fornal",
+     "commits": 4
+    },
+    {
+     "name": "Dale Wijnand",
+     "commits": 3
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 3
+    },
+    {
+     "name": "Aleksey Troitskiy",
+     "commits": 2
+    },
+    {
+     "name": "Dolphin von Chips",
+     "commits": 2
+    },
+    {
+     "name": "Georgi Krastev",
+     "commits": 2
+    },
+    {
+     "name": "Martin Duhem",
+     "commits": 2
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 2
+    },
+    {
+     "name": "katrinafyi",
+     "commits": 2
+    },
+    {
+     "name": "Daisy Li",
+     "commits": 1
+    },
+    {
+     "name": "Evgeny Vereshchagin",
+     "commits": 1
+    },
+    {
+     "name": "Jakub Kozłowski",
+     "commits": 1
+    },
+    {
+     "name": "Jan",
+     "commits": 1
+    },
+    {
+     "name": "Jan-Pieter van den Heuvel",
+     "commits": 1
+    },
+    {
+     "name": "Jentsch",
+     "commits": 1
+    },
+    {
+     "name": "Kalin-Rudnicki",
+     "commits": 1
+    },
+    {
+     "name": "Marc GRIS",
+     "commits": 1
+    },
+    {
+     "name": "Martynas Mickevičius",
+     "commits": 1
+    },
+    {
+     "name": "MatthieuSLR9",
+     "commits": 1
+    },
+    {
+     "name": "Max Smirnov",
+     "commits": 1
+    },
+    {
+     "name": "Mirco Dotta",
+     "commits": 1
+    },
+    {
+     "name": "Nikita Glushchenko",
+     "commits": 1
+    },
+    {
+     "name": "Paweł Perłakowski",
+     "commits": 1
+    },
+    {
+     "name": "Philippus Baalman",
+     "commits": 1
+    },
+    {
+     "name": "Przemysław Sajnóg",
+     "commits": 1
+    },
+    {
+     "name": "Tomas Mikula",
+     "commits": 1
+    }
+   ],
+   "notes": "Excludes the Scala 2 standard library history (6011 non-merge commits from scala/scala, 2005-2025, e.g. Paul Phillips, Martin Odersky) that PR #23522 (merge 13fd5af95d42, 2025-07-15, '[stdlib] embed the history of the scala 2 stdlib into dotty's history') grafted into scala3; range is 3.7.0..3.8.0 ^7a75a09b13ae (the imported branch head). Without the exclusion the count would be 7636. Excluded: dependabot[bot] 9."
+  },
+  {
+   "version": "3.9",
+   "repo": "scala/scala3",
+   "range": "3.8.0..3.9.0",
+   "commits": 1390,
+   "authors": 76,
+   "top": [
+    {
+     "name": "Martin Odersky",
+     "commits": 302
+    },
+    {
+     "name": "Solal Pirelli",
+     "commits": 201
+    },
+    {
+     "name": "Som Snytt",
+     "commits": 115
+    },
+    {
+     "name": "Wojciech Mazur",
+     "commits": 115
+    },
+    {
+     "name": "Hamza Remmal",
+     "commits": 108
+    },
+    {
+     "name": "Oliver Bračevac",
+     "commits": 50
+    },
+    {
+     "name": "Matt Bovel",
+     "commits": 42
+    },
+    {
+     "name": "Rikito Taniguchi",
+     "commits": 39
+    },
+    {
+     "name": "noti0na1",
+     "commits": 39
+    },
+    {
+     "name": "Piotr Chabelski",
+     "commits": 33
+    },
+    {
+     "name": "Tomasz Godzik",
+     "commits": 33
+    },
+    {
+     "name": "Zieliński Patryk",
+     "commits": 26
+    },
+    {
+     "name": "Chua Chee Seng",
+     "commits": 21
+    },
+    {
+     "name": "Anatolii Kmetiuk",
+     "commits": 20
+    },
+    {
+     "name": "Jan Chyb",
+     "commits": 19
+    },
+    {
+     "name": "Kenji Yoshida",
+     "commits": 19
+    },
+    {
+     "name": "Li Haoyi",
+     "commits": 19
+    },
+    {
+     "name": "Yichen Xu",
+     "commits": 16
+    },
+    {
+     "name": "Bill Venners",
+     "commits": 14
+    },
+    {
+     "name": "Jamie Thompson",
+     "commits": 14
+    },
+    {
+     "name": "Emil Ejbyfeldt",
+     "commits": 13
+    },
+    {
+     "name": "Jakub Warchoł",
+     "commits": 12
+    },
+    {
+     "name": "Sébastien Doeraene",
+     "commits": 12
+    },
+    {
+     "name": "HarrisL2",
+     "commits": 9
+    },
+    {
+     "name": "Lukas Rytz",
+     "commits": 9
+    },
+    {
+     "name": "Oron Port",
+     "commits": 6
+    },
+    {
+     "name": "Natsu Kagami",
+     "commits": 4
+    },
+    {
+     "name": "Ondrej Lhotak",
+     "commits": 4
+    },
+    {
+     "name": "Oscar Boykin",
+     "commits": 4
+    },
+    {
+     "name": "Puerco",
+     "commits": 4
+    },
+    {
+     "name": "Yoonjae Jeon",
+     "commits": 4
+    },
+    {
+     "name": "Binayak Das",
+     "commits": 3
+    },
+    {
+     "name": "Guillaume Martres",
+     "commits": 3
+    },
+    {
+     "name": "Matt Dziuban",
+     "commits": 3
+    },
+    {
+     "name": "Seth Tisue",
+     "commits": 3
+    },
+    {
+     "name": "Alexandre Archambault",
+     "commits": 2
+    },
+    {
+     "name": "Aviral Garg",
+     "commits": 2
+    },
+    {
+     "name": "Bbn08",
+     "commits": 2
+    },
+    {
+     "name": "Eugene Yokota",
+     "commits": 2
+    },
+    {
+     "name": "Fengyun Liu",
+     "commits": 2
+    },
+    {
+     "name": "James You",
+     "commits": 2
+    },
+    {
+     "name": "Jędrzej Rochala",
+     "commits": 2
+    },
+    {
+     "name": "Lluc Santamaria Riba",
+     "commits": 2
+    },
+    {
+     "name": "Ruslan Shevchenko",
+     "commits": 2
+    },
+    {
+     "name": "Vadim Chelyshov",
+     "commits": 2
+    },
+    {
+     "name": "i10416",
+     "commits": 2
+    },
+    {
+     "name": "Alexander",
+     "commits": 1
+    },
+    {
+     "name": "Arnout Engelen",
+     "commits": 1
+    },
+    {
+     "name": "Bartłomiej Kozak",
+     "commits": 1
+    },
+    {
+     "name": "EnzeXing",
+     "commits": 1
+    },
+    {
+     "name": "Eric Ventor",
+     "commits": 1
+    },
+    {
+     "name": "Eugene Flesselle",
+     "commits": 1
+    },
+    {
+     "name": "Evgeny Vereshchagin",
+     "commits": 1
+    },
+    {
+     "name": "Harrishan Raveendran",
+     "commits": 1
+    },
+    {
+     "name": "Jack Koenig",
+     "commits": 1
+    },
+    {
+     "name": "Jakub Ciesluk",
+     "commits": 1
+    },
+    {
+     "name": "Jentsch",
+     "commits": 1
+    },
+    {
+     "name": "Kasper Kondzielski",
+     "commits": 1
+    },
+    {
+     "name": "Krrish Biswas",
+     "commits": 1
+    },
+    {
+     "name": "Lorenzo Gabriele",
+     "commits": 1
+    }
+   ],
+   "notes": "Tag 3.9.0 exists (commit dated 2026-08-26). Excluded: dependabot[bot] 26, Claude 19."
+  }
+ ],
+ "merges": [
+  {
+   "into": "Adianto Wibisono",
+   "from": [
+    "awibisono"
+   ]
+  },
+  {
+   "into": "Adrien Piquerez",
+   "from": [
+    "adpi2"
+   ]
+  },
+  {
+   "into": "Alexander",
+   "from": [
+    "Alex1005a"
+   ]
+  },
+  {
+   "into": "Alexandre Archambault",
+   "from": [
+    "Alex Archambault"
+   ]
+  },
+  {
+   "into": "Allison H",
+   "from": [
+    "allisonhb"
+   ]
+  },
+  {
+   "into": "Anatolii Kmetiuk",
+   "from": [
+    "Anatolii"
+   ]
+  },
+  {
+   "into": "AngAng",
+   "from": [
+    "Ang9876"
+   ]
+  },
+  {
+   "into": "Anna Herlihy",
+   "from": [
+    "aherlihy",
+    "anna herlihy"
+   ]
+  },
+  {
+   "into": "Anselm von Wangenheim",
+   "from": [
+    "ansvonwa"
+   ]
+  },
+  {
+   "into": "Arnaud ESTEVE",
+   "from": [
+    "Arnaud Esteve",
+    "aesteve"
+   ]
+  },
+  {
+   "into": "ashwin",
+   "from": [
+    "="
+   ]
+  },
+  {
+   "into": "Ayush",
+   "from": [
+    "ayush"
+   ]
+  },
+  {
+   "into": "Benjamin Kurczyk",
+   "from": [
+    "Benni"
+   ]
+  },
+  {
+   "into": "benkobalog",
+   "from": [
+    "benkbalog"
+   ]
+  },
+  {
+   "into": "Bjorn Regnell",
+   "from": [
+    "Björn Regnell",
+    "bjornregnell"
+   ]
+  },
+  {
+   "into": "Cédric Chantepie",
+   "from": [
+    "cchantep"
+   ]
+  },
+  {
+   "into": "Daniel Esik",
+   "from": [
+    "danicheg"
+   ]
+  },
+  {
+   "into": "David Hua",
+   "from": [
+    "David"
+   ]
+  },
+  {
+   "into": "Denys Shabalin",
+   "from": [
+    "Den Shabalin"
+   ]
+  },
+  {
+   "into": "Dick Wall",
+   "from": [
+    "dickwall"
+   ]
+  },
+  {
+   "into": "Dmitrii Naumenko",
+   "from": [
+    "dmitrii.naumenko"
+   ]
+  },
+  {
+   "into": "Dmytro Melnychenko",
+   "from": [
+    "Dmitry Melnichenko"
+   ]
+  },
+  {
+   "into": "Dominik Gruntz",
+   "from": [
+    "dgruntz"
+   ]
+  },
+  {
+   "into": "Enno Runne",
+   "from": [
+    "Enno"
+   ]
+  },
+  {
+   "into": "Felix Herrmann",
+   "from": [
+    "felher"
+   ]
+  },
+  {
+   "into": "Friendseeker",
+   "from": [
+    "friendseeker"
+   ]
+  },
+  {
+   "into": "Gabi Volpe",
+   "from": [
+    "Gabriel Volpe"
+   ]
+  },
+  {
+   "into": "Gagandeep Kalra",
+   "from": [
+    "gagandeepkalra"
+   ]
+  },
+  {
+   "into": "George Leontiev",
+   "from": [
+    "folone"
+   ]
+  },
+  {
+   "into": "Greg Zoller",
+   "from": [
+    "gzoller"
+   ]
+  },
+  {
+   "into": "Guillaume Raffin",
+   "from": [
+    "Guillaume R"
+   ]
+  },
+  {
+   "into": "Hamza Remmal",
+   "from": [
+    "Hamza REMMAL"
+   ]
+  },
+  {
+   "into": "hepin1989",
+   "from": [
+    "He-Pin(kerr)"
+   ]
+  },
+  {
+   "into": "i10416",
+   "from": [
+    "110416"
+   ]
+  },
+  {
+   "into": "Jakub Ciesluk",
+   "from": [
+    "Jakub Cieśluk"
+   ]
+  },
+  {
+   "into": "Jasper Moeys",
+   "from": [
+    "Jasper-M"
+   ]
+  },
+  {
+   "into": "Jean-Remi Desjardins",
+   "from": [
+    "Jean-Rémi Desjardins"
+   ]
+  },
+  {
+   "into": "jerylee",
+   "from": [
+    "typeness"
+   ]
+  },
+  {
+   "into": "Jonathan Brachthäuser",
+   "from": [
+    "Jonathan Brachthäuser"
+   ]
+  },
+  {
+   "into": "Josh Lemer",
+   "from": [
+    "Josh"
+   ]
+  },
+  {
+   "into": "João Pedro Evangelista",
+   "from": [
+    "João Pedro de Carvalho"
+   ]
+  },
+  {
+   "into": "Jędrzej Rochala",
+   "from": [
+    "rochala"
+   ]
+  },
+  {
+   "into": "Kasper Kondzielski",
+   "from": [
+    "ghostbuster91"
+   ]
+  },
+  {
+   "into": "Katarzyna Marek",
+   "from": [
+    "kasiaMarek"
+   ]
+  },
+  {
+   "into": "Kato Kazuyoshi",
+   "from": [
+    "Kazuyoshi Kato"
+   ]
+  },
+  {
+   "into": "Kirill Khazan",
+   "from": [
+    "kirillkh"
+   ]
+  },
+  {
+   "into": "Kobenko Mikhail",
+   "from": [
+    "mikhail"
+   ]
+  },
+  {
+   "into": "Krzysztof Bochenek",
+   "from": [
+    "Krzysiek Bochenek"
+   ]
+  },
+  {
+   "into": "Lionel Parreaux",
+   "from": [
+    "LPTK"
+   ]
+  },
+  {
+   "into": "Lucas Jenß",
+   "from": [
+    "Lucas <public@x3ro.de>"
+   ]
+  },
+  {
+   "into": "Lucas Leblanc",
+   "from": [
+    "Lucas <leblanc.lucas29@gmail.com>"
+   ]
+  },
+  {
+   "into": "Mads Hartmann Jensen",
+   "from": [
+    "Mads Hartmann"
+   ]
+  },
+  {
+   "into": "Maks Atygaev",
+   "from": [
+    "jxcoder"
+   ]
+  },
+  {
+   "into": "Manohar Jonnalagedda",
+   "from": [
+    "manojo"
+   ]
+  },
+  {
+   "into": "martende",
+   "from": [
+    "Your Name"
+   ]
+  },
+  {
+   "into": "Martijn Hoekstra",
+   "from": [
+    "martijnhoekstra"
+   ]
+  },
+  {
+   "into": "Martin Kučera",
+   "from": [
+    "Martin Kucera"
+   ]
+  },
+  {
+   "into": "Matt Bovel",
+   "from": [
+    "Matthieu Bovel"
+   ]
+  },
+  {
+   "into": "Matthew de Detrich",
+   "from": [
+    "mdedetrich"
+   ]
+  },
+  {
+   "into": "Matthias Sperl",
+   "from": [
+    "Sperl Matthias"
+   ]
+  },
+  {
+   "into": "Michał Gutowski",
+   "from": [
+    "Michal Gutowski"
+   ]
+  },
+  {
+   "into": "Michał Pociecha",
+   "from": [
+    "mpociecha"
+   ]
+  },
+  {
+   "into": "Mikołaj Fornal",
+   "from": [
+    "Florian3k"
+   ]
+  },
+  {
+   "into": "naveen",
+   "from": [
+    "Naveen"
+   ]
+  },
+  {
+   "into": "nizhikov",
+   "from": [
+    "Nikolay"
+   ]
+  },
+  {
+   "into": "nmcb",
+   "from": [
+    "nmc.borst"
+   ]
+  },
+  {
+   "into": "Oleksii Tkachuk",
+   "from": [
+    "kelebra"
+   ]
+  },
+  {
+   "into": "Oliver Bračevac",
+   "from": [
+    "Oliver Bracevac"
+   ]
+  },
+  {
+   "into": "Ondrej Lhotak",
+   "from": [
+    "Ondřej Lhoták"
+   ]
+  },
+  {
+   "into": "Oscar Boykin",
+   "from": [
+    "P. Oscar Boykin"
+   ]
+  },
+  {
+   "into": "Paolo G. Giarrusso",
+   "from": [
+    "Paolo Giarrusso"
+   ]
+  },
+  {
+   "into": "Pathikrit Bhowmick",
+   "from": [
+    "pathikrit"
+   ]
+  },
+  {
+   "into": "Performant Data LLC",
+   "from": [
+    "Performant Data"
+   ]
+  },
+  {
+   "into": "Phil Walker",
+   "from": [
+    "Phil",
+    "philwalk"
+   ]
+  },
+  {
+   "into": "Philippus Baalman",
+   "from": [
+    "Philippus",
+    "philippus"
+   ]
+  },
+  {
+   "into": "Raphael Bosshard",
+   "from": [
+    "esarbe"
+   ]
+  },
+  {
+   "into": "Raphael Jolly",
+   "from": [
+    "rjolly"
+   ]
+  },
+  {
+   "into": "Rikito Taniguchi",
+   "from": [
+    "tanishiking"
+   ]
+  },
+  {
+   "into": "Robert Hoedicke",
+   "from": [
+    "roberthoedicke"
+   ]
+  },
+  {
+   "into": "Robert Soeldner",
+   "from": [
+    "rsoeldner"
+   ]
+  },
+  {
+   "into": "Roman Janusz",
+   "from": [
+    "ghik"
+   ]
+  },
+  {
+   "into": "Rui Gonçalves",
+   "from": [
+    "Rui Gonçalves"
+   ]
+  },
+  {
+   "into": "Shohei Shimomura",
+   "from": [
+    "sh0hei"
+   ]
+  },
+  {
+   "into": "Simon Popugaev",
+   "from": [
+    "senia-psm"
+   ]
+  },
+  {
+   "into": "Simon Schaefer",
+   "from": [
+    "Simon Schäfer"
+   ]
+  },
+  {
+   "into": "slim",
+   "from": [
+    "ouertani"
+   ]
+  },
+  {
+   "into": "Som Snytt",
+   "from": [
+    "A. P. Marki"
+   ]
+  },
+  {
+   "into": "Stephane Bersier",
+   "from": [
+    "Bersier"
+   ]
+  },
+  {
+   "into": "Stéphane Micheloud",
+   "from": [
+    "Dotty CI",
+    "Stephane MICHELOUD",
+    "Stéphane MICHELOUD"
+   ]
+  },
+  {
+   "into": "Szymon R",
+   "from": [
+    "Simon R"
+   ]
+  },
+  {
+   "into": "Timothée Andres",
+   "from": [
+    "Timothée Loyck Andres"
+   ]
+  },
+  {
+   "into": "Tobias Kahlert",
+   "from": [
+    "SrTobi"
+   ]
+  },
+  {
+   "into": "Tomasz Godzik",
+   "from": [
+    "tgodzik"
+   ]
+  },
+  {
+   "into": "Tudor Voicu",
+   "from": [
+    "Tudor"
+   ]
+  },
+  {
+   "into": "Vadim Chelyshov",
+   "from": [
+    "dos65"
+   ]
+  },
+  {
+   "into": "Varunram Ganesh",
+   "from": [
+    "Varunram"
+   ]
+  },
+  {
+   "into": "Vladimir Nikolaev",
+   "from": [
+    "VladimirNik"
+   ]
+  },
+  {
+   "into": "William Narmontas",
+   "from": [
+    "Vykintas Narmontas (William)"
+   ]
+  },
+  {
+   "into": "Xavier Fernández Salas",
+   "from": [
+    "Xavier FernaÃÂndez Salas",
+    "Xavier FernaÌndez Salas",
+    "Xavier Fernández Salas"
+   ]
+  },
+  {
+   "into": "xhudik",
+   "from": [
+    "Tomas"
+   ]
+  },
+  {
+   "into": "Yoonjae Jeon",
+   "from": [
+    "Jeon Yoonjae"
+   ]
+  },
+  {
+   "into": "Zieliński Patryk",
+   "from": [
+    "Patryk Zieliński",
+    "zielinsky"
+   ]
+  },
+  {
+   "into": "杨博 (Yang Bo)",
+   "from": [
+    "Yang Bo",
+    "Yang, Bo",
+    "杨博"
+   ]
+  }
+ ],
+ "excluded": [
+  {
+   "name": "dependabot[bot]",
+   "commits": 70,
+   "by_version": {
+    "3.4": 5,
+    "3.5": 10,
+    "3.6": 11,
+    "3.7": 9,
+    "3.8": 9,
+    "3.9": 26
+   }
+  },
+  {
+   "name": "Unknown Committer",
+   "commits": 37,
+   "by_version": {
+    "2.7": 7,
+    "2.8": 30
+   }
+  },
+  {
+   "name": "Claude",
+   "commits": 19,
+   "by_version": {
+    "3.9": 19
+   }
+  },
+  {
+   "name": "github-actions[bot]",
+   "commits": 1,
+   "by_version": {
+    "3.4": 1
+   }
+  }
+ ]
+}
