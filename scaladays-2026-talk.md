@@ -347,6 +347,10 @@ update the description's paragraph-3 tour list accordingly ("equality safety",
   `Seq` is covariant and `Nothing` is the bottom type. A *depth* aside, not an
   *evolution* beat (variance is unchanged since early 2.x).
 
+- **`IndexedSeq` fast path** (Q&A only; slide `r-indexedseq`, after "Thank you"). If someone asks
+  whether `x +: middle :+ y` is slow: on a `String` or an `ArraySeq` it is, O(n²), because each
+  step copies. The answer is the 2.5 index loop again, as an `IndexedSeq` overload.
+
 **Deliberately NOT included:** abstracting the container to `F[_]` with a higher-kinded
 type class. Tempting and very Scala, but it violates the Occam discipline the talk
 preaches. Works better as a *joke* — "we could keep generalizing… we're not going to" —

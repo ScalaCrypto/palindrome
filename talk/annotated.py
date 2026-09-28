@@ -58,12 +58,14 @@ SEQUENCE = [
     "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
     "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),
     "final", "takeaways", "thanks",
+    "r-indexedseq",
 ]
 SECTIONS = {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},
     "scala2": {"description": "Scala 2.5 to 2.13: the ideas arrive before the syntax", "start": "scala2"},
     "scala3": {"description": "Scala 3.0 to 3.9: the big collapse, then refinements", "start": "scala3"},
     "closing": {"description": "Where isPalindrome ends up, and what the journey says", "start": "final"},
+    "reserve": {"description": "Held back for the Q&A", "start": "r-indexedseq"},
 }
 
 # Per code state: the heading, like the talk slides' (one line at 64px).

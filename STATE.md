@@ -159,7 +159,7 @@ The tests are the same in every version, apart from the syntax of each version a
 | 5. `palindromize`: `Seq` → `CanBuildFrom` → `IsSeq`/`BuildFrom` → dependent `using` | 2.5 → 2.8 → 2.13 → 3.0 (`[Repr: IsSeq as seq]` from 3.6) |
 | 6. Extension method: `implicit def` → `implicit class` → `extension` | 2.5 → 2.10 → 3.0 |
 
-Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. There's no result ADT (`sealed trait` → `enum`): `isPalindrome` returns a `Boolean` and `palindromize` a collection. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code.
+Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. There's no result ADT (`sealed trait` → `enum`): `isPalindrome` returns a `Boolean` and `palindromize` a collection. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code. The decks end with one reserve slide for the Q&A, `r-indexedseq`: an O(n) index-loop `isPalindrome` for `IndexedSeq`, which isn't in the code either (why is in `DESIGN.md`).
 
 ### The Evolution Document
 

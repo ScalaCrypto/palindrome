@@ -5,6 +5,77 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — `isPalindrome` on an `IndexedSeq`: a reserve slide, not code
+
+### What changed
+
+A reserve slide, `r-indexedseq`, now follows "Thank you" in the talk deck and both annotated decks, in a new
+`reserve` section. It answers a likely Q&A question, "isn't `x +: middle :+ y` slow?", with the O(n) version for
+indexed sequences:
+
+```scala
+extension [A: Eq as eq](xs: IndexedSeq[A])
+  def isPalindrome: Boolean =
+    @tailrec def loop(i: Int, j: Int): Boolean =
+      i >= j || (eq.eqv(xs(i), xs(j)) && loop(i + 1, j - 1))
+    loop(0, xs.length - 1)
+```
+
+The version sources don't change: `v3_9` keeps the extractor recursion.
+
+### Why
+
+From 2.10, `isPalindrome` recurses through `case x +: middle :+ y`, which calls `tail` and then `init` at every step,
+and each builds a new collection. What that costs depends on the collection:
+
+- **`Vector`**: each slice shares structure, so a step is cheap but still allocates twice. The check stays about O(n).
+- **`ArraySeq`, and a `String` read as a `WrappedString`**: `slice` copies the array or the substring, so the check is
+  **O(n²)**, even though indexing is O(1).
+
+Two indices walking inward compare only n/2 pairs, allocate nothing and stop at the first mismatch. That's the 2.5–2.9
+loop again. The extension can sit next to the `Seq` one: overloading resolution picks the more specific
+`IndexedSeq` receiver, and `"racecar".isPalindrome` takes it too, since `String` converts to `WrappedString`.
+
+### Alternatives rejected
+
+- **Putting the fast path into the version sources.** The extractor is there to show 2.10's `+:`/`:+` patterns (talk
+  stage 2). A second overload, or a runtime `case ixs: IndexedSeq[A]` dispatch, adds machinery the problem doesn't
+  need, against the talk's thesis, and it would show in every diff from 2.10 on.
+- **`(0 until n / 2).forall(i => eq.eqv(xs(i), xs(n - 1 - i)))`.** It reads well, but it allocates a `Range` and a
+  closure. The `@tailrec` loop compiles to a plain `while`, and it's the same shape as the 2.5 slide, which is the
+  slide's joke.
+- **Avoiding the boxing of `Char`.** `A` is generic, so each `xs(i)` and `eqv` boxes. Scala 3 has no `@specialized`,
+  and a `String`-only overload or `inline` tricks are more machinery than a reserve slide deserves.
+- **A linear `palindromize`** (KMP prefix function or Manacher). `palindromize` checks every suffix, so it stays O(n²)
+  with either `isPalindrome`. The talk spec (§5) already rules Manacher out as an algorithm topic rather than a
+  language one; the speaker notes say this in one sentence.
+
+### Limitations accepted
+
+- The slide's numbers come from one quick run, not a JMH benchmark. They show the difference in growth, which is all
+  the slide claims, not precise timings.
+- Nothing checks the slide's code against a source file, because there is none. It was compiled and run in the
+  benchmark below.
+
+### Verification
+
+A scratch `scala-cli` program on 3.9.0 and `graalvm-oracle:25`, with palindromes of 10,000, 20,000 and 40,000
+elements, three warm-up runs each:
+
+| | 10,000 | 20,000 | 40,000 |
+|---|---|---|---|
+| extractor, `String` | 107 ms | 491 ms | 1944 ms |
+| extractor, `ArraySeq` | 12 ms | 12 ms | 64 ms |
+| extractor, `Vector` | 1.8 ms | 0.5 ms | 1.3 ms |
+| index loop, any of the three | ≤ 0.4 ms | ≤ 0.2 ms | ≤ 0.6 ms |
+
+The `String` time roughly quadruples each time n doubles. The same program checked that overloading resolution picks
+the `IndexedSeq` extension for a `Vector` and a `String`, and the `Seq` one for a `List`. `talk/render.py
+--screenshots` passes on all three decks; the slide's lowest edge is 703px in the talk deck and 670px in the
+annotated ones.
+
+---
+
 ## 2026-09-28 — Stage 0 reveals `palindromize` on a click
 
 ### What changed
