@@ -1,0 +1,13 @@
+<section id="goal" data-transition="fade" style="background:#F7F5EF; color:#1B1F2A; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B8321F">The goal</p>
+<h2 style="font-size:64px; font-weight:600; line-height:1.1">Any Seq[A], called as a method</h2>
+<p style="font-size:32px; line-height:1.4; color:#4A5160; width:1300px">Both functions should take a Seq of any element type, and read as extension methods on Seqs and Strings.</p>
+<div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px; display:flex; flex-direction:column">
+<p style="font-size:30px; line-height:1.5; white-space:nowrap">"racecar".isPalindrome&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA3AF">// true</span></p>
+<p style="font-size:30px; line-height:1.5; white-space:nowrap">List(1, 2, 1).isPalindrome&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA3AF">// true</span></p>
+<p style="font-size:30px; line-height:1.5; white-space:nowrap">Vector('a', 'b').isPalindrome&#160;&#160;<span style="color:#9AA3AF">// false</span></p>
+<p style="font-size:30px; line-height:1.5; white-space:nowrap">"abc".palindromize&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA3AF">// a String</span></p>
+<p style="font-size:30px; line-height:1.5; white-space:nowrap">List(1, 2, 3).palindromize&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA3AF">// a List[Int]</span></p>
+</div>
+<aside>Where we want to get to: the same two functions, for any Seq and any element type, called as methods. A String is not a Seq, so it has to be converted on the way; until 2.13 that conversion won't chain with our own wrapper, so "racecar".isPalindrome only works from 2.13 on, and earlier versions write isPalindrome("racecar"). palindromize should also hand back the collection it was given: a String for a String, a List for a List. Stage 1, generalizing to Seq[A], starts on the next slides.</aside>
+</section>

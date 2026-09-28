@@ -53,7 +53,7 @@ PANEL, PANEL_EDGE, ADDED, COMMENT = "#242A38", "#343B4C", "#26344C", "#9AA3AF"
 # The slide sequence. ("code", first version) is a code state; ("again", first version) shows it once more without
 # notes, after talk slides interrupted the morph; anything else is a talk slide id, copied as it is.
 SEQUENCE = [
-    "cover", "oneliner",
+    "cover", "oneliner", "goal",
     "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.10"),
     "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
     "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),

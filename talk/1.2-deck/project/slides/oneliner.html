@@ -4,9 +4,11 @@
 <div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:44px 48px">
 <p style="font-size:40px; line-height:1.4; white-space:nowrap">def isPalindrome(s: String): Boolean = s == s.<span style="color:#F2A65A">reverse</span></p>
 </div>
+<div data-build-in="fade 1" style="position:absolute; left:128px; top:482.6px; width:1664px; display:flex; flex-direction:column; gap:36px">
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">or two</h2>
 <div style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:44px 48px">
 <p style="font-size:40px; line-height:1.4; white-space:nowrap">def palindromize(s: String): String = s + s.<span style="color:#F2A65A">reverse</span></p>
+</div>
 </div>
 <aside>Old ways: this is beautiful. New ways: it is also the wasteful version, and on 2.7 it's simply wrong, because collection == wasn't content-based before the 2.8 redesign. That's why no version in the repo uses it: every version compares elements pairwise through Eq instead. Generalizing to Seq[A] is free from here (stage 1). palindromize is just as naive: s + s.reverse is always a palindrome, but not the shortest one ("abc" becomes "abccba", not "abcba"). Points to make: (1) Implicits from line one: s.reverse only works because String is enriched to StringOps. (2) Elegant, and wasteful: it allocates a full reversed copy just to compare. (3) False before 2.8: in 2.7, "racecar".reverse == "racecar" is false, with no content equality.</aside>
 </section>

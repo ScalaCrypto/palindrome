@@ -8,6 +8,7 @@
   "order": [
     "cover",
     "oneliner",
+    "goal",
     "scala2",
     "s25-types",
     "m2-5",
