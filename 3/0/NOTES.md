@@ -18,4 +18,4 @@ The headline of the 2 → 3 transition, shown on one slide:
   converted (`String` → `Seq[Char]`). Scala 2 needed 2.13's `IsSeq` wrapper for that; its implicit views don't
   chain. `Eq.caseInsensitive` is passed with `(using …)`, and a local `given` overrides the default.
 
-3.1 to 3.5 are identical.
+3.1 and 3.2 are identical.

@@ -24,9 +24,9 @@ Diffs ignore the `// Scala x.y.z` header line.
 | [Scala 3.0.2](#scala-302) | ✓ | ✓ | The big collapse |
 | Scala 3.1.3 | — | — | identical to Scala 3.0.2 |
 | Scala 3.2.2 | — | — | identical to Scala 3.0.2 |
-| Scala 3.3.8 | — | — | identical to Scala 3.0.2 |
-| Scala 3.4.3 | — | — | identical to Scala 3.0.2 |
-| Scala 3.5.2 | — | — | identical to Scala 3.0.2 |
+| [Scala 3.3.8](#scala-338) | — | ✓ | Fewer braces in the tests |
+| Scala 3.4.3 | — | — | identical to Scala 3.3.8 |
+| Scala 3.5.2 | — | — | identical to Scala 3.3.8 |
 | [Scala 3.6.4](#scala-364) | ✓ | — | New given syntax and named context bounds |
 | Scala 3.7.4 | — | — | identical to Scala 3.6.4 |
 | Scala 3.8.4 | — | — | identical to Scala 3.6.4 |
@@ -558,7 +558,7 @@ The headline of the 2 → 3 transition, shown on one slide:
   converted (`String` → `Seq[Char]`). Scala 2 needed 2.13's `IsSeq` wrapper for that; its implicit views don't
   chain. `Eq.caseInsensitive` is passed with `(using …)`, and a local `given` overrides the default.
 
-3.1 to 3.5 are identical.
+3.1 and 3.2 are identical.
 
 **Source**
 
@@ -775,6 +775,108 @@ extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
      assert("abA".palindromize == "abA")
    }
 -}
+```
+
+<a id="scala-338"></a>
+## Scala 3.3.8: Fewer braces in the tests
+
+*Compared with Scala 3.2.2; changes: tests.*
+
+- **Colon block arguments**: from 3.3, a method's last argument can be an indented block after a `:`, so
+  `test("…") { … }` becomes `test("…"):` with the body indented below it. The suites are now brace-free, like the
+  source. 3.0 has no such syntax, and 3.1 and 3.2 have it only behind `language.experimental.fewerBraces`.
+
+The source is unchanged. 3.4 and 3.5 are identical.
+
+**Tests**
+
+```diff
+--- 3/2/test/src/PalindromeSuite.scala
++++ 3/3/test/src/PalindromeSuite.scala
+@@ -1,62 +1,53 @@
+ import org.scalatest.funsuite.AnyFunSuite
+ 
+ class PalindromeSuite extends AnyFunSuite:
+-  test("empty and single-element sequences are palindromes") {
++  test("empty and single-element sequences are palindromes"):
+     assert("".isPalindrome)
+     assert("a".isPalindrome)
+     assert(Seq.empty[Int].isPalindrome)
+     assert(Seq(1).isPalindrome)
+-  }
+ 
+-  test("isPalindrome accepts palindrome strings") {
++  test("isPalindrome accepts palindrome strings"):
+     assert("racecar".isPalindrome)
+     assert("noon".isPalindrome)
+     assert("kayak".isPalindrome)
+     assert("madam".isPalindrome)
+     assert("12321".isPalindrome)
+-  }
+ 
+-  test("isPalindrome rejects non-palindrome strings") {
++  test("isPalindrome rejects non-palindrome strings"):
+     assert(!"hello".isPalindrome)
+     assert(!"world".isPalindrome)
+     assert(!"scala".isPalindrome)
+     assert(!"palindrome".isPalindrome)
+     assert(!"race car".isPalindrome)
+-  }
+ 
+-  test("isPalindrome is generic over Seq[A]") {
++  test("isPalindrome is generic over Seq[A]"):
+     assert(Seq(1, 2, 3, 2, 1).isPalindrome)
+     assert(List("a", "b", "a").isPalindrome)
+     assert(Vector('x', 'y', 'y', 'x').isPalindrome)
+     assert(!Seq(1, 2, 3).isPalindrome)
+-  }
+ 
+-  test("isPalindrome can also be called as a function") {
++  test("isPalindrome can also be called as a function"):
+     assert(isPalindrome("racecar"))
+     assert(isPalindrome(Seq(1, 2, 1)))
+     assert(!isPalindrome("hello"))
+-  }
+ 
+-  test("isPalindrome finds a mismatch inside matching ends") {
++  test("isPalindrome finds a mismatch inside matching ends"):
+     assert(!"abcxba".isPalindrome)
+     assert(!Seq(1, 2, 3, 4, 2, 1).isPalindrome)
+-  }
+ 
+-  test("equality is case-sensitive by default") {
++  test("equality is case-sensitive by default"):
+     assert(!"Racecar".isPalindrome)
+-  }
+ 
+-  test("another Eq can be passed explicitly") {
++  test("another Eq can be passed explicitly"):
+     assert("Racecar".isPalindrome(using Eq.caseInsensitive))
+     assert(isPalindrome("Racecar")(using Eq.caseInsensitive))
+-  }
+ 
+-  test("a given Eq in scope takes precedence over the default") {
++  test("a given Eq in scope takes precedence over the default"):
+     given Eq[Char] = Eq.caseInsensitive
+     assert("Racecar".isPalindrome)
+-  }
+ 
+-  test("palindromize builds the shortest palindrome starting with the input") {
++  test("palindromize builds the shortest palindrome starting with the input"):
+     val s: String = "abcb".palindromize
+     val l: List[Int] = List(1, 2, 3).palindromize
+     val v: Vector[Char] = Vector('x', 'y').palindromize
+@@ -67,9 +58,7 @@
+     assert("racecar".palindromize == "racecar")
+     assert("".palindromize == "")
+     assert("scala".palindromize.isPalindrome)
+-  }
+ 
+-  test("palindromize uses the Eq in scope") {
++  test("palindromize uses the Eq in scope"):
+     given Eq[Char] = Eq.caseInsensitive
+     assert("abA".palindromize == "abA")
+-  }
 ```
 
 <a id="scala-364"></a>
