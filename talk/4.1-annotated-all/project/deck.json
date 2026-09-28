@@ -25,7 +25,8 @@
     "m3-6",
     "final",
     "takeaways",
-    "thanks"
+    "thanks",
+    "r-indexedseq"
   ],
   "sections": {
     "intro": {
@@ -43,6 +44,10 @@
     "closing": {
       "description": "Where isPalindrome ends up, and what the journey says",
       "start": "final"
+    },
+    "reserve": {
+      "description": "Held back for the Q&A",
+      "start": "r-indexedseq"
     }
   },
   "faces": {
