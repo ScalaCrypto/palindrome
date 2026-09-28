@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Renders a deck (talk/1.2-deck/ unless another is named) with headless Chrome and checks its layout.
+"""Renders a deck (the main deck, talk/4.1-annotated-all/, unless another is named) with headless Chrome and checks
+its layout.
 
 Usage: talk/render.py                 measure every slide; exit 1 if anything overflows
-       talk/render.py --screenshots   also write one PNG per slide, plus contact sheets, to out/talk-render/
-       talk/render.py [--screenshots] talk/3.2-annotated    the same for another deck, into out/talk-render/3.2-annotated/
+       talk/render.py --screenshots   also write one PNG per slide, plus contact sheets, to
+                                      out/talk-render/4.1-annotated-all/
+       talk/render.py [--screenshots] talk/1.2-deck    the same for another deck, into out/talk-render/1.2-deck/
 
 Each slide is laid out on the deck's fixed 1920x1080 canvas with the deck's own fonts, then measured:
 - OUTSIDE MARGINS: an element crosses the 128px margins (fails the check). Elements marked data-bleed run to or off
@@ -29,8 +31,9 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/1.2-deck/project"
+DECK = ROOT / "talk/4.1-annotated-all/project"
 OUT = ROOT / "out/talk-render"
+FONTS = OUT / "fonts"
 BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
@@ -122,7 +125,7 @@ def local_fonts(deck: dict) -> str:
     """Downloads the deck's Google Fonts (Latin subsets) once and returns a stylesheet pointing at the local files.
 
     Local files keep Chrome's virtual time deterministic; with network fonts, headless Chrome can hang."""
-    fonts = OUT / "fonts"
+    fonts = FONTS
     fonts.mkdir(parents=True, exist_ok=True)
     rules = []
     for key, face in deck.get("faces", {}).items():
@@ -156,9 +159,9 @@ def main() -> None:
         sys.exit(__doc__)
     if rest:
         DECK = (ROOT / rest[0]).resolve() / "project"
-        OUT = OUT / DECK.parent.name
         if not (DECK / "deck.json").is_file():
             sys.exit(f"talk/render.py: no deck at {DECK}")
+    OUT = OUT / DECK.parent.name
     deck = json.loads((DECK / "deck.json").read_text())
     slides = {sid: (DECK / f"slides/{sid}.html").read_text() for sid in deck["order"]}
     fonts = local_fonts(deck)

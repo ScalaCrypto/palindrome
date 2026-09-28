@@ -5,6 +5,42 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — The every-change annotated deck is the main deck
+
+### What changed
+
+`talk/4.1-annotated-all/` is now the talk's main deck, the one presented. `talk/README.md` and `STATE.md` name it
+first, and the conventions say to regenerate, check and republish it after any change to the code, the talk deck or
+the notes. `talk/render.py` checks the main deck when no deck is named. No deck or generator changed.
+
+### Why
+
+The author's decision: the talk walks through every change between versions, so the deck that explains each one is
+the one to present. The other decks stay as its inputs (`1.2-deck`, `2.3-morph`) and as a lighter alternative
+(`3.2-annotated`).
+
+### Alternatives rejected
+
+- **Keeping `3.2-annotated` as the one presented.** When the variant was added, it was kept as a reading copy
+  because it's denser (see the 2026-09-27 entry); presenting it is what the talk needs now.
+- **Renumbering the lineage to put the main deck first.** The major number is the kind of deck, in the order they
+  build on each other; which one is presented is a separate fact, and renaming would churn every path.
+- **Deleting `3.2-annotated`.** It's generated from the same code for free, and remains an option for a shorter slot.
+- **Keeping `1.2-deck` as `render.py`'s default.** The check exists to catch problems on the slides that are
+  presented, so it should run on the main deck.
+
+`render.py` now writes every deck's output to `out/talk-render/<deck>/`, the default one included, and keeps one
+shared font cache in `out/talk-render/fonts/`. Before, the default deck wrote straight into `out/talk-render/`, and
+each named deck downloaded its own copy of the fonts.
+
+### Verification
+
+`talk/render.py --screenshots` with no argument checks `4.1-annotated-all` into `out/talk-render/4.1-annotated-all/`;
+`talk/render.py talk/1.2-deck` still checks the talk deck. `STATE.md` and `talk/README.md` checked for every mention
+of which deck is presented or rendered.
+
+---
+
 ## 2026-09-28 — `talk/tag-cloud`: who wrote each Scala release
 
 ### What changed
