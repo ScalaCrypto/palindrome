@@ -5,6 +5,44 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — Stage 0 reveals `palindromize` on a click
+
+### What changed
+
+On the Stage 0 slide, "… or two" and the `palindromize` box fade in on the first click. In the talk deck they're one
+pinned block (`position:absolute`, `data-build-in="fade 1"`) placed where the flow would put them.
+`annotated.py` restyles a talk slide's code panels to the code slides' smaller size, so a new step, `follow_panels`,
+moves each pinned element up by the height the panels above it in the source lose. The block keeps its 36px gap
+under the first box in every deck.
+
+### Why
+
+The Slides runtime animates only pinned elements that are direct children of the slide: its build step drops
+`data-build-in` from anything inside a container. So the revealed part can't stay in the flow, and a fixed `top`
+is only right for one panel size.
+
+### Alternatives rejected
+
+- **A `position:relative` host in the flow, with the revealed block pinned inside it.** The runtime drops the
+  reveal on a nested element.
+- **One fixed `top` for all decks.** At the talk deck's position, the annotated decks show a 73px gap; at theirs,
+  the talk deck's taller box overlaps the heading.
+- **A per-slide position table in `annotated.py`.** It would go stale whenever the talk slide changes;
+  `follow_panels` derives the shift from the panels themselves.
+
+### Limitations accepted
+
+- It counts every code panel above the pinned element in the source, including one inside an earlier pinned
+  element. No slide has that.
+
+### Verification
+
+`talk/render.py --screenshots` on all three decks: Stage 0's lowest edge in the annotated decks is 660px, the same
+as when the block was in the flow, and the screenshots show a 36px gap in each. The static render shows the
+revealed block; the reveal itself runs only when presenting.
+
+---
+
 ## 2026-09-28 — The every-change annotated deck is the main deck
 
 ### What changed

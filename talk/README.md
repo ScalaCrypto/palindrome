@@ -58,7 +58,8 @@ How it matches tokens between versions is in `../DESIGN.md`.
 
 `annotated.py` generates a third deck, `3.2-annotated/project/`, that merges the other two. The talk deck's framing and
 side-topic slides (`Eq`, value classes, SAM, the 2 → 3 table) are copied in, restyled to its dark palette with their
-code highlighted like the code slides. The code slides are the morph deck's,
+code highlighted like the code slides. Their code panels shrink to the code slides' size, and anything pinned below
+a panel (Stage 0's "… or two", which fades in on a click) moves up with it. The code slides are the morph deck's,
 with handwritten notes in speech bubbles that point at the code they explain and fade in one per click after each
 morph. Where a talk slide interrupts the morph, the code is shown again afterwards, so the next change still morphs.
 The notes and the slide order are in `annotated.py` (`NOTES`, `SEQUENCE`), and the bubbles are placed automatically
