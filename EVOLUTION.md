@@ -63,7 +63,7 @@ Things that look odd today, and why:
 
 2.6 and 2.7 are identical.
 
-`2/5/src/Palindrome.scala`:
+`v2_5/src/Palindrome.scala`:
 
 ```scala
 // Scala 2.5.1
@@ -139,8 +139,8 @@ object Palindrome {
 **Source**
 
 ```diff
---- 2/7/src/Palindrome.scala
-+++ 2/8/src/Palindrome.scala
+--- v2_7/src/Palindrome.scala
++++ v2_8/src/Palindrome.scala
 @@ -1,3 +1,6 @@
 +import scala.annotation.tailrec
 +import scala.collection.SeqLike
@@ -201,8 +201,8 @@ object Palindrome {
 **Tests**
 
 ```diff
---- 2/7/test/src/PalindromeSuite.scala
-+++ 2/8/test/src/PalindromeSuite.scala
+--- v2_7/test/src/PalindromeSuite.scala
++++ v2_8/test/src/PalindromeSuite.scala
 @@ -5,18 +5,18 @@
    test("empty and single-element sequences are palindromes") {
      assert(isPalindrome(""))
@@ -303,8 +303,8 @@ object Palindrome {
 **Source**
 
 ```diff
---- 2/9/src/Palindrome.scala
-+++ 2/10/src/Palindrome.scala
+--- v2_9/src/Palindrome.scala
++++ v2_10/src/Palindrome.scala
 @@ -21,11 +21,11 @@
  
  // Scala 2 has no top-level definitions, so the functions live in an object.
@@ -351,8 +351,8 @@ object Palindrome {
 **Source**
 
 ```diff
---- 2/10/src/Palindrome.scala
-+++ 2/11/src/Palindrome.scala
+--- v2_10/src/Palindrome.scala
++++ v2_11/src/Palindrome.scala
 @@ -41,7 +41,7 @@
    }
  
@@ -367,8 +367,8 @@ object Palindrome {
 **Tests**
 
 ```diff
---- 2/10/test/src/PalindromeSuite.scala
-+++ 2/11/test/src/PalindromeSuite.scala
+--- v2_10/test/src/PalindromeSuite.scala
++++ v2_11/test/src/PalindromeSuite.scala
 @@ -1,7 +1,7 @@
 -import org.scalatest.FunSuite
 +import org.scalatest.funsuite.AnyFunSuite
@@ -392,8 +392,8 @@ object Palindrome {
 **Source**
 
 ```diff
---- 2/11/src/Palindrome.scala
-+++ 2/12/src/Palindrome.scala
+--- v2_11/src/Palindrome.scala
++++ v2_12/src/Palindrome.scala
 @@ -9,14 +9,10 @@
  
  object Eq {
@@ -450,8 +450,8 @@ still needed where the source type isn't a collection class, as with `String` he
 **Source**
 
 ```diff
---- 2/12/src/Palindrome.scala
-+++ 2/13/src/Palindrome.scala
+--- v2_12/src/Palindrome.scala
++++ v2_13/src/Palindrome.scala
 @@ -1,6 +1,7 @@
  import scala.annotation.tailrec
 -import scala.collection.SeqLike
@@ -501,8 +501,8 @@ still needed where the source type isn't a collection class, as with `String` he
 **Tests**
 
 ```diff
---- 2/12/test/src/PalindromeSuite.scala
-+++ 2/13/test/src/PalindromeSuite.scala
+--- v2_12/test/src/PalindromeSuite.scala
++++ v2_13/test/src/PalindromeSuite.scala
 @@ -44,7 +44,7 @@
  
    test("isPalindrome is also a method on any Seq") {
@@ -671,8 +671,8 @@ extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
 **Tests**
 
 ```diff
---- 2/13/test/src/PalindromeSuite.scala
-+++ 3/0/test/src/PalindromeSuite.scala
+--- v2_13/test/src/PalindromeSuite.scala
++++ v3_0/test/src/PalindromeSuite.scala
 @@ -1,88 +1,85 @@
  import org.scalatest.funsuite.AnyFunSuite
 -import Palindrome._
@@ -817,8 +817,8 @@ The source is unchanged. 3.4 and 3.5 are identical.
 **Tests**
 
 ```diff
---- 3/2/test/src/PalindromeSuite.scala
-+++ 3/3/test/src/PalindromeSuite.scala
+--- v3_2/test/src/PalindromeSuite.scala
++++ v3_3/test/src/PalindromeSuite.scala
 @@ -1,72 +1,61 @@
  import org.scalatest.funsuite.AnyFunSuite
  
@@ -933,8 +933,8 @@ The source is unchanged. 3.4 and 3.5 are identical.
 **Source**
 
 ```diff
---- 3/5/src/Palindrome.scala
-+++ 3/6/src/Palindrome.scala
+--- v3_5/src/Palindrome.scala
++++ v3_6/src/Palindrome.scala
 @@ -8,13 +8,13 @@
  
  object Eq:
@@ -965,7 +965,7 @@ The source is unchanged. 3.4 and 3.5 are identical.
 <a id="final"></a>
 ## Final: Scala 3.9.0
 
-The complete `3/9/src/Palindrome.scala`, the end point of the tour:
+The complete `v3_9/src/Palindrome.scala`, the end point of the tour:
 
 ```scala
 // Scala 3.9.0

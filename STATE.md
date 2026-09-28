@@ -25,25 +25,25 @@ What each version changes in the code, with the diffs, is in `EVOLUTION.md` (see
 
 | Directory | Scala Version | Build | Test Framework | ScalaTest Version | Java / JVM Override |
 |-----------|--------------|-------|----------------|-------------------|---------------------|
-| `2/5`     | `2.5.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` |
-| `2/6`     | `2.6.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` |
-| `2/7`     | `2.7.7`      | `legacy/test.sh` | ScalaTest | `1.0` | JDK 8, JDK 7 `rt.jar` |
-| `2/8`     | `2.8.2`      | `legacy/test.sh` | ScalaTest | `1.8` | JDK 8, JDK 7 `rt.jar` |
-| `2/9`     | `2.9.3`      | `legacy/test.sh` | ScalaTest | `1.9.2` | JDK 8, JDK 7 `rt.jar` |
-| `2/10`    | `2.10.7`     | Mill | ScalaTest      | `3.0.9`           | Default             |
-| `2/11`    | `2.11.12`    | Mill | ScalaTest      | `3.2.18`          | Default             |
-| `2/12`    | `2.12.21`    | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `2/13`    | `2.13.18`    | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/0`     | `3.0.2`      | Mill | ScalaTest      | `3.2.11`          | `temurin:17`        |
-| `3/1`     | `3.1.3`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        |
-| `3/2`     | `3.2.2`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        |
-| `3/3`     | `3.3.8`      | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/4`     | `3.4.3`      | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/5`     | `3.5.2`      | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/6`     | `3.6.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/7`     | `3.7.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/8`     | `3.8.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
-| `3/9`     | `3.9.0`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v2_5`    | `2.5.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` |
+| `v2_6`    | `2.6.1`      | `legacy/test.sh` | Stand-in `FunSuite` | — | JDK 8, JDK 7 `rt.jar` |
+| `v2_7`    | `2.7.7`      | `legacy/test.sh` | ScalaTest | `1.0` | JDK 8, JDK 7 `rt.jar` |
+| `v2_8`    | `2.8.2`      | `legacy/test.sh` | ScalaTest | `1.8` | JDK 8, JDK 7 `rt.jar` |
+| `v2_9`    | `2.9.3`      | `legacy/test.sh` | ScalaTest | `1.9.2` | JDK 8, JDK 7 `rt.jar` |
+| `v2_10`   | `2.10.7`     | Mill | ScalaTest      | `3.0.9`           | Default             |
+| `v2_11`   | `2.11.12`    | Mill | ScalaTest      | `3.2.18`          | Default             |
+| `v2_12`   | `2.12.21`    | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v2_13`   | `2.13.18`    | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_0`    | `3.0.2`      | Mill | ScalaTest      | `3.2.11`          | `temurin:17`        |
+| `v3_1`    | `3.1.3`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        |
+| `v3_2`    | `3.2.2`      | Mill | ScalaTest      | `3.2.19`          | `temurin:17`        |
+| `v3_3`    | `3.3.8`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_4`    | `3.4.3`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_5`    | `3.5.2`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_6`    | `3.6.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_7`    | `3.7.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_8`    | `3.8.4`      | Mill | ScalaTest      | `3.2.19`          | Default             |
+| `v3_9`    | `3.9.0`      | Mill | ScalaTest      | `3.2.19`          | Default             |
 
 ---
 
@@ -59,26 +59,22 @@ palindrome/
 ├── legacy/
 │   ├── test.sh                     # Builds and tests 2.5–2.9 without Mill
 │   └── scalatest-stand-in/         # Minimal FunSuite + Runner stand-in for 2.5 and 2.6
-├── 2/
-│   ├── package.mill.yaml           # Scala 2 group module definition (empty, but required)
-│   ├── <5..13>/
-│   │   ├── package.mill.yaml       # Subproject build definition, 2.10–2.13 only (extends VersionModule, scalaVersion, etc.)
-│   │   ├── NOTES.md                # What changed from the previous version (only where something did)
-│   │   ├── src/
-│   │   │   └── Palindrome.scala    # Implementation (starts with `// Scala <version>` comment)
-│   │   └── test/
-│   │       └── src/
-│   │           └── PalindromeSuite.scala # Test suite (FunSuite for <=2.10, AnyFunSuite for >=2.11)
-├── 3/
-│   ├── package.mill.yaml           # Scala 3 group module definition (empty, but required)
-│   └── <0..9>/
-│       ├── package.mill.yaml       # Subproject build definition (extends VersionModule, scalaVersion, etc.)
-│       ├── NOTES.md                # What changed from the previous version (only where something did)
-│       ├── src/
-│       │   └── Palindrome.scala    # Implementation (starts with `// Scala <version>` comment)
-│       └── test/
-│           └── src/
-│               └── PalindromeSuite.scala # Test suite (AnyFunSuite)
+├── v2_<5..13>/                     # One directory per Scala 2 version: v2_5 … v2_13
+│   ├── package.mill.yaml           # Subproject build definition, 2.10–2.13 only (extends VersionModule, scalaVersion, etc.)
+│   ├── NOTES.md                    # What changed from the previous version (only where something did)
+│   ├── src/
+│   │   └── Palindrome.scala        # Implementation (starts with `// Scala <version>` comment)
+│   └── test/
+│       └── src/
+│           └── PalindromeSuite.scala # Test suite (FunSuite for <=2.10, AnyFunSuite for >=2.11)
+├── v3_<0..9>/                      # One directory per Scala 3 version: v3_0 … v3_9
+│   ├── package.mill.yaml           # Subproject build definition (extends VersionModule, scalaVersion, etc.)
+│   ├── NOTES.md                    # What changed from the previous version (only where something did)
+│   ├── src/
+│   │   └── Palindrome.scala        # Implementation (starts with `// Scala <version>` comment)
+│   └── test/
+│       └── src/
+│           └── PalindromeSuite.scala # Test suite (AnyFunSuite)
 ├── tools/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
@@ -104,9 +100,8 @@ palindrome/
 └── LICENSE                         # Apache 2.0 License
 ```
 
-- **Module names**: `2/13` is the Mill module `2.13`, `3/9` is `3.9`, and so on. Only 2.10–2.13 and 3.0–3.9 are Mill modules; `2/5`–`2/9` have no `package.mill.yaml` and are built by `legacy/test.sh`.
-- **Group files**: `2/package.mill.yaml` and `3/package.mill.yaml` are empty but required; without them Mill doesn't discover the version modules below.
-- **One file per version**: every version needs its own `package.mill.yaml`. Declaring the versions as nested `object`s in the group files doesn't work, because Mill 1.1.10 can't handle module names that start with a digit when declared that way.
+- **Module names**: each Mill module is named after its directory: `v2_13`, `v3_9`, and so on (`./mill v3_9.test`). The names use `_` rather than a dot because Mill 1.1.10 silently skips a module directory with a dot in its name (`v2.13` isn't discovered). Only 2.10–2.13 and 3.0–3.9 are Mill modules; `v2_5`–`v2_9` have no `package.mill.yaml` and are built by `legacy/test.sh`.
+- **One file per version**: every version needs its own `package.mill.yaml`, which is how Mill discovers it as a module.
 - **`VersionModule`**: adds the nested ScalaTest `test` module and a `scalaTestDep` setting (default `org.scalatest::scalatest:3.2.19`). Each `package.mill.yaml` states only what's specific to its version: `scalaVersion`, plus `scalaTestDep` and `jvmId` where the defaults don't fit. No single ScalaTest release covers the whole range: 3.0 needs `3.2.11` (the last release built with Scala 3.0).
 
 ---
@@ -207,8 +202,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
 
 ```bash
 ./mill __.compile        # compile every version
-./mill 3.9.compile       # compile one version
-./mill 3.9.test          # run one version's tests
+./mill v3_9.compile      # compile one version
+./mill v3_9.test         # run one version's tests
 ./mill __.test           # run all Mill-built tests (2.10–2.13, 3.0–3.9)
 ./mill resolve __.test   # list test modules
 legacy/test.sh           # build and test 2.5–2.9 without Mill
@@ -234,7 +229,7 @@ Mill can't build Scala 2.5–2.9, for three independent reasons:
 
 Scala 2.10 is the dividing line: it split out `scala-reflect`, introduced binary-version artifact names (`_2.10`), and is the oldest version current build tooling supports.
 
-So `2/5`–`2/9` have no `package.mill.yaml`; `legacy/test.sh` builds and tests them by calling each version's own `scalac` directly. It needs coursier's `cs` on the `PATH` (plus `curl` and `tar`), and caches everything under `out/legacy/`:
+So `v2_5`–`v2_9` have no `package.mill.yaml`; `legacy/test.sh` builds and tests them by calling each version's own `scalac` directly. It needs coursier's `cs` on the `PATH` (plus `curl` and `tar`), and caches everything under `out/legacy/`:
 
 - **JDK**: these compilers can't read JDK 8+ class files ("bad constant pool tag 18"), and JDK 6/7 aren't available for Apple Silicon. So `scalac` runs on JDK 8 (`cs java-home --jvm zulu:8`) but reads the Java standard library from a JDK 7 `rt.jar` (Azul Zulu 7u352, pinned by SHA-256; x86_64, but it's only read, never run). The option is `-javabootclasspath` on 2.8/2.9 and `-bootclasspath` on 2.5–2.7.
 - **ScalaTest**: a ScalaTest release must be built with the same Scala version, because older compilers can't read newer Scala signatures. 2.7 uses ScalaTest `1.0`, 2.8 `1.8`, and 2.9 `1.9.2`, all fetched intransitively.

@@ -261,7 +261,7 @@ that — implicit views don't chain — so Scala 2 needs `"racecar".toList.isPal
 
 ## 3a. The samples in this repo
 
-Each version directory (`2/5` … `3/9`) implements the *end state* of §3 with the best
+Each version directory (`v2_5` … `v3_9`) implements the *end state* of §3 with the best
 features of that release, so neighbouring versions differ only in what the language
 changed. `STATE.md` §4 maps each stage to the version that first shows it; `DESIGN.md`
 explains the choices. The samples differ from the slides above in two ways:
