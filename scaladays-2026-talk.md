@@ -351,10 +351,11 @@ update the description's paragraph-3 tour list accordingly ("equality safety",
   whether `x +: middle :+ y` is slow: on a `String` or an `ArraySeq` it is, O(n²), because each
   step copies. The answer is the 2.5 index loop again, as an `IndexedSeq` overload.
 
-- **Non-copying `String` slices** (Q&A only; slide `r-stringslice`, after `r-indexedseq`). If someone
-  asks why the `String` can't share its characters: it can, with a `StringSlice` whose `slice`
-  moves bounds on the same `String`, as `java.lang.String` did before Java 7u6. The extractor
-  then stays O(n), but only for a `String`, and only if the caller wraps it.
+- **Non-copying slices** (Q&A only; slide `r-stringslice`, after `r-indexedseq`). If someone asks
+  why the slices can't share instead of copying: they can, with an `IndexedSeqSlice` whose `slice`
+  moves bounds on the same underlying `IndexedSeq`, as `java.lang.String` did before Java 7u6.
+  The extractor then stays O(n) on a `String`, an `ArraySeq` or a `Vector`, but only if the caller
+  wraps it, and never on a `List`. Views don't do this: they nest on every `drop`.
 
 **Deliberately NOT included:** abstracting the container to `F[_]` with a higher-kinded
 type class. Tempting and very Scala, but it violates the Occam discipline the talk

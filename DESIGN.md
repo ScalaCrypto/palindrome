@@ -5,80 +5,114 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
-## 2026-09-28 — Non-copying `String` slices: a second reserve slide, not code
+## 2026-09-28 — Non-copying slices: a second reserve slide, not code
 
 ### What changed
 
 A second reserve slide, `r-stringslice`, follows `r-indexedseq` in the talk deck and both annotated decks. It
-answers a follow-up question, "can't the `String` share its characters instead of copying them?", with a
-`Seq[Char]` that is a window on one `String`, with the timings from the verification below in a table under the code:
+answers a follow-up question, "can't the slices share instead of copying?", with a `Seq` that is a window on any
+`IndexedSeq`, with the timings from the verification below in a table under the code:
 
 ```scala
-class StringSlice(s: String, from: Int, until: Int)
-    extends AbstractSeq[Char], IndexedSeq[Char]:
+class IndexedSeqSlice[A](xs: IndexedSeq[A], from: Int, until: Int)
+    extends AbstractSeq[A], IndexedSeq[A]:
   def length = until - from
-  def apply(i: Int) = s.charAt(from + i)
-  override def slice(lo: Int, hi: Int) = StringSlice(s, from + lo, from + hi)
+  def apply(i: Int) = xs(from + i)
+  override def slice(lo: Int, hi: Int) = IndexedSeqSlice(xs, from + lo, from + hi)
   override def tail = slice(1, length)
   override def init = slice(0, length - 1)
 ```
 
-The version sources don't change.
+The version sources don't change. The slide's id stays `r-stringslice`: it's internal, and the question it answers
+starts with a `String`.
 
 ### Why
 
-The extractor `x +: middle :+ y` calls `head` and `tail` (`+:`), then `init` and `last` (`:+`). On a `String` read as
-a `WrappedString`, `tail` and `init` go through `slice`, which is `new WrappedString(self.substring(...))`, and
-`substring` copies. So each step is O(n) and the check O(n²). If `slice` only moves the bounds on the same `String`,
-each step is O(1), and the unchanged 3.9 `isPalindrome` is O(n) on a `String`.
+The extractor `x +: middle :+ y` calls `head` and `tail` (`+:`), then `init` and `last` (`:+`). Neither
+`WrappedString` nor `ArraySeq` shares on those calls. `WrappedString` inherits `tail` and `init` from `Iterable`, as
+`drop(1)` and `dropRight(1)`, and `IndexedSeqOps.drop` is `fromSpecific(new IndexedSeqView.Drop(this, n))`, which
+rebuilds the string character by character through a builder. `ArraySeq.tail` and `dropRight` copy the array. So
+each step is O(n) and the check O(n²). If
+`slice` only moves the bounds on the same underlying collection, each step is O(1), and the unchanged 3.9
+`isPalindrome` is O(n) on any `IndexedSeq`.
 
 That's what `java.lang.String` itself did until Java 7u6: it had `offset` and `count` fields, and `substring` shared
 the parent's `char[]`. So the slide is a piece of JVM history as well as a fix, which suits the talk.
 
-`tail` and `init` are overridden explicitly, not left to their defaults through `slice`, so that nothing on the path
-the extractors take can fall back to building a new collection.
+The key is that `slice` is resolved against the *original* collection (`from + lo`), so a slice of a slice is still
+one layer deep, however often it's sliced. `tail` and `init` are overridden explicitly, not left to their defaults
+through `slice`, so that nothing on the path the extractors take can fall back to building a new collection.
 
 ### Alternatives rejected
 
-- **Putting `StringSlice` into the version sources.** A custom collection class is more machinery than the
-  `IndexedSeq` overload, which was already rejected for the sources (see the entry below). It fixes only `String`, and
-  only when the caller wraps it.
+- **A `String`-only `StringSlice`** (`s.charAt(from + i)`), the first version of the slide. It answers only the
+  `String` half of the problem; the generic class is the same seven lines and also fixes `ArraySeq`.
+- **Putting the class into the version sources.** A custom collection class is more machinery than the `IndexedSeq`
+  overload, which was already rejected for the sources (see the entry below), and it only helps when the caller
+  wraps the collection.
 - **Making `"racecar".isPalindrome` pick it up automatically.** It would need an implicit conversion from `String` that
   competes with Predef's `wrapString`, which is exactly the kind of hidden machinery the talk argues against.
-- **`s.view`**. `StringView` already slices in O(1) without copying, but views aren't `SeqOps` in 2.13+, and the `+:`
-  and `:+` extractors require `SeqOps`, so a view doesn't match the pattern.
+- **Views (`s.view`, `xs.view`), with extractors extended to match them.** The standard `+:` and `:+` require
+  `CC[_] <: Seq[_]`, and a view's `CC` is `View`, so a view doesn't match. Our own `+:`/`:+` objects taking an
+  `IndexedSeqView` do match, but `IndexedSeqView.drop`, `dropRight` and `slice` wrap the current view
+  (`new IndexedSeqView.Drop(this, n)`) instead of flattening the offsets. After k steps the middle is k layers deep,
+  and every `apply`, `length` and `last` walks all of them, so the check is still O(n²). Measured with such
+  extractors on 3.9 (quick run, not JMH): 156 / 598 / 2,620 ms over a `String` at n = 10,000 / 20,000 / 40,000, and
+  3,087 ms over a `Vector` at 40,000, where the plain extractor takes about a millisecond. Views are built for
+  composing lazily, not for slicing repeatedly.
+- **Any `Seq`, `List` included.** No wrapper helps a `List`: reaching its last element is O(n) whatever the slicing
+  does. The general answer is to pay one O(n) copy, `xs.toIndexedSeq`, and then use this class or the index loop;
+  the speaker notes say so.
 - **Wrapping `java.nio.CharBuffer.wrap(s)`**, whose `subSequence` also shares the string. It needs an adapter to
-  `Seq[Char]` anyway, which is the same class with an extra layer.
+  `Seq[Char]` anyway, which is the same class with an extra layer, and it only covers `String`.
 - **A full, general-purpose class on the slide** (bounds checks on `apply`, clamped `slice` bounds, `drop`/`take`/
-  `dropRight`/`takeRight` overrides, a `toString` that copies only on request). The prototype has all of these, but
-  that's 20 lines. The slide keeps the seven that make the point, and the speaker notes say what's left out.
+  `dropRight`/`takeRight` overrides, a `toString`). The prototype has all of these, but that's 20 lines. The slide
+  keeps the seven that make the point, and the speaker notes say what's left out.
 
 ### Limitations accepted
 
-- The slide's class has no bounds checks: `apply(-1)` reads the character before the window, and `slice` doesn't
+- The slide's class has no bounds checks: `apply(-1)` reads the element before the window, and `slice` doesn't
   clamp. That's safe for `isPalindrome`, because both extractors check `isEmpty` before calling `tail` or `init`, but
   not for general use.
-- A slice keeps the whole `String` reachable. That's why Java dropped sharing in 7u6: a small substring pinned a huge
-  parent. The speaker notes say so.
-- It doesn't help a `List`, where `:+` is O(n) on its own, or an `ArraySeq`. The index loop on `r-indexedseq`
-  remains the general answer.
-- The numbers come from one quick run, not a JMH benchmark, as in the entry below.
+- A slice keeps the whole underlying collection reachable. That's why Java dropped sharing in 7u6: a small substring
+  pinned a huge parent. The speaker notes say so.
+- It doesn't help a `List` (see above). The index loop on `r-indexedseq` remains the simpler answer.
+- `A` is generic, so each element is boxed, as with the index loop.
 
 ### Verification
 
 A scratch `scala-cli` program on 3.9.0 and `graalvm-oracle:25` compiled the slide's class exactly as shown and ran it
-through the unchanged 3.9 `isPalindrome`. It agrees with `WrappedString` on `""`, `"a"`, `"ab"`, `"aa"`,
-`"racecar"`, `"abcb"`, `"abba"` and `"abca"`. Matching `x +: middle :+ y` on `"racecar"` binds `middle` to a
-`StringSlice`, so the recursion never leaves it. On strings of one repeated character, after three warm-up runs:
+through the unchanged 3.9 `isPalindrome`, over a `WrappedString`, an `ArraySeq[Char]` and a `Vector[Char]`. It agrees
+with `WrappedString` on `""`, `"a"`, `"ab"`, `"aa"`, `"racecar"`, `"abcb"`, `"abba"` and `"abca"` over all three.
+Matching `x +: middle :+ y` on `IndexedSeqSlice(Vector(1, 2, 3, 2, 1), 0, 5)` binds `middle` to an
+`IndexedSeqSlice(2, 3, 2)`, so the recursion never leaves it.
 
-| | 10,000 | 20,000 | 40,000 |
+Timings from JMH 1.37, through `scala-cli --power run --jmh`, on Scala 3.9.0 and Oracle GraalVM 25.0.3
+(`graalvm-oracle:25`, default flags), on an Apple M3 Max: average time per call, 2 forks of 5 warm-up and 5
+measured iterations (3 s each for the slow extractor cases, 1 s otherwise). The input is a palindrome of n random
+lowercase letters (seed 42); setup checks that every variant returns `true` and rejects a spoiled copy. The
+benchmark source was a scratch file, not kept in the repository.
+
+| extractor over | 10,000 | 20,000 | 40,000 |
 |---|---|---|---|
-| extractor, `WrappedString` | 35 ms | 148 ms | 568 ms |
-| extractor, `StringSlice` | < 0.1 ms | < 0.1 ms | 0.1 ms |
+| `WrappedString` | 37.1 ms | 150 ms | 593 ms or 1,269 ms (see below) |
+| `IndexedSeqSlice` over a `String` | 15 µs | 37 µs | 89 µs ± 15 |
+| `IndexedSeqSlice` over an `ArraySeq` | 18 µs | 33 µs | 63 µs ± 9 |
+| `IndexedSeqSlice` over a `Vector` | 27 µs | 55 µs | 106 µs ± 7 |
+| `StringSlice` (the earlier `String`-only class) | 13 µs | 27 µs | 55 µs |
 
-The `WrappedString` time roughly quadruples each time n doubles. `talk/render.py --screenshots` passes on all three
-decks; the slide's lowest edge is 922px in the talk deck and 875px in the annotated ones. The intro paragraph is
-one line, so that the table fits.
+The slices grow about ×2 per doubling, O(n); `WrappedString` about ×4, O(n²). Over a `String`, the generic class is
+10–40% slower than the `String`-only one, from the extra indirection through `WrappedString.apply`, and about 2×
+slower over a `Vector`, from its tree lookups. All of them stay under 0.11 ms, so the slide shows only the `String`
+row.
+
+The `String` extractor at 40,000 is bimodal: each JVM run settles at either about 0.59 s or about 1.27 s, stable to
+under 1% within the run. A second run with 8 forks split 4 and 4, so JMH's pooled score (931 ms ± 539 ms) says
+nothing useful, and the slides show the range, 600–1,300 ms. Most likely the JIT compiles the copying loop
+differently from one run to the next; that wasn't confirmed with a profiler. 10,000 and 20,000 aren't bimodal.
+
+`talk/render.py --screenshots` passes on all three decks; the slide's lowest edge is 922px in the talk deck and
+875px in the annotated ones. The intro paragraph is one line, so that the table fits.
 
 ---
 
@@ -106,8 +140,8 @@ From 2.10, `isPalindrome` recurses through `case x +: middle :+ y`, which calls 
 and each builds a new collection. What that costs depends on the collection:
 
 - **`Vector`**: each slice shares structure, so a step is cheap but still allocates twice. The check stays about O(n).
-- **`ArraySeq`, and a `String` read as a `WrappedString`**: `slice` copies the array or the substring, so the check is
-  **O(n²)**, even though indexing is O(1).
+- **`ArraySeq`, and a `String` read as a `WrappedString`**: `tail` and `init` copy, the array with a bulk copy and
+  the string character by character through a builder, so the check is **O(n²)**, even though indexing is O(1).
 
 Two indices walking inward compare only n/2 pairs, allocate nothing and stop at the first mismatch. That's the 2.5–2.9
 loop again. The extension can sit next to the `Seq` one: overloading resolution picks the more specific
@@ -129,28 +163,44 @@ loop again. The extension can sit next to the `Seq` one: overloading resolution 
 
 ### Limitations accepted
 
-- The slide's numbers come from one quick run, not a JMH benchmark. They show the difference in growth, which is all
-  the slide claims, not precise timings.
+- The slide rounds the timings, and the `String` extractor at 40,000 is a range, because it's bimodal (see
+  Verification). They come from one machine and one JVM.
 - Nothing checks the slide's code against a source file, because there is none. It was compiled and run in the
   benchmark below.
 
 ### Verification
 
-A scratch `scala-cli` program on 3.9.0 and `graalvm-oracle:25`, with palindromes of 10,000, 20,000 and 40,000
-elements, three warm-up runs each:
+Timings from JMH 1.37, through `scala-cli --power run --jmh`, on Scala 3.9.0 and Oracle GraalVM 25.0.3
+(`graalvm-oracle:25`, default flags), on an Apple M3 Max: average time per call, 2 forks of 5 warm-up and 5
+measured iterations (3 s each for the slow extractor cases, 1 s otherwise). The input is a palindrome of n random
+lowercase letters (seed 42); setup checks that every variant returns `true` and rejects a spoiled copy. The
+benchmark source was a scratch file, not kept in the repository.
 
 | | 10,000 | 20,000 | 40,000 |
 |---|---|---|---|
-| extractor, `String` | 107 ms | 491 ms | 1944 ms |
-| extractor, `ArraySeq` | 12 ms | 12 ms | 64 ms |
-| extractor, `Vector` | 1.8 ms | 0.5 ms | 1.3 ms |
-| index loop, any of the three | ≤ 0.4 ms | ≤ 0.2 ms | ≤ 0.6 ms |
+| extractor, `String` | 37.1 ms | 150 ms | 593 ms or 1,269 ms (see below) |
+| extractor, `ArraySeq` | 3.15 ms | 11.8 ms | 42.2 ms |
+| extractor, `Vector` | 109 µs | 181 µs | 341 µs |
+| index loop, `String` | 4.3 µs | 8.4 µs | 16.7 µs |
+| index loop, `ArraySeq` | 4.4 µs | 8.7 µs | 17.5 µs |
+| index loop, `Vector` | 13.7 µs | 27.7 µs | 62.9 µs |
 
-The `String` time roughly quadruples each time n doubles. The same program checked that overloading resolution picks
-the `IndexedSeq` extension for a `Vector` and a `String`, and the `Seq` one for a `List`. `talk/render.py
---screenshots` passes on all three decks; the slide's lowest edge is 939px in the talk deck and 906px in the
-annotated ones. The intro paragraph is one line, so that
-the table fits.
+The `String` and `ArraySeq` extractors grow about ×4 per doubling, O(n²); `ArraySeq` is 12–14× faster at the same
+order because its copy is a bulk array copy. The `Vector` extractor and the index loop grow about ×2, O(n). The index
+loop is 3× slower on a `Vector` than on the others, from its tree lookups, but still under 0.1 ms; the slide's
+index-loop row shows the `Vector` figures, the slowest of the three.
+
+The `String` extractor at 40,000 is bimodal: each JVM run settles at either about 0.59 s or about 1.27 s, stable to
+under 1% within the run. A second run with 8 forks split 4 and 4, so JMH's pooled score (931 ms ± 539 ms) says
+nothing useful, and the slides show the range, 600–1,300 ms. Most likely the JIT compiles the copying loop
+differently from one run to the next; that wasn't confirmed with a profiler. 10,000 and 20,000 aren't bimodal.
+An earlier quick `System.nanoTime` run gave `ArraySeq` 12 / 12 / 64 ms, which looked linear; that was warm-up and
+GC noise.
+
+A scratch `scala-cli` program checked that overloading resolution picks the `IndexedSeq` extension for a `Vector`
+and a `String`, and the `Seq` one for a `List`. `talk/render.py --screenshots` passes on all three decks; the
+slide's lowest edge is 939px in the talk deck and 906px in the annotated ones. The intro paragraph is one line, so
+that the table fits.
 
 ---
 
