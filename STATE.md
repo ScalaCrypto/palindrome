@@ -148,6 +148,8 @@ The tests are the same in every version, apart from the syntax of each version a
 - **2.5–2.7** use `List` for every sequence: there's no `Vector` before 2.8, and no `Seq(...)` factory in 2.5 and 2.6.
   Their `palindromize` returns a `Seq`, so the tests compare it with `.toList`/`.mkString`. From 2.8, the test states the
   static result types (`val s: String = palindromize("abc")`).
+- **Test blocks**: 3.3–3.9 write `test("…"):` with an indented body (colon block argument, standard from 3.3);
+  Scala 2 and 3.0–3.2 keep `test("…") { … }`.
 
 ### Mapping of the Talk Stages to Versions
 
