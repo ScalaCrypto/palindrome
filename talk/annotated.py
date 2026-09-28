@@ -53,7 +53,7 @@ PANEL, PANEL_EDGE, ADDED, COMMENT = "#242A38", "#343B4C", "#26344C", "#9AA3AF"
 # The slide sequence. ("code", first version) is a code state; ("again", first version) shows it once more without
 # notes, after talk slides interrupted the morph; anything else is a talk slide id, copied as it is.
 SEQUENCE = [
-    "cover", "premise", "timeline", "oneliner",
+    "cover", "oneliner", "goal",
     "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.10"),
     "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
     "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),
@@ -456,7 +456,26 @@ def uniform_panels(html: str) -> str:
     return re.sub(r"(<div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(.*?)(</div>)", panel, html, flags=re.S)
 
 
+def follow_panels(html: str) -> str:
+    """Moves each pinned element up by what the code panels above it in the source lose to uniform_panels, so it
+    keeps its distance from them (the talk slide pins it where its own, taller panels end). Runs on the talk slide."""
+    shift = 0.0
+
+    def step(m):
+        nonlocal shift
+        if m.group("top") is not None:
+            return m.group("pin") + f"{round(float(m.group('top')) - shift, 1)}px"
+        pad_y = float(re.search(r"padding:(\d+)px", m.group("open")).group(1))
+        lines = re.findall(r"font-size:(\d+)px; line-height:([\d.]+)", m.group("body"))
+        old = 2 * pad_y + sum(float(f) * float(h) for f, h in lines) + (2 if "border:" in m.group("open") else 0)
+        shift += old - (2 * PANEL_PAD_Y + len(lines) * LH + 2)
+        return m.group(0)
+    return re.sub(r"(?P<pin>position:absolute; left:[\d.]+px; top:)(?P<top>[\d.]+)px"
+                  r"|(?P<open><div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(?P<body>.*?)</div>", step, html, flags=re.S)
+
+
 def restyle(html: str) -> str:
+    html = follow_panels(html)
     for old, new in RECOLOR:
         html = html.replace(old, new)
     if "<table style=\"font-family:'IBM Plex Mono'" in html:

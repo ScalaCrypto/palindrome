@@ -7,9 +7,8 @@
   "title": "A Brief History of Scala, Every Change",
   "order": [
     "cover",
-    "premise",
-    "timeline",
     "oneliner",
+    "goal",
     "scala2",
     "s25-types",
     "m2-5",
