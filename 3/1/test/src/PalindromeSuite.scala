@@ -8,10 +8,13 @@ class PalindromeSuite extends AnyFunSuite:
     assert(Seq(1).isPalindrome)
   }
 
-  test("two-element sequences are palindromes when both elements are equal") {
+  test("two-element sequences with equal elements are palindromes") {
     assert("aa".isPalindrome)
-    assert(!"ab".isPalindrome)
     assert(Seq(1, 1).isPalindrome)
+  }
+
+  test("two-element sequences with different elements are not palindromes") {
+    assert(!"ab".isPalindrome)
     assert(!Seq(1, 2).isPalindrome)
   }
 
