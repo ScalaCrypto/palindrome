@@ -1,0 +1,50 @@
+{
+  "v": 4,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-28T12:00:00Z"
+  },
+  "title": "Who Wrote Scala",
+  "order": [
+    "cover",
+    "s2-5",
+    "s2-6",
+    "s2-7",
+    "s2-8",
+    "s2-9",
+    "s2-10",
+    "s2-11",
+    "s2-12",
+    "s2-13",
+    "s3-0",
+    "s3-1",
+    "s3-2",
+    "s3-3",
+    "s3-4",
+    "s3-5",
+    "s3-6",
+    "s3-7",
+    "s3-8",
+    "s3-9"
+  ],
+  "sections": {
+    "intro": {
+      "description": "The authors of every Scala release, one cloud per release",
+      "start": "cover"
+    },
+    "scala2": {
+      "description": "Scala 2.5 to 2.13, from scala/scala",
+      "start": "s2-5"
+    },
+    "scala3": {
+      "description": "Scala 3.0 to 3.9, from scala/scala3",
+      "start": "s3-0"
+    }
+  },
+  "faces": {
+    "ibm-plex-sans": {
+      "family": "IBM Plex Sans",
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    }
+  }
+}

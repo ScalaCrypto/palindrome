@@ -6,7 +6,8 @@ Usage: talk/render.py                 measure every slide; exit 1 if anything ov
        talk/render.py [--screenshots] talk/3.2-annotated    the same for another deck, into out/talk-render/3.2-annotated/
 
 Each slide is laid out on the deck's fixed 1920x1080 canvas with the deck's own fonts, then measured:
-- OUTSIDE MARGINS: an element crosses the 128px margins (fails the check).
+- OUTSIDE MARGINS: an element crosses the 128px margins (fails the check). Elements marked data-bleed run to or off
+  the slide's edge on purpose (a timeline, say) and are skipped.
 - TEXT OVERFLOWS: text runs past its container, e.g. a code line past its panel (fails the check).
 - HEADING WRAPS: a heading without a <br> takes more than one line (reported, not a failure: some are meant to).
 - The lowest content edge per slide, to show how much vertical room is left.
@@ -47,7 +48,7 @@ document.fonts.ready.then(() => setTimeout(() => {
   for (const s of document.querySelectorAll('section')) {
     const out = [], top0 = s.getBoundingClientRect().top;
     for (const el of s.querySelectorAll('*')) {
-      if (el.closest('aside')) continue;
+      if (el.closest('aside') || el.closest('[data-bleed]')) continue;  // notes; drawn off the edge on purpose
       const b = el.getBoundingClientRect();
       if (!b.width && !b.height) continue;
       const top = b.top - top0, bottom = b.bottom - top0, tag = el.tagName.toLowerCase();
