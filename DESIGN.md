@@ -11,7 +11,7 @@ how it was verified. Current project facts live in `STATE.md`.
 
 A second reserve slide, `r-stringslice`, follows `r-indexedseq` in the talk deck and both annotated decks. It
 answers a follow-up question, "can't the `String` share its characters instead of copying them?", with a
-`Seq[Char]` that is a window on one `String`:
+`Seq[Char]` that is a window on one `String`, with the timings from the verification below in a table under the code:
 
 ```scala
 class StringSlice(s: String, from: Int, until: Int)
@@ -77,7 +77,8 @@ through the unchanged 3.9 `isPalindrome`. It agrees with `WrappedString` on `""`
 | extractor, `StringSlice` | < 0.1 ms | < 0.1 ms | 0.1 ms |
 
 The `WrappedString` time roughly quadruples each time n doubles. `talk/render.py --screenshots` passes on all three
-decks; the slide's lowest edge is 784px in the talk deck and 737px in the annotated ones.
+decks; the slide's lowest edge is 922px in the talk deck and 875px in the annotated ones. The intro paragraph is
+one line, so that the table fits.
 
 ---
 
@@ -87,7 +88,7 @@ decks; the slide's lowest edge is 784px in the talk deck and 737px in the annota
 
 A reserve slide, `r-indexedseq`, now follows "Thank you" in the talk deck and both annotated decks, in a new
 `reserve` section. It answers a likely Q&A question, "isn't `x +: middle :+ y` slow?", with the O(n) version for
-indexed sequences:
+indexed sequences, with the timings from the verification below in a table under the code:
 
 ```scala
 extension [A: Eq as eq](xs: IndexedSeq[A])
@@ -147,8 +148,9 @@ elements, three warm-up runs each:
 
 The `String` time roughly quadruples each time n doubles. The same program checked that overloading resolution picks
 the `IndexedSeq` extension for a `Vector` and a `String`, and the `Seq` one for a `List`. `talk/render.py
---screenshots` passes on all three decks; the slide's lowest edge is 703px in the talk deck and 670px in the
-annotated ones.
+--screenshots` passes on all three decks; the slide's lowest edge is 939px in the talk deck and 906px in the
+annotated ones. The intro paragraph is one line, so that
+the table fits.
 
 ---
 
