@@ -6,7 +6,7 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk's **main deck**, the one presented, is the every-change annotated deck, `talk/4.1-annotated-all/` (see `talk/README.md`).
 
 Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, `palindromize`, which builds a palindrome of the input's own collection type, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
 
@@ -79,13 +79,13 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── 1.2-deck/project/           # The slide deck: deck.json + slides/<id>.html (claude.ai Slides format)
+│   ├── 1.2-deck/project/           # The talk deck, by hand: deck.json + slides/<id>.html (claude.ai Slides format)
 │   ├── render.py                   # Renders the deck in headless Chrome; exit 1 on overflow; --screenshots
 │   ├── morph.py                    # Generates the code-morph deck from the sources
 │   ├── 2.3-morph/project/          # GENERATED: the code-morph deck (magic-move transitions between versions)
 │   ├── annotated.py                # Generates the annotated deck: talk slides + morph + handwritten notes
 │   ├── 3.2-annotated/project/      # GENERATED: the annotated deck
-│   ├── 4.1-annotated-all/project/  # GENERATED: its variant with a note for every change (--all-changes)
+│   ├── 4.1-annotated-all/project/  # GENERATED: the MAIN DECK, the annotated deck with a note for every change (--all-changes)
 │   ├── tag-cloud.py                # Generates the tag-cloud deck from tag-cloud/authors.json
 │   └── tag-cloud/                  # Who wrote each Scala release: authors.json + GENERATED project/
 ├── .github/workflows/
@@ -191,13 +191,18 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`1.2-deck`, `2.3-morph`, `3.2-annotated`, `4.1-annotated-all`). The major number is the kind of deck, the minor
   its revision; `talk/README.md` has the table. A revision that changes a deck's code or look renames its directory
   (and the path in its generator).
-- **Keep `talk/1.2-deck/` in step with the deck's artifact**: the deck is edited and presented as a claude.ai Slides
+- **The main deck is `talk/4.1-annotated-all/`**: it's the one presented, so after any change to the code, the talk
+  deck's slides or the notes in `talk/annotated.py`, regenerate it (`talk/annotated.py --all-changes`), check it
+  (`talk/render.py --screenshots talk/4.1-annotated-all`) and republish its artifact. The other decks are its inputs
+  (1.2, 2.3) or alternatives to it (3.2).
+- **Keep `talk/1.2-deck/` in step with the deck's artifact**: the talk deck is edited as a claude.ai Slides
   artifact, and `talk/1.2-deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
   copied from the sources and isn't checked against them: after a code change, compare the affected slides with
   `EVOLUTION.md`, and run `talk/render.py` after changing slides. The code-morph deck (`talk/2.3-morph/`) is different:
   it's generated from the sources by `talk/morph.py`, so rerun that and republish it after a code change. The same
-  goes for the annotated deck (`talk/3.2-annotated/`, from `talk/annotated.py`), which also copies the talk deck's
-  slides: rerun it after changing either, and check that its notes still point at the right code.
+  goes for the annotated decks (`talk/4.1-annotated-all/` and `talk/3.2-annotated/`, from `talk/annotated.py`), which
+  also copy the talk deck's slides: rerun them after changing either, and check that their notes still point at the
+  right code.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -212,12 +217,12 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/render.py           # check the slide deck's layout (needs Chrome); --screenshots for PNGs
+talk/render.py           # check the talk deck's layout (needs Chrome); --screenshots for PNGs
 talk/morph.py            # regenerate the code-morph deck in talk/2.3-morph/
 talk/annotated.py        # regenerate the annotated deck in talk/3.2-annotated/
-talk/annotated.py --all-changes   # its every-change variant, in talk/4.1-annotated-all/
+talk/annotated.py --all-changes   # regenerate the main deck, the every-change variant, in talk/4.1-annotated-all/
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
-talk/render.py --screenshots talk/3.2-annotated   # check and screenshot another deck
+talk/render.py --screenshots talk/4.1-annotated-all   # check and screenshot the main deck (or any other)
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.

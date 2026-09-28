@@ -1,9 +1,14 @@
 # Talk material
 
-The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
+The slide decks for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
 `../scaladays-2026-talk.md`, and the code it shows comes from `../EVOLUTION.md`.
 
-- `1.2-deck/project/`: the deck's source files. `deck.json` holds the title, slide order, sections and fonts, and
+**The main deck, the one presented, is `4.1-annotated-all/`**: the talk deck's slides and the code morph, with a
+handwritten note for every change between versions (see "The every-change variant" below). The other decks are its
+inputs (`1.2-deck`, `2.3-morph`) or an alternative with fewer notes (`3.2-annotated`); after any change to the code,
+the talk deck or the notes, regenerate the main deck, check it and republish it.
+
+- `1.2-deck/project/`: the talk deck's source files, written by hand. `deck.json` holds the title, slide order, sections and fonts, and
   `slides/<id>.html` holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai
   Slides artifact uses; the paths match the artifact's own.
 - `2.3-morph/`, `3.2-annotated/`, `4.1-annotated-all/`: the generated decks, below.
@@ -21,14 +26,14 @@ changed the code it shows or its look.
 | `1.2-deck` | The talk deck, written by hand | 1.0 with the result ADT; 1.1 simplified code; 1.2 review |
 | `2.3-morph` | The code morph | 2.0; 2.1 simplified code; 2.2 exact token matching; 2.3 review |
 | `3.2-annotated` | 1 and 2 merged, with handwritten notes | 3.0; 3.1 uniform style, font, highlights; 3.2 review |
-| `4.1-annotated-all` | 3 with a note for every change | 4.0; 4.1 review |
+| `4.1-annotated-all` | 3 with a note for every change; **the main deck** | 4.0; 4.1 review |
 
 A revision renames the directory (`git mv talk/3.2-annotated talk/3.3-annotated`, and the path in `annotated.py` or
 `morph.py`); the decks' artifacts keep their links.
 
-## The deck and the artifact
+## The talk deck and its artifact
 
-The deck is presented and edited as a claude.ai Slides artifact:
+The hand-written talk deck is edited as a claude.ai Slides artifact:
 <https://claude.ai/artifact/4nvk9BRuCLeutLsoEpQt3d> (private until shared from its Share menu). `1.2-deck/project/` is the
 versioned copy of it. Keep the two in step:
 
@@ -62,12 +67,14 @@ code, the talk deck's slides or the notes, run `talk/annotated.py`, check it wit
 `talk/render.py --screenshots talk/3.2-annotated`, and publish `3.2-annotated/project/` with `3.2-annotated/` as the
 root.
 
-### The every-change variant
+### The every-change variant: the main deck
 
-`talk/annotated.py --all-changes` builds a variant, `4.1-annotated-all/project/`, whose notes cover every change instead
+`talk/annotated.py --all-changes` builds a variant, the main deck, `4.1-annotated-all/project/`, whose notes cover every change instead
 of the talk's main points. From 2.8 on, each change between two versions is highlighted and explained. The changes
 are declared in `CHANGES` in `annotated.py`, and the build fails if any code that's new in a version lies outside
-every highlight. Its artifact is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t>; publish it with
+every highlight. Its artifact is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t>. After changing the code, the talk
+deck's slides or the notes, run `talk/annotated.py --all-changes`, check it with
+`talk/render.py --screenshots talk/4.1-annotated-all`, and publish `4.1-annotated-all/project/` with
 `4.1-annotated-all/` as the root.
 
 ## The tag-cloud deck
