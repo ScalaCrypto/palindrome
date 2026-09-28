@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
-"""Generates the annotated deck in talk/3.2-annotated/: the talk deck's framing slides around the code morph, with
-handwritten notes in speech bubbles that point at the code they explain.
+"""Builds the talk's deck in talk/5.0-deck/: hand-written framing slides around generated code slides that morph from
+one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
-Usage: talk/annotated.py                 the deck in talk/3.2-annotated/, with the talk's notes
-       talk/annotated.py --all-changes   a variant in talk/4.1-annotated-all/, where every change is highlighted and
-                                         explained
+Usage: talk/deck.py
 
-The code slides come from talk/morph.py (same states, same token ids, so they morph the same way). Each code slide
-gets the notes in NOTES below: a bubble placed next to the code it points at, with a tail ending at a highlight
-behind that code. The notes fade in one per click after the morph. The other slides are copied from talk/1.2-deck/, so
-they stay in step with the talk deck, and restyled on the way: the code slides' dark palette, and their code
-highlighted the same way. Where a talk slide interrupts the morph, the code it interrupts is shown again
-afterwards, so the next change still morphs.
+The deck holds two kinds of slide. The code slides (ids starting with "m") are generated from the version sources
+through talk/morph.py and rewritten on every run; never edit them by hand. Every other slide is hand-written and
+edited in place, in the deck's artifact or in its file. The script only normalizes the code panels on those slides:
+the same padding and code size as the code slides, and the code coloured the same way (so write their code as plain
+text). It writes deck.json's order, sections and faces, keeping its other keys; the order is SEQUENCE below.
+
+Each code slide gets the notes in NOTES: a bubble placed next to the code it points at, with a tail ending at a
+highlight behind that code. The notes fade in one per click after the morph. From the second code state on, every
+change is highlighted and explained, and the build fails if any code that's new in a version lies outside every
+highlight. Where a hand-written slide interrupts the morph, the code it interrupts is shown again afterwards, so the
+next change still morphs.
 
 Bubbles are placed automatically: the position nearest the anchor that overlaps no code and no other bubble, and
 whose tail crosses no code but its own. The script fails if a note's anchor isn't in the code, or no place fits.
+It also fails if a slide in SEQUENCE has no file, or a hand-written slide's file isn't in SEQUENCE.
 """
 
 import json
@@ -26,13 +30,21 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-TALK = ROOT / "talk/1.2-deck/project"
-OUT = ROOT / "talk/3.2-annotated/project"
-OUT_ALL = ROOT / "talk/4.1-annotated-all/project"  # the every-change variant
+DECK = ROOT / "talk/5.0-deck/project"
+TITLE = "A Brief History of Scala"
+FACES = {
+    "ibm-plex-sans": {"family": "IBM Plex Sans",
+                      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"},
+    "ibm-plex-mono": {"family": "IBM Plex Mono",
+                      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap"},
+    "fuzzy-bubbles": {"family": "Fuzzy Bubbles",
+                      "href": "https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles&display=swap"},
+}
 
-# Every code slide looks like the talk deck's code slides: eyebrow, heading, then the code in a panel. One code size
-# for the whole deck, the largest at which the tallest code (2.8, 17 lines once wrapped) fits: 24px, line height 1.4.
-# The panel starts where the talk slides' flow puts it: 128 + eyebrow 33.6 + gap 36 + heading 70.4 + gap 36.
+# Every code slide looks like the hand-written slides with code: eyebrow, heading, then the code in a panel.
+# One code size for the whole deck, the largest at which the tallest code (2.8, 17 lines once wrapped) fits: 24px,
+# line height 1.4.
+# The panel starts where the hand-written slides' flow puts it: 128 + eyebrow 33.6 + gap 36 + heading 70.4 + gap 36.
 SIZE, LH = 24, 33.6
 PANEL_TOP, PANEL_PAD_X, PANEL_PAD_Y = 304, 44, 36
 LEFT, TOP = 128 + 1 + PANEL_PAD_X, PANEL_TOP + 1 + PANEL_PAD_Y  # inside the panel's 1px border and padding
@@ -48,10 +60,10 @@ PAD_X, PAD_Y, RADIUS, TAIL_BASE = 26, 16, 18, 22
 # note is about gets a soft amber highlight behind it.
 BG, FG, INK, PAPER, LINE = "#1B1F2A", "#E8E6DF", "#F3E6D3", "#3A4358", "#E3A869"
 HIGHLIGHT = "rgba(227, 168, 105, 0.22)"
-PANEL, PANEL_EDGE, ADDED, COMMENT = "#242A38", "#343B4C", "#26344C", "#9AA3AF"
+PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 
 # The slide sequence. ("code", first version) is a code state; ("again", first version) shows it once more without
-# notes, after talk slides interrupted the morph; anything else is a talk slide id, copied as it is.
+# notes, after hand-written slides interrupted the morph; anything else is a hand-written slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal",
     "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.10"),
@@ -68,7 +80,7 @@ SECTIONS = {
     "reserve": {"description": "Held back for the Q&A", "start": "r-indexedseq"},
 }
 
-# Per code state: the heading, like the talk slides' (one line at 64px).
+# Per code state: the heading, like the hand-written slides' (one line at 64px).
 TITLES = {
     "2.5": "The whole design with 2007 machinery",
     "2.8": "CanBuildFrom keeps the collection type",
@@ -78,61 +90,45 @@ TITLES = {
     "3.6": "Context bounds get names",
 }
 
-# Per code state: the notes, in the order they appear, and the speaker notes. An anchor is exact code text, first
-# occurrence; with ⟨ ⟩ inside it, only the marked part is highlighted (the rest is context to find the right place).
+# Per code state: the speaker notes.
+ASIDES = {
+    "2.5": "The whole design with 2007 machinery. No +: and :+ extractors yet, so it's index arithmetic; the call is "
+           "in tail position, even inside || and &&, so scalac already compiles it to a jump, but nothing checks "
+           "that. palindromize finds the longest palindromic suffix with our own isPalindrome, so it takes an Eq too, "
+           "and mirrors what comes before it. Generic code can't build the same kind of collection, so it returns a "
+           "Seq: \"abcb\" gives a Seq[Char], not a String.",
+    "2.8": "Two changes. @tailrec turns a promise into a check: the generated code is unchanged. And the collections "
+           "redesign: SeqLike[A, Repr] names the concrete type, and CanBuildFrom is a factory for builders of it. "
+           "bf(xs.repr) gives a builder, and we fill it. Now palindromize(\"abcb\") is the String \"abcba\". Be "
+           "honest: it worked, and the signatures scared people.",
+    "2.10": "Talk stage 2. x +: middle :+ y parses as (x +: middle) :+ y: an operator's first character sets its "
+            "precedence. With no index to carry, the inner loop goes and @tailrec moves onto isPalindrome itself. Say "
+            "the caveat: on a List, :+ needs init and last, which are O(n), and a String copies on every step, so "
+            "this is quietly O(n²); a Vector keeps it (effectively) linear.",
+    "2.13": "The 2.12 code stops compiling for String: StringOps is no longer a collection, so Repr is inferred as "
+            "WrappedString. IsSeq accepts anything readable as a Seq, String included; BuildFrom replaces "
+            "CanBuildFrom. The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element "
+            "type becomes an extra type parameter A0, tied by a refinement.",
+    "3.0": "The big collapse, on the methods. Braces go; implicit becomes using; object Palindrome and the wrapper "
+           "class disappear, because an extension method is an ordinary method too: isPalindrome(xs) and "
+           "xs.isPalindrome are the same method. palindromize loses 2.13's refinement and extra type parameter, "
+           "because the method's using clause comes after the extension's and can name seq.A.",
+    "3.6": "The using clauses fold into the type parameters: a context bound can now be named. The given syntax "
+           "changes too, off this slide: given universal: [A] => Eq[A], \"for every A, an Eq[A]\". 3.5 rejects both. "
+           "3.7 to 3.9 change nothing this code uses.",
+}
+
+# Per code state: the notes, in the order they appear. A note is its highlighted code (one or more anchors, the
+# tail pointing at the first) and its text. An anchor is exact code text, first occurrence; with ⟨ ⟩ inside it,
+# only the marked part is highlighted (the rest is context to find the right place). From the second code state
+# on, the notes cover every change: the build fails if any code that's new in a version lies outside every
+# highlight. The first code state has nothing to compare with, so its notes pick the main points.
 NOTES = {
-    "2.5": ([
+    "2.5": [
         ("implicit eq: Eq[A]", "equality: an implicit type class"),
         ("from >= to ||", "no extractors yet:\nwalk two indices inward"),
         ("): ⟨Seq[A]⟩ = {", "generic code can only promise a Seq"),
-    ], "The whole design with 2007 machinery. No +: and :+ extractors yet, so it's index arithmetic; the call is in "
-       "tail position, even inside || and &&, so scalac already compiles it to a jump, but nothing checks that. "
-       "palindromize finds the longest palindromic suffix with our own isPalindrome, so it takes an Eq too, and "
-       "mirrors what comes before it. Generic code can't build the same kind of collection, so it returns a Seq: "
-       "\"abcb\" gives a Seq[Char], not a String."),
-    "2.8": ([
-        ("@tailrec", "now the compiler\nchecks the loop"),
-        ("SeqLike[A, Repr]", "Repr names the caller's\nconcrete collection"),
-        ("CanBuildFrom[Repr, A, Repr]", "a builder for Repr:\nString in, String out"),
-    ], "Two changes. @tailrec turns a promise into a check: the generated code is unchanged. And the collections "
-       "redesign: SeqLike[A, Repr] names the concrete type, and CanBuildFrom is a factory for builders of it. "
-       "bf(xs.repr) gives a builder, and we fill it. Now palindromize(\"abcb\") is the String \"abcba\". Be honest: it "
-       "worked, and the signatures scared people."),
-    "2.10": ([
-        ("x +: middle :+ y", "peel off both ends,\nrecurse on the middle"),
-    ], "Talk stage 2. x +: middle :+ y parses as (x +: middle) :+ y: an operator's first character sets its "
-       "precedence. With no index to carry, the inner loop goes and @tailrec moves onto isPalindrome itself. Say "
-       "the caveat: on a List, :+ needs init and last, which are O(n), and a String copies on every step, so this is "
-       "quietly O(n²); a Vector keeps it (effectively) linear."),
-    "2.13": ([
-        ("IsSeq[Repr] { type A = A0 }", "IsSeq reads any Repr as a Seq;\nthe refinement is the wart"),
-        ("bf.newBuilder(xs)", "BuildFrom replaces\nCanBuildFrom"),
-    ], "The 2.12 code stops compiling for String: StringOps is no longer a collection, so Repr is inferred as "
-       "WrappedString. IsSeq accepts anything readable as a Seq, String included; BuildFrom replaces CanBuildFrom. "
-       "The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element type becomes an "
-       "extra type parameter A0, tied by a refinement."),
-    "3.0": ([
-        ("using eq: Eq[A]", "implicit becomes using"),
-        ("middle.isPalindrome", "an extension is also\nan ordinary method"),
-        ("Eq[seq.A]", "a later using clause\ncan depend on seq"),
-    ], "The big collapse, on the methods. Braces go; implicit becomes using; object Palindrome and the wrapper "
-       "class disappear, because an extension method is an ordinary method too: isPalindrome(xs) and "
-       "xs.isPalindrome are the same method. palindromize loses 2.13's refinement and extra type parameter, because "
-       "the method's using clause comes after the extension's and can name seq.A."),
-    "3.6": ([
-        ("A: Eq as eq", "a context bound\nwith a name"),
-        ("Repr: IsSeq as seq", "the same for IsSeq;\nseq.A still works"),
-    ], "The using clauses fold into the type parameters: a context bound can now be named. The given syntax changes "
-       "too, off this slide: given universal: [A] => Eq[A], \"for every A, an Eq[A]\". 3.5 rejects both. 3.7 to 3.9 "
-       "change nothing this code uses."),
-}
-
-
-# The every-change variant (--all-changes): from the second code state on, every change gets highlighted and
-# explained. A change is its highlighted code (one or more anchors, the note's tail pointing at the first) and one
-# note. The build fails if any code that's new in a version lies outside every highlight. The first code state has
-# nothing to compare with, so it keeps its NOTES.
-CHANGES = {
+    ],
     "2.8": [
         (["@tailrec"], "now the compiler\nchecks the loop"),
         (["palindromize⟨[A, Repr]⟩", "⟨SeqLike[A, Repr]⟩", "⟨, bf: CanBuildFrom[Repr, A, Repr]⟩", "): ⟨Repr⟩ = {",
@@ -169,8 +165,8 @@ CHANGES = {
 
 
 def wrap(line: str) -> list[str]:
-    """A line too long for the panel, broken where the talk slides break them: after a `)(` between parameter lists,
-    else after a `, ` between parameters, rightmost first; continuations are indented 4 more."""
+    """A line too long for the panel, broken where the hand-written slides break them: after a `)(` between parameter
+    lists, else after a `, ` between parameters, rightmost first; continuations are indented 4 more."""
     if len(line) <= MAX_CHARS:
         return [line]
     cuts, between, depth = [], [], 0
@@ -383,20 +379,6 @@ def code_slide(slide_id, state, runs, transition, notes, aside):
     rows.append("</section>")
     return "\n".join(rows) + "\n"
 
-# The talk slides are light; in this deck every slide takes the code slides' dark palette.
-RECOLOR = [
-    ("<div style=\"background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Mono'",
-     f"<div style=\"background:{PANEL}; border:1px solid {PANEL_EDGE}; color:#E8E6DF; font-family:'IBM Plex Mono'"),
-    ("background:#F7F5EF", f"background:{BG}"),
-    ("background:#B8321F", f"background:{BG}"),
-    ("color:#1B1F2A", f"color:{FG}"),
-    ("color:#B8321F", "color:#F2A65A"),
-    ("color:#4A5160", "color:#C9CCD3"),
-    ("background:#FFFFFF; border:1px solid #E2DED3", f"background:{PANEL}; border:1px solid {PANEL_EDGE}"),
-    ("background:#2A4468; color:#FFFFFF", f"background:{ADDED}; color:{FG}"),
-    ("border-top:3px solid #F7F5EF", "border-top:3px solid #F2A65A"),
-    ("text-transform:uppercase; color:#F7F5EF", "text-transform:uppercase; color:#F2A65A"),
-]
 
 
 def highlight(code: str) -> str:
@@ -431,24 +413,6 @@ def highlight_line(m) -> str:
     return f'<p style="{style}">{prefix}{highlight(text)}</p>'
 
 
-def collapse_panels(html: str) -> str:
-    """The 2 → 3 table as two highlighted code panels side by side (table cells can't hold coloured spans)."""
-    rows = re.findall(r"<tr><td>(.*?)</td><td>(.*?)</td></tr>", html)
-    heads = re.findall(r"<th[^>]*>(.*?)</th>", html)
-    line = '<p style="font-size:26px; line-height:1.9; white-space:nowrap">{}</p>'
-    cols = []
-    for head, cells in zip(heads, zip(*rows)):
-        cols.append(f'<div style="flex:1; display:flex; flex-direction:column; gap:16px">'
-                    f'<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; '
-                    f'color:#C9CCD3">{head}</p>'
-                    f"<div style=\"background:{PANEL}; border:1px solid {PANEL_EDGE}; color:{FG}; font-family:'IBM "
-                    f"Plex Mono', 'Courier New', monospace; border-radius:16px; padding:28px 36px; display:flex; "
-                    f'flex-direction:column">'
-                    + "".join(line.format(highlight(unescape(c))) for c in cells) + "</div></div>")
-    table = re.search(r"<table.*?</table>", html, re.S).group(0)
-    return html.replace(table, '<div style="display:flex; flex-direction:row; gap:32px">' + "".join(cols) + "</div>")
-
-
 def uniform_panels(html: str) -> str:
     """Every code panel like the code slides': the same padding, and the same code size and line height."""
     def panel(d):
@@ -458,30 +422,9 @@ def uniform_panels(html: str) -> str:
     return re.sub(r"(<div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(.*?)(</div>)", panel, html, flags=re.S)
 
 
-def follow_panels(html: str) -> str:
-    """Moves each pinned element up by what the code panels above it in the source lose to uniform_panels, so it
-    keeps its distance from them (the talk slide pins it where its own, taller panels end). Runs on the talk slide."""
-    shift = 0.0
-
-    def step(m):
-        nonlocal shift
-        if m.group("top") is not None:
-            return m.group("pin") + f"{round(float(m.group('top')) - shift, 1)}px"
-        pad_y = float(re.search(r"padding:(\d+)px", m.group("open")).group(1))
-        lines = re.findall(r"font-size:(\d+)px; line-height:([\d.]+)", m.group("body"))
-        old = 2 * pad_y + sum(float(f) * float(h) for f, h in lines) + (2 if "border:" in m.group("open") else 0)
-        shift += old - (2 * PANEL_PAD_Y + len(lines) * LH + 2)
-        return m.group(0)
-    return re.sub(r"(?P<pin>position:absolute; left:[\d.]+px; top:)(?P<top>[\d.]+)px"
-                  r"|(?P<open><div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(?P<body>.*?)</div>", step, html, flags=re.S)
-
-
-def restyle(html: str) -> str:
-    html = follow_panels(html)
-    for old, new in RECOLOR:
-        html = html.replace(old, new)
-    if "<table style=\"font-family:'IBM Plex Mono'" in html:
-        html = collapse_panels(html)
+def normalize(html: str) -> str:
+    """A hand-written slide's code panels like the code slides': uniform_panels, and each code line coloured by
+    highlight_line. Both only depend on the text, so running this again changes nothing."""
     html = uniform_panels(html)
     return re.sub(r"(<div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(.*?)(</div>)",
                   lambda d: d.group(1) + re.sub(r'<p style="([^"]*)">(.*?)</p>', highlight_line, d.group(2),
@@ -501,14 +444,14 @@ def uncovered(state, runs, prev_runs, notes) -> list[str]:
     return missing
 
 
-def build(all_changes: bool = False):
-    out = OUT_ALL if all_changes else OUT
+def build():
     states = morph.load_states()
     for s in states:
         s["lines"] = [part for line in s["lines"] for part in wrap(line)]
     runs_per_state = morph.chain(states)
     index = {s["versions"][0]: k for k, s in enumerate(states)}
-    assert set(NOTES) == set(index) == set(TITLES), f"notes for {sorted(NOTES)}, code states {sorted(index)}"
+    assert set(NOTES) == set(ASIDES) == set(index) == set(TITLES), \
+        f"notes for {sorted(NOTES)}, code states {sorted(index)}"
 
     ids = []
     for item in SEQUENCE:
@@ -518,51 +461,48 @@ def build(all_changes: bool = False):
         else:
             ids.append(item)
 
-    if all_changes:
-        assert set(CHANGES) == set(index) - {states[0]["versions"][0]}, f"changes for {sorted(CHANGES)}"
-        for v, changes in CHANGES.items():
-            k = index[v]
-            missing = uncovered(states[k], runs_per_state[k], runs_per_state[k - 1], changes)
-            if missing:
-                raise SystemExit(f"{v}: new code without a highlight: " + ", ".join(missing))
+    for v, notes in NOTES.items():
+        k = index[v]
+        if k > 0 and (missing := uncovered(states[k], runs_per_state[k], runs_per_state[k - 1], notes)):
+            raise SystemExit(f"{v}: new code without a highlight: " + ", ".join(missing))
 
-    out.joinpath("slides").mkdir(parents=True, exist_ok=True)
-    for old in out.joinpath("slides").glob("*.html"):
-        old.unlink()
+    slides = DECK / "slides"
+    hand = {item for item in SEQUENCE if not isinstance(item, tuple)}
+    files = {f.stem for f in slides.glob("*.html")}
+    if missing := sorted(hand - files):
+        raise SystemExit("slides in SEQUENCE without a file: " + ", ".join(missing))
+    if stray := sorted(f for f in files - hand if not f.startswith("m")):
+        raise SystemExit("hand-written slides not in SEQUENCE: " + ", ".join(stray))
+    for old in files - hand - set(ids):
+        (slides / f"{old}.html").unlink()
+
     for n, item in enumerate(SEQUENCE):
         if not isinstance(item, tuple):
-            (out / f"slides/{item}.html").write_text(restyle((TALK / f"slides/{item}.html").read_text()))
+            path = slides / f"{item}.html"
+            html = path.read_text()
+            if (new := normalize(html)) != html:
+                path.write_text(new)
             continue
         kind, v = item
         k = index[v]
         nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
         morphs = isinstance(nxt, tuple) and index[nxt[1]] == k + 1
-        notes, aside = NOTES[v] if kind == "code" else ([], None)
-        if kind == "code" and all_changes and v in CHANGES:
-            notes = CHANGES[v]
-        if kind == "again":
-            aside = f"Back to the methods as they stand in {v}, before the next version changes them."
+        if kind == "code":
+            notes, aside = NOTES[v], ASIDES[v]
+        else:
+            notes, aside = [], f"Back to the methods as they stand in {v}, before the next version changes them."
         html = code_slide(ids[n], states[k], runs_per_state[k], "magic" if morphs else "fade", notes, aside)
-        (out / f"slides/{ids[n]}.html").write_text(html)
+        (slides / f"{ids[n]}.html").write_text(html)
 
-    talk = json.loads((TALK / "deck.json").read_text())
-    deck = {
-        "v": 4,
-        "createdOnFiles": {"v": 1, "at": "2026-09-27T12:00:00Z"},
-        "title": "A Brief History of Scala, Every Change" if all_changes else "A Brief History of Scala, Annotated",
-        "order": ids,
-        "sections": SECTIONS,
-        "faces": {**talk["faces"], "fuzzy-bubbles": {
-            "family": "Fuzzy Bubbles",
-            "href": "https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles&display=swap"}},
-    }
-    (out / "deck.json").write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
-    count = sum(len(CHANGES.get(v, NOTES[v][0])) if all_changes else len(NOTES[v][0]) for v in index)
-    print(f"{out.parent.name}: {len(ids)} slides, {count} notes")
-
+    path = DECK / "deck.json"
+    deck = json.loads(path.read_text()) if path.exists() else \
+        {"v": 4, "createdOnFiles": {"v": 1, "at": "2026-09-27T12:00:00Z"}}
+    deck.update({"title": TITLE, "order": ids, "sections": SECTIONS, "faces": FACES})
+    path.write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
+    print(f"{DECK.parent.name}: {len(ids)} slides, {sum(len(n) for n in NOTES.values())} notes")
 
 if __name__ == "__main__":
     import sys
-    if sys.argv[1:] not in ([], ["--all-changes"]):
+    if sys.argv[1:]:
         sys.exit(__doc__)
-    build(all_changes=sys.argv[1:] == ["--all-changes"])
+    build()
