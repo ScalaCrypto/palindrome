@@ -58,7 +58,7 @@ SEQUENCE = [
     "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
     "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),
     "final", "takeaways", "thanks",
-    "r-indexedseq",
+    "r-indexedseq", "r-stringslice",
 ]
 SECTIONS = {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},

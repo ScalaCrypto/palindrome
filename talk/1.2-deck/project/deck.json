@@ -7,7 +7,7 @@
     "scala2", "s25-types", "s25-loop", "s28-tailrec", "s28-cbf", "s210-extractors", "s210-valueclass", "s212-sam", "s213-buildfrom",
     "scala3", "s30-collapse", "s30-extension", "s30-palindromize", "s36-syntax",
     "final", "takeaways", "thanks",
-    "r-indexedseq"
+    "r-indexedseq", "r-stringslice"
   ],
   "sections": {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},

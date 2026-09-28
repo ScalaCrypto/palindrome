@@ -26,7 +26,8 @@
     "final",
     "takeaways",
     "thanks",
-    "r-indexedseq"
+    "r-indexedseq",
+    "r-stringslice"
   ],
   "sections": {
     "intro": {
