@@ -1,11 +1,8 @@
-#!/usr/bin/env python3
-"""Generates the code-morph deck in talk/2.3-morph/: the palindrome methods, version by version, where each slide turns
-into the next with a magic-move transition, so the code changes in place.
+"""The code morph behind the deck's code slides (talk/deck.py): the palindrome methods, version by version, as code
+tokens with ids, so that each slide turns into the next with a magic-move transition and the code changes in place.
 
-Usage: talk/morph.py
-
-The code comes from each version's src/Palindrome.scala: isPalindrome and palindromize, without comments. Only versions where that code changes get a slide; the slide is labelled
-with the range of versions that share it.
+The code comes from each version's src/Palindrome.scala: isPalindrome and palindromize, without comments. Only
+versions where that code changes get a state; a state is labelled with the range of versions that share it.
 
 How the morph works: the Slides format's magic move animates every pinned element that has the same id on two
 adjacent slides from its old place to its new one, and fades the rest out and in. So each code token that survives
@@ -15,12 +12,10 @@ chain until they are stable.
 """
 
 import difflib
-import json
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "talk/2.3-morph/project"
 
 # The version directories, oldest first.
 VERSIONS = ["v2_5", "v2_6", "v2_7", "v2_8", "v2_9", "v2_10", "v2_11", "v2_12", "v2_13",
@@ -28,11 +23,8 @@ VERSIONS = ["v2_5", "v2_6", "v2_7", "v2_8", "v2_9", "v2_10", "v2_11", "v2_12", "
 YEARS = {"2.5": 2007, "2.8": 2010, "2.10": 2013, "2.11": 2014, "2.12": 2016, "2.13": 2019, "3.0": 2021, "3.6": 2024,
          "3.7": 2025}
 
-# Layout on the 1920x1080 canvas. IBM Plex Mono advances 0.6 em per character.
-LEFT, CODE_TOP, MAX_WIDTH, MAX_BOTTOM = 128, 168, 1664, 984
-LINE_HEIGHT = 1.35
-
-BG, FG, MUTED, ACCENT, TYPE, LITERAL = "#1B1F2A", "#E8E6DF", "#8A93A0", "#F2A65A", "#8FB8E8", "#A8D08D"
+# Token colours: keywords, annotations, types, literals.
+MUTED, ACCENT, TYPE, LITERAL = "#8A93A0", "#F2A65A", "#8FB8E8", "#A8D08D"
 KEYWORDS = {"def", "val", "if", "else", "then", "case", "match", "implicit", "using", "extension", "given", "private",
             "extends", "trait", "import",
             "new", "class", "object", "type", "as"}
@@ -196,53 +188,9 @@ def chain(states) -> list[list[list[dict]]]:
     return runs_per_state
 
 
-def build():
-    states = load_states()
-    runs_per_state = chain(states)
-    width = max(len(l) for s in states for l in s["lines"])
-    height = max(len(s["lines"]) for s in states)
-    size = min(28, int(MAX_WIDTH / (0.6 * width)), int((MAX_BOTTOM - CODE_TOP) / (LINE_HEIGHT * height)))
-    lh, cw = round(size * LINE_HEIGHT), size * 0.6
-
-    OUT.joinpath("slides").mkdir(parents=True, exist_ok=True)
-    for old in OUT.joinpath("slides").glob("*.html"):
-        old.unlink()
-    order = ["cover"]
-    (OUT / "slides/cover.html").write_text(cover(states))
-    counts = []
-    for k, s in enumerate(states):
-        runs = runs_per_state[k]
-        counts.append(len(runs))
-        slide_id = "v" + s["versions"][0].replace(".", "-")
-        order.append(slide_id)
-        (OUT / f"slides/{slide_id}.html").write_text(slide(slide_id, s, runs, size, lh, cw, last=k == len(states) - 1))
-
-    deck = {
-        "v": 4,
-        "createdOnFiles": {"v": 1, "at": "2026-09-26T12:00:00Z"},
-        "title": "isPalindrome, Morphing",
-        "order": order,
-        "sections": {"morph": {"description": "The palindrome methods changing in place, Scala 2.5 to 3.9",
-                               "start": "cover"}},
-        "faces": {
-            "ibm-plex-sans": {"family": "IBM Plex Sans",
-                              "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"},
-            "ibm-plex-mono": {"family": "IBM Plex Mono",
-                              "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap"},
-        },
-    }
-    (OUT / "deck.json").write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
-    print(f"{len(states)} code slides, font {size}px, runs per slide {counts} (limit 200)")
-
-
 def label(versions: list[str]) -> str:
     rng = versions[0] if len(versions) == 1 else f"{versions[0]} – {versions[-1]}"
     return f"Scala {rng} · {YEARS[versions[0]]}"
-
-
-def summary(state) -> str:
-    notes = ROOT / state["dir"] / "NOTES.md"
-    return notes.read_text().splitlines()[0].lstrip("# ").replace("`", "")
 
 
 def esc(s: str) -> str:
@@ -283,33 +231,3 @@ def code_runs_html(runs, size, lh, cw, left, top) -> list[str]:
                    f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap">'
                    f"{run_html(run)}</p>")
     return out
-
-
-def slide(slide_id, state, runs, size, lh, cw, last) -> str:
-    head = (f'<section id="{slide_id}" data-transition="{"fade" if last else "magic"}" style="background:{BG}; '
-            f"color:{FG}; font-family:'IBM Plex Sans', Arial, sans-serif; padding:80px 128px; display:flex; "
-            f'flex-direction:column">')
-    rows = [head,
-            '<div style="display:flex; flex-direction:row; justify-content:space-between; align-items:baseline; '
-            'gap:48px">',
-            f'<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; '
-            f'white-space:nowrap; color:{ACCENT}">{esc(label(state["versions"]))}</p>',
-            f'<p style="font-size:24px; color:#C9CCD3; text-align:right">{esc(summary(state))}</p>',
-            "</div>"]
-    rows.extend(code_runs_html(runs, size, lh, cw, LEFT, CODE_TOP))
-    rows.append("</section>")
-    return "\n".join(rows) + "\n"
-
-
-def cover(states) -> str:
-    first, last = states[0]["versions"][0], states[-1]["versions"][-1]
-    return f"""<section id="cover" data-transition="fade" style="background:{BG}; color:#F7F5EF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; justify-content:center; gap:40px">
-<p style="font-size:28px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:{ACCENT}">A Brief History of Scala</p>
-<h1 style="font-size:120px; font-weight:700; line-height:1.05">isPalindrome,<br>morphing</h1>
-<p style="font-size:40px; line-height:1.35; color:#C9CCD3; width:1300px">The palindrome methods from Scala {first} to {last}, one version turning into the next</p>
-</section>
-"""
-
-
-if __name__ == "__main__":
-    build()

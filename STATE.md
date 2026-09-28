@@ -6,7 +6,7 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk's **main deck**, the one presented, is the every-change annotated deck, `talk/4.1-annotated-all/` (see `talk/README.md`).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.0-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
 
 Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, `palindromize`, which builds a palindrome of the input's own collection type, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
 
@@ -79,13 +79,11 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── 1.2-deck/project/           # The talk deck, by hand: deck.json + slides/<id>.html (claude.ai Slides format)
-│   ├── render.py                   # Renders a deck (default: the main deck) in headless Chrome; exit 1 on overflow
-│   ├── morph.py                    # Generates the code-morph deck from the sources
-│   ├── 2.3-morph/project/          # GENERATED: the code-morph deck (magic-move transitions between versions)
-│   ├── annotated.py                # Generates the annotated deck: talk slides + morph + handwritten notes
-│   ├── 3.2-annotated/project/      # GENERATED: the annotated deck
-│   ├── 4.1-annotated-all/project/  # GENERATED: the MAIN DECK, the annotated deck with a note for every change (--all-changes)
+│   ├── 5.0-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
+│   │                               #   hand-written slides, plus GENERATED code slides m*.html
+│   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
+│   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
+│   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
 │   ├── tag-cloud.py                # Generates the tag-cloud deck from tag-cloud/authors.json
 │   └── tag-cloud/                  # Who wrote each Scala release: authors.json + GENERATED project/
 ├── .github/workflows/
@@ -159,7 +157,7 @@ The tests are the same in every version, apart from the syntax of each version a
 | 5. `palindromize`: `Seq` → `CanBuildFrom` → `IsSeq`/`BuildFrom` → dependent `using` | 2.5 → 2.8 → 2.13 → 3.0 (`[Repr: IsSeq as seq]` from 3.6) |
 | 6. Extension method: `implicit def` → `implicit class` → `extension` | 2.5 → 2.10 → 3.0 |
 
-Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. There's no result ADT (`sealed trait` → `enum`): `isPalindrome` returns a `Boolean` and `palindromize` a collection. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code. The decks end with two reserve slides for the Q&A, neither of them in the code (why is in `DESIGN.md`): `r-indexedseq`, an O(n) index-loop `isPalindrome` for `IndexedSeq`, and `r-stringslice`, an `IndexedSeqSlice` that makes the extractor O(n) on any `IndexedSeq` by slicing without copying.
+Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. There's no result ADT (`sealed trait` → `enum`): `isPalindrome` returns a `Boolean` and `palindromize` a collection. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code. The deck ends with two reserve slides for the Q&A, neither of them in the code (why is in `DESIGN.md`): `r-indexedseq`, an O(n) index-loop `isPalindrome` for `IndexedSeq`, and `r-stringslice`, an `IndexedSeqSlice` that makes the extractor O(n) on any `IndexedSeq` by slicing without copying.
 
 ### The Evolution Document
 
@@ -187,22 +185,20 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
-- **Deck versions**: the decks share one version lineage, and each deck directory starts with its version
-  (`1.2-deck`, `2.3-morph`, `3.2-annotated`, `4.1-annotated-all`). The major number is the kind of deck, the minor
-  its revision; `talk/README.md` has the table. A revision that changes a deck's code or look renames its directory
-  (and the path in its generator).
-- **The main deck is `talk/4.1-annotated-all/`**: it's the one presented, so after any change to the code, the talk
-  deck's slides or the notes in `talk/annotated.py`, regenerate it (`talk/annotated.py --all-changes`), check it
-  (`talk/render.py --screenshots`) and republish its artifact. The other decks are its inputs
-  (1.2, 2.3) or alternatives to it (3.2).
-- **Keep `talk/1.2-deck/` in step with the deck's artifact**: the talk deck is edited as a claude.ai Slides
-  artifact, and `talk/1.2-deck/project/` is its versioned copy (`talk/README.md` says how to sync either way). Its code is
-  copied from the sources and isn't checked against them: after a code change, compare the affected slides with
-  `EVOLUTION.md`, and run `talk/render.py talk/1.2-deck` after changing slides. The code-morph deck (`talk/2.3-morph/`) is different:
-  it's generated from the sources by `talk/morph.py`, so rerun that and republish it after a code change. The same
-  goes for the annotated decks (`talk/4.1-annotated-all/` and `talk/3.2-annotated/`, from `talk/annotated.py`), which
-  also copy the talk deck's slides: rerun them after changing either, and check that their notes still point at the
-  right code.
+- **Deck version**: the deck's directory starts with its version (`5.0-deck`). A revision that changes the deck's
+  code or look renames it (`git mv`, and `DECK` in `talk/deck.py`); `talk/README.md` has the history.
+- **The deck is `talk/5.0-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
+  - **Code slides** (`m*.html`) are generated from the version sources by `talk/deck.py`, with the notes in its
+    `NOTES` and `ASIDES`. Never edit them by hand: the next build overwrites them.
+  - **Every other slide is hand-written**, in the artifact or in its file. The build leaves them alone except for
+    their code panels, which it normalizes (size, padding, colouring), so write that code as plain text. Their code
+    is copied from the sources and isn't checked against them: after a code change, compare them with `EVOLUTION.md`.
+  - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
+    `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
+    `SEQUENCE`, or a slide in it has no file.
+- **After changing the code, the notes or a slide**, run `talk/deck.py`, check it with `talk/render.py
+  --screenshots`, and republish `talk/5.0-deck/project/` to the artifact. **After editing the artifact**, read the
+  changed slides back into `talk/5.0-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -217,12 +213,10 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/render.py           # check the main deck's layout (needs Chrome); --screenshots for PNGs
-talk/morph.py            # regenerate the code-morph deck in talk/2.3-morph/
-talk/annotated.py        # regenerate the annotated deck in talk/3.2-annotated/
-talk/annotated.py --all-changes   # regenerate the main deck, the every-change variant, in talk/4.1-annotated-all/
+talk/deck.py             # rebuild the deck in talk/5.0-deck/ (code slides, notes, order)
+talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
-talk/render.py --screenshots talk/1.2-deck   # check and screenshot another deck
+talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
