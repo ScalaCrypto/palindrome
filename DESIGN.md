@@ -5,6 +5,82 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — Non-copying `String` slices: a second reserve slide, not code
+
+### What changed
+
+A second reserve slide, `r-stringslice`, follows `r-indexedseq` in the talk deck and both annotated decks. It
+answers a follow-up question, "can't the `String` share its characters instead of copying them?", with a
+`Seq[Char]` that is a window on one `String`:
+
+```scala
+class StringSlice(s: String, from: Int, until: Int)
+    extends AbstractSeq[Char], IndexedSeq[Char]:
+  def length = until - from
+  def apply(i: Int) = s.charAt(from + i)
+  override def slice(lo: Int, hi: Int) = StringSlice(s, from + lo, from + hi)
+  override def tail = slice(1, length)
+  override def init = slice(0, length - 1)
+```
+
+The version sources don't change.
+
+### Why
+
+The extractor `x +: middle :+ y` calls `head` and `tail` (`+:`), then `init` and `last` (`:+`). On a `String` read as
+a `WrappedString`, `tail` and `init` go through `slice`, which is `new WrappedString(self.substring(...))`, and
+`substring` copies. So each step is O(n) and the check O(n²). If `slice` only moves the bounds on the same `String`,
+each step is O(1), and the unchanged 3.9 `isPalindrome` is O(n) on a `String`.
+
+That's what `java.lang.String` itself did until Java 7u6: it had `offset` and `count` fields, and `substring` shared
+the parent's `char[]`. So the slide is a piece of JVM history as well as a fix, which suits the talk.
+
+`tail` and `init` are overridden explicitly, not left to their defaults through `slice`, so that nothing on the path
+the extractors take can fall back to building a new collection.
+
+### Alternatives rejected
+
+- **Putting `StringSlice` into the version sources.** A custom collection class is more machinery than the
+  `IndexedSeq` overload, which was already rejected for the sources (see the entry below). It fixes only `String`, and
+  only when the caller wraps it.
+- **Making `"racecar".isPalindrome` pick it up automatically.** It would need an implicit conversion from `String` that
+  competes with Predef's `wrapString`, which is exactly the kind of hidden machinery the talk argues against.
+- **`s.view`**. `StringView` already slices in O(1) without copying, but views aren't `SeqOps` in 2.13+, and the `+:`
+  and `:+` extractors require `SeqOps`, so a view doesn't match the pattern.
+- **Wrapping `java.nio.CharBuffer.wrap(s)`**, whose `subSequence` also shares the string. It needs an adapter to
+  `Seq[Char]` anyway, which is the same class with an extra layer.
+- **A full, general-purpose class on the slide** (bounds checks on `apply`, clamped `slice` bounds, `drop`/`take`/
+  `dropRight`/`takeRight` overrides, a `toString` that copies only on request). The prototype has all of these, but
+  that's 20 lines. The slide keeps the seven that make the point, and the speaker notes say what's left out.
+
+### Limitations accepted
+
+- The slide's class has no bounds checks: `apply(-1)` reads the character before the window, and `slice` doesn't
+  clamp. That's safe for `isPalindrome`, because both extractors check `isEmpty` before calling `tail` or `init`, but
+  not for general use.
+- A slice keeps the whole `String` reachable. That's why Java dropped sharing in 7u6: a small substring pinned a huge
+  parent. The speaker notes say so.
+- It doesn't help a `List`, where `:+` is O(n) on its own, or an `ArraySeq`. The index loop on `r-indexedseq`
+  remains the general answer.
+- The numbers come from one quick run, not a JMH benchmark, as in the entry below.
+
+### Verification
+
+A scratch `scala-cli` program on 3.9.0 and `graalvm-oracle:25` compiled the slide's class exactly as shown and ran it
+through the unchanged 3.9 `isPalindrome`. It agrees with `WrappedString` on `""`, `"a"`, `"ab"`, `"aa"`,
+`"racecar"`, `"abcb"`, `"abba"` and `"abca"`. Matching `x +: middle :+ y` on `"racecar"` binds `middle` to a
+`StringSlice`, so the recursion never leaves it. On strings of one repeated character, after three warm-up runs:
+
+| | 10,000 | 20,000 | 40,000 |
+|---|---|---|---|
+| extractor, `WrappedString` | 35 ms | 148 ms | 568 ms |
+| extractor, `StringSlice` | < 0.1 ms | < 0.1 ms | 0.1 ms |
+
+The `WrappedString` time roughly quadruples each time n doubles. `talk/render.py --screenshots` passes on all three
+decks; the slide's lowest edge is 784px in the talk deck and 737px in the annotated ones.
+
+---
+
 ## 2026-09-28 — `isPalindrome` on an `IndexedSeq`: a reserve slide, not code
 
 ### What changed
