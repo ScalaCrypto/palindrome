@@ -56,7 +56,7 @@ jdk7_rt_jar() {
 
 test_version() {
   local version=$1 scala=$2 scalatest=$3 boot_option=$4
-  local dir="$root/2/${version#2.}" out="$cache/classes/$version"
+  local dir="$root/v2_${version#2.}" out="$cache/classes/$version"
   echo
   echo "=== Scala $scala ($scalatest)"
 

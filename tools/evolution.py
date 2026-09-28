@@ -4,7 +4,7 @@
 Usage: tools/evolution.py            regenerate EVOLUTION.md
        tools/evolution.py --check    fail if EVOLUTION.md is out of date (or a NOTES.md is missing or stray)
 
-Everything except the prose comes from the code: the versions are the directories 2/<minor> and 3/<minor>, each
+Everything except the prose comes from the code: the versions are the directories v2_<minor> and v3_<minor>, each
 version is read from the `// Scala x.y.z` header of its src/Palindrome.scala, and the diffs compare each version's
 source and test suite with the previous version's (ignoring the header line).
 
@@ -58,7 +58,7 @@ class Version:
 
 
 def versions() -> list[Version]:
-    dirs = [d for d in ROOT.glob("[0-9]/[0-9]*") if (d / SOURCE).exists()]
+    dirs = [d for d in ROOT.glob("v[0-9]_[0-9]*") if (d / SOURCE).exists()]
     found = [Version(d) for d in dirs]
     return sorted(found, key=lambda v: tuple(int(n) for n in v.version.split(".")))
 

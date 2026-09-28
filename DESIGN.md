@@ -5,6 +5,41 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-28 — Version directories at the top level: `v2_5` … `v3_9`
+
+### What changed
+
+The version directories moved from `2/<minor>` and `3/<minor>` to the top level as `v2_<minor>` and `v3_<minor>`
+(`2/13` → `v2_13`, `3/9` → `v3_9`), and the Mill modules are named the same (`./mill v3_9.test`). The empty group
+files `2/package.mill.yaml` and `3/package.mill.yaml` are gone. `tools/evolution.py`, `talk/morph.py`,
+`legacy/test.sh` and the Claude Code hook find the versions under the new names.
+
+### Why
+
+One flat level of versions is easier to browse than two, and the directory name says which version it is.
+
+### Alternatives rejected
+
+- **`v2.13`, the version as written.** Mill 1.1.10 silently skips a module directory with a dot in its name: it
+  isn't discovered, and `./mill v2.13.compile` can't resolve. Keeping the dot would mean replacing the declarative
+  YAML modules with a Scala `build.mill` that sets each module's directory, and the module names still couldn't
+  contain the dot.
+- **`v2-13` or `v213`.** Both are discovered too, but `v2-13` isn't a Scala identifier, and `v213` reads ambiguously.
+
+### Limitations accepted
+
+The directory and module names use `_` where the version has a dot. Older entries below refer to the old paths
+(`2/13`, `3/9`).
+
+### Verification
+
+Probed in a scratch copy of the build: `v2.13` isn't discovered; `v2_13`, `v2-13` and `v213` are, and `v2_13.test`
+passes. After the move, `./mill resolve __.test` lists `v2_10.test` … `v3_9.test`, `./mill __.test` passes all 14
+(13 tests each), `legacy/test.sh` passes 2.5–2.9, and `tools/evolution.py --check` passes. The morph deck regenerates
+unchanged; the annotated decks change only in the speaker note that names the 3.9 source path.
+
+---
+
 ## 2026-09-28 — Deck versions in the directory names
 
 ### What changed
