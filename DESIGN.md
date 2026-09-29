@@ -115,10 +115,22 @@ through `slice`, so that nothing on the path the extractors take can fall back t
 - **Making `"racecar".isPalindrome` pick it up automatically.** It would need an implicit conversion from `String` that
   competes with Predef's `wrapString`, which is exactly the kind of hidden machinery the talk argues against.
 - **Views (`s.view`, `xs.view`), with extractors extended to match them.** The standard `+:` and `:+` require
-  `CC[_] <: Seq[_]`, and a view's `CC` is `View`, so a view doesn't match. Our own `+:`/`:+` objects taking an
+  `CC[_] <: Seq[_]`, and a view's `CC` is `View`, so a view doesn't match. Widening the bound isn't enough either:
+  `SeqView[A]` is `SeqOps[A, View, View[A]]`, because `View[A]` has already fixed the shared return type `C` as
+  `View[A]`, and `C` is invariant, so a subtrait can't re-fix it as `SeqView[A]`. `SeqView` overrides `drop`,
+  `dropRight` and `take` one by one to return a `SeqView`, but not `tail` and `init`. Those call `drop(1)` and
+  `dropRight(1)`, so at runtime they return a `SeqView`, but statically a plain `View`, and the pattern can't recurse
+  on the middle. Fixing that in the standard library would take covariant `tail`/`init` overrides plus wider
+  extractors, or a `ViewOps` template layer under `View`. Both change the public API, which has been
+  binary-frozen since 2.13.0 and is shared by Scala 3. Our own `+:`/`:+` objects taking an
   `IndexedSeqView` do match, but `IndexedSeqView.drop`, `dropRight` and `slice` wrap the current view
-  (`new IndexedSeqView.Drop(this, n)`) instead of flattening the offsets. After k steps the middle is k layers deep,
-  and every `apply`, `length` and `last` walks all of them, so the check is still O(n²). Measured with such
+  (`new IndexedSeqView.Drop(this, n)`) instead of flattening the offsets. `SeqView.Drop` does fuse a drop of a drop
+  (`new Drop(underlying, this.n + n)`), but the extractors alternate `drop(1)` and `dropRight(1)`, so each call lands
+  on the other kind of wrapper and the fusion never fires. After k steps the middle is k layers deep,
+  and every `apply`, `length` and `last` walks all of them, so the check is still O(n²). On an `IndexedSeqView` that
+  isn't fundamental: a `slice` resolved against the original collection stays one layer deep, which is what
+  `IndexedSeqSlice` does. On a view over a linear `Seq` it is: `:+` needs `last` and `init`, O(n) per step whatever
+  the view does. Measured with such
   extractors on 3.9 (quick run, not JMH): 156 / 598 / 2,620 ms over a `String` at n = 10,000 / 20,000 / 40,000, and
   3,087 ms over a `Vector` at 40,000, where the plain extractor takes about a millisecond. Views are built for
   composing lazily, not for slicing repeatedly.
