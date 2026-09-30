@@ -32,11 +32,8 @@ object Palindrome {
   def palindromize[Repr, A0](xs: Repr)(
       implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
     val elems = seq(xs).toSeq
-    val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
-    val b = bf.newBuilder(xs)
-    b ++= elems
-    b ++= elems.take(start).reverse
-    b.result()
+    val start = elems.tails.indexWhere(isPalindrome(_))
+    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
   }
 
   // Method syntax (xs.isPalindrome, "abc".palindromize) for anything IsSeq accepts, String included.

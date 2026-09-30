@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.1-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.2-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -30,7 +30,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.1-deck/project"
+DECK = ROOT / "talk/5.2-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -66,11 +66,11 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 # notes, after hand-written slides interrupted the morph; anything else is a hand-written slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
-    "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.10"),
+    "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.9"), ("code", "2.10"),
     "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
     "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),
     "final", "takeaways", "thanks",
-    "r-indexedseq", "r-stringslice",
+    "r-indexedseq", "r-stringslice", "r-linear",
 ]
 SECTIONS = {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},
@@ -84,6 +84,7 @@ SECTIONS = {
 TITLES = {
     "2.5": "The whole design with 2007 machinery",
     "2.8": "CanBuildFrom keeps the collection type",
+    "2.9": "tails finds the palindromic suffix",
     "2.10": "x +: middle :+ y peels off both ends",
     "2.13": "IsSeq and BuildFrom replace CanBuildFrom",
     "3.0": "The methods, collapsed",
@@ -101,6 +102,10 @@ ASIDES = {
            "redesign: SeqLike[A, Repr] names the concrete type, and CanBuildFrom is a factory for builders of it. "
            "bf(xs.repr) gives a builder, and we fill it. Now palindromize(\"abcb\") is the String \"abcba\". Be "
            "honest: it worked, and the signatures scared people.",
+    "2.9": "A library change, not a language one: 2.9 adds tails, every suffix from the whole sequence down to the "
+           "empty one. indexWhere returns the first that's a palindrome, which is where the mirrored part starts. "
+           "Same search, same order and cost as 2.8's (0 to n).find(...).get, without the index arithmetic or the "
+           ".get. 2.10 to 3.9 keep it.",
     "2.10": "Talk stage 2. x +: middle :+ y parses as (x +: middle) :+ y: an operator's first character sets its "
             "precedence. With no index to carry, the inner loop goes and @tailrec moves onto isPalindrome itself. Say "
             "the caveat: on a List, :+ needs init and last, which are O(n), and a String copies on every step, so "
@@ -134,8 +139,11 @@ NOTES = {
         (["palindromize⟨[A, Repr]⟩", "⟨SeqLike[A, Repr]⟩", "⟨, bf: CanBuildFrom[Repr, A, Repr]⟩", "): ⟨Repr⟩ = {",
           "⟨val elems = xs.toSeq⟩", "(0 to ⟨elems⟩.length)", "isPalindrome(⟨elems⟩.drop"],
          "Repr: the caller's own type,\nwith a builder factory for it;\ntoSeq reads it as a Seq"),
-        (["⟨val b = bf(xs.repr)⟩", "⟨b ++= elems⟩", "⟨b ++= elems.take(start).reverse⟩", "⟨b.result⟩"],
-         "the input, then its reversed\nprefix: String in, String out"),
+        (["⟨(bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result⟩"],
+         "the input, then\nits reversed prefix:\nString in, String out"),
+    ],
+    "2.9": [
+        (["elems.⟨tails.indexWhere(isPalindrome(_))⟩"], "every suffix in turn; the first\npalindrome is where to\nstart mirroring"),
     ],
     "2.10": [
         (["⟨case x +: middle :+ y =>⟩", "=> ⟨eq.eqv(x, y)⟩"], "peel off both ends,\ncompare them directly"),
@@ -145,14 +153,13 @@ NOTES = {
     "2.13": [
         (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨seq: IsSeq[Repr] { type A = A0 }⟩", "val elems = ⟨seq(xs)⟩.toSeq"],
          "any Repr IsSeq can read,\nas seq(xs); A0 and its\nrefinement are the wart"),
-        (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "bf.⟨newBuilder⟩(xs)"],
-         "BuildFrom and newBuilder\nreplace CanBuildFrom\nand bf(xs.repr)"),
-        (["b.result⟨()⟩"], "2.13 deprecates\nleaving out the ()"),
+        (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(elems.iterator ++⟩ elems"],
+         "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
     ],
     "3.0": [
         (["⟨extension [A](xs: Seq[A])⟩", "⟨(using eq: Eq[A])⟩"],
          "extension and using replace the\nobject, wrapper class and implicit"),
-        (["⟨middle.isPalindrome⟩", "drop(i)⟨.isPalindrome⟩"], "an extension is also\nan ordinary method"),
+        (["⟨middle.isPalindrome⟩", "indexWhere(⟨_.isPalindrome⟩)"], "an extension is also\nan ordinary method"),
         (["⟨extension [Repr](xs: Repr)(using seq: IsSeq[Repr])⟩", "palindromize⟨(using eq: Eq[seq.A]⟩",
           "BuildFrom[Repr, ⟨seq.A⟩, Repr]"],
          "IsSeq in the extension's using;\nlater clauses see seq.A: no A0"),

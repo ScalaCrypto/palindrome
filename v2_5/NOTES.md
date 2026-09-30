@@ -14,8 +14,9 @@ Every idea of the talk is already expressible in 2.5. What's missing is only the
   shortest palindrome that starts with `xs`. It finds the longest suffix that's already a palindrome, using our own
   `isPalindrome`, and appends the reverse of what comes before it: `"abcb"` gives `"abcba"`, and `"racecar"` stays as
   it is. Because it calls `isPalindrome`, it takes an `Eq` too; with `Eq.caseInsensitive`, `"abA"` needs nothing
-  added. The suffix search, `(0 to xs.length).find(i => isPalindrome(xs.drop(i)))`, is the same in every version (the
-  empty suffix always matches, so the `.get` is safe). The diffs below mostly show how the result gets built.
+  added. The suffix search, `(0 to xs.length).find(i => isPalindrome(xs.drop(i)))`, tries each suffix in turn (the
+  empty suffix always matches, so the `.get` is safe); 2.9 writes it with `tails`. The diffs below mostly show how the
+  result gets built.
 - **Generic code can't build "the same kind of collection"**, so `palindromize` promises only a `Seq`.
   `palindromize("abcb")` is a `Seq[Char]`, not a `String`, and in 2.5 even
   `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false`. The tests compare with `.toList` and `.mkString`.

@@ -184,11 +184,11 @@ def palindromize[A](xs: Seq[A])(implicit eq: Eq[A]): Seq[A] = {
 def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
   val elems = xs.toSeq
   val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
-  val b = bf(xs.repr)
-  b ++= elems
-  b ++= elems.take(start).reverse
-  b.result
+  (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
 }                                                                 // "abcb" gives the String "abcba"
+
+// Scala 2.9 — the library adds tails: the same search, without the index arithmetic
+  val start = elems.tails.indexWhere(isPalindrome(_))
 
 // Scala 2.13 — CanBuildFrom is gone; IsSeq + BuildFrom (and a type-refinement wart)
 def palindromize[Repr, A0](xs: Repr)(
@@ -198,16 +198,14 @@ def palindromize[Repr, A0](xs: Repr)(
 extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
     val elems = seq(xs).toSeq
-    val start = (0 to elems.length).find(i => elems.drop(i).isPalindrome).get
-    val b = bf.newBuilder(xs)
-    b ++= elems
-    b ++= elems.take(start).reverse
-    b.result()
+    val start = elems.tails.indexWhere(_.isPalindrome)
+    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
 ```
 
-Every version mirrors the same way, `take(start).reverse`; from 2.8 the elements go into a
-builder for the caller's type instead of a plain `Seq`. The `start` line is the same search in every version: "find the longest palindromic
-suffix". Say out loud that it's O(n²): a linear version exists
+Every version mirrors the same way, the prefix before `start` reversed; from 2.8 the elements go into a
+builder for the caller's type instead of a plain `Seq`, and from 2.13 `fromSpecific` builds it in one call. The `start`
+line is the same search in every version, "find the longest palindromic suffix"; from 2.9 `tails.indexWhere` writes it
+without index arithmetic. Say out loud that it's O(n²): a linear version exists
 (based on the KMP string-matching algorithm), but like Manacher's it's an algorithm topic,
 not a language one.
 
