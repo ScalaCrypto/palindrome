@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.0-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.1-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -30,7 +30,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.0-deck/project"
+DECK = ROOT / "talk/5.1-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -65,7 +65,7 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 # The slide sequence. ("code", first version) is a code state; ("again", first version) shows it once more without
 # notes, after hand-written slides interrupted the morph; anything else is a hand-written slide's id.
 SEQUENCE = [
-    "cover", "oneliner", "goal",
+    "cover", "oneliner", "goal", "eq",
     "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.10"),
     "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
     "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),
