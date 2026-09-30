@@ -8,7 +8,8 @@
   `SeqOps`, and `CanBuildFrom` as an alias of `BuildFrom`.
 - **`IsSeq[Repr]`** is the new way to accept "anything that can be read as a `Seq`", `String` and `Array` included:
   `seq(xs)` gives its `SeqOps`. **`BuildFrom[Repr, A, Repr]`** replaces `CanBuildFrom`. In the body,
-  `seq(xs).toSeq` replaces `xs.toSeq` and `bf.newBuilder(xs)` replaces `bf(xs.repr)`; the rest is unchanged.
+  `seq(xs).toSeq` replaces `xs.toSeq`, and `bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)`
+  builds the result in one call, straight from the two iterators, replacing the builder chain on `bf(xs.repr)`.
 - **The `{ type A = A0 }` refinement** is the awkward part. The element type is a type member of `IsSeq`, and Scala
   2 can't write `BuildFrom[Repr, seq.A, Repr]` in the same parameter list as `seq`. So the element type gets an
   extra type parameter, `A0`, tied to it by a refinement. Scala 3 removes this (see 3.0).
@@ -23,7 +24,6 @@
 - **`import scala.language.implicitConversions`**: since 2.10, defining an `implicit def` conversion without this
   feature import draws a warning (implicit classes don't). That's part of why implicit classes became the idiom, and the 2.13
   pattern brings the conversion method back.
-- **`b.result()`** gets its parentheses: 2.13 deprecates calling `result` without them.
 
 `CanBuildFrom` mostly disappeared from user code in 2.13. Ordinary operations now get their result type from the
 collection's own type parameters (`SeqOps[A, CC, C]`), so a `List(...).map` needs no implicit. The machinery is

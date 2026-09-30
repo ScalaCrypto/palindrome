@@ -20,14 +20,14 @@ ROOT = Path(__file__).resolve().parent.parent
 # The version directories, oldest first.
 VERSIONS = ["v2_5", "v2_6", "v2_7", "v2_8", "v2_9", "v2_10", "v2_11", "v2_12", "v2_13",
             "v3_0", "v3_1", "v3_2", "v3_3", "v3_4", "v3_5", "v3_6", "v3_7", "v3_8", "v3_9"]
-YEARS = {"2.5": 2007, "2.8": 2010, "2.10": 2013, "2.11": 2014, "2.12": 2016, "2.13": 2019, "3.0": 2021, "3.6": 2024,
+YEARS = {"2.5": 2007, "2.8": 2010, "2.9": 2011, "2.10": 2013, "2.11": 2014, "2.12": 2016, "2.13": 2019, "3.0": 2021, "3.6": 2024,
          "3.7": 2025}
 
 # Token colours: keywords, annotations, types, literals.
 MUTED, ACCENT, TYPE, LITERAL = "#8A93A0", "#F2A65A", "#8FB8E8", "#A8D08D"
 KEYWORDS = {"def", "val", "if", "else", "then", "case", "match", "implicit", "using", "extension", "given", "private",
             "extends", "trait", "import",
-            "new", "class", "object", "type", "as"}
+            "new", "class", "object", "type", "as", "var", "for", "while", "do"}
 
 TOKEN = re.compile(r"\s+|@?[A-Za-z_][A-Za-z0-9_]*|\d+|\"[^\"]*\"|[-+*/<>=!:&|^%~?#]+|.")
 

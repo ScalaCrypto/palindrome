@@ -30,11 +30,8 @@ object Palindrome {
   // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
   def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
     val elems = xs.toSeq
-    val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
-    val b = bf(xs.repr)
-    b ++= elems
-    b ++= elems.take(start).reverse
-    b.result
+    val start = elems.tails.indexWhere(isPalindrome(_))
+    (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
   }
 
   // Method syntax (xs.isPalindrome) through an implicit value class; Repr lets palindromize keep the type.

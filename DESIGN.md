@@ -5,6 +5,60 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-09-30 — A denser, leaner `palindromize`, and a linear one in reserve
+
+### What changed
+
+`palindromize`'s body shrinks so the code slides fit better. The suffix search
+`(0 to elems.length).find(i => isPalindrome(elems.drop(i))).get` becomes `elems.tails.indexWhere(isPalindrome(_))`
+(`_.isPalindrome` in Scala 3) from 2.9, where the library adds `tails`. The four builder lines become one
+expression that builds straight from iterators, with no reversed copy and no concatenated temporary:
+`(bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result` in 2.8–2.12, and
+`bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)` from 2.13. 2.5–2.7 are unchanged: they have no `tails`,
+and their `xs ++ xs.take(start).reverse` was already one line. In Scala 3 the method body goes from five lines to
+two.
+
+2.9 now differs from 2.8, so it has its own `NOTES.md` and its own code slide (`m2-9`); the deck becomes 5.2.
+
+A new reserve slide, `r-linear`, answers "can palindromize be linear?": the longest palindromic suffix of `s` is the
+longest suffix of `s` that's also a prefix of `s.reverse`, and KMP string matching finds it in one pass, comparing
+only through `Eq`. O(n) time and memory, in about fifteen lines of index and table code. The deck's keyword colouring
+gains `var`, `for`, `while` and `do` for it.
+
+### Why
+
+The code slides are generated from the sources, and `palindromize` was the longest part of the later ones.
+`tails.indexWhere` says "the first suffix that's a palindrome" directly, without index arithmetic or `.get`, and
+`fromSpecific` is the 2.13 collections' own way to build a result from a whole collection.
+
+### Alternatives rejected
+
+- **Changing 3.9 only.** The deck morphs from version to version, so the change would show up as a 3.9 language
+  feature, and 3.9 would need its own slide.
+- **KMP in the code.** It makes `palindromize` O(n) instead of O(n²), but as fifteen lines of index code in every
+  version it makes an algorithm point, not a language one, and it undoes the denser slides. It's a reserve slide,
+  like the index loop.
+- **Keeping 2.9 the same as 2.8** (no new slide, `tails` from 2.10). Chosen against, following the rule that each
+  version uses what its release has: 2.9 has `tails`.
+
+### Limitations accepted
+
+One more code slide (2.9), for a library change rather than a language one; its note and speaker note say so.
+`palindromize` stays O(n²), and its search still allocates a new `middle` at every step of every check; the
+iterators only remove the temporaries of the build. The KMP version needs `Eq` to be an equivalence relation, which
+both instances are.
+
+### Verification
+
+2.8 rejects `tails` ("value tails is not a member of Seq[A]"); 2.9 accepts it. A scratch compile of the 3.9 version
+passed every `palindromize` check from the test suite before the change was applied. All 19 versions pass (13 tests
+each), `tools/evolution.py --check` passes, `talk/deck.py` builds 25 slides, and `talk/render.py` finds no overflow.
+The KMP version, compiled with Scala 3.9 next to the repo's, agrees with it on all 9,841 strings over a, b and c up
+to length 8, with `Eq.caseInsensitive`, and on `List` and `Vector`; on a 40,000-character String (20,000 a's, a b,
+19,999 a's) it took 19 ms against 7.4 s (one run each, JDK 21, not JMH).
+
+---
+
 ## 2026-09-29 — One deck: the talk deck and the every-change deck merged into `5.0-deck`
 
 ### What changed

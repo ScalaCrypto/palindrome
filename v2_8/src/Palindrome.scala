@@ -35,10 +35,7 @@ object Palindrome {
   def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
     val elems = xs.toSeq
     val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
-    val b = bf(xs.repr)
-    b ++= elems
-    b ++= elems.take(start).reverse
-    b.result
+    (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
   }
 
   // Method syntax (xs.isPalindrome) through an implicit conversion; Repr lets palindromize keep the type.

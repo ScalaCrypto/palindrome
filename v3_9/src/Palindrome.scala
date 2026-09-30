@@ -28,9 +28,6 @@ extension [A: Eq as eq](xs: Seq[A])
 extension [Repr: IsSeq as seq](xs: Repr)
   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
     val elems = seq(xs).toSeq
-    val start = (0 to elems.length).find(i => elems.drop(i).isPalindrome).get
-    val b = bf.newBuilder(xs)
-    b ++= elems
-    b ++= elems.take(start).reverse
-    b.result()
+    val start = elems.tails.indexWhere(_.isPalindrome)
+    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
 
