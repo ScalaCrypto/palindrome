@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.5-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.6-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -30,7 +30,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.5-deck/project"
+DECK = ROOT / "talk/5.6-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -71,14 +71,13 @@ SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
     "scala2",
     ("eq", "2.5"), ("ops", "2.5"), ("code", "2.5"),
-    ("cloud", "2.8"), "f2-8", ("eq-again", "2.5"), ("eq", "2.8"), ("ops-again", "2.5"), ("ops", "2.8"), ("again", "2.5"),
+    ("cloud", "2.8"), "f2-8", ("eq-again", "2.5"), ("eq", "2.8"), ("again", "2.5"),
     ("code", "2.8"),
     ("cloud", "2.9"), "f2-9", ("again", "2.8"), ("code", "2.9"),
     ("cloud", "2.10"), "f2-10", ("ops-again", "2.8"), ("ops", "2.10"), ("again", "2.9"), ("code", "2.10"),
     ("cloud", "2.11"), "f2-11", ("ops-again", "2.10"), ("ops", "2.11"),
     ("cloud", "2.12"), "f2-12", ("eq-again", "2.8"), ("eq", "2.12"),
-    ("cloud", "2.13"), "f2-13", ("ops-again", "2.11"), ("ops", "2.13"), ("again", "2.10"), ("code", "2.13"),
-    "scala3", "s30-collapse",
+    ("cloud", "2.13"), "f2-13", ("again", "2.10"), ("code", "2.13"),
     ("cloud", "3.0"), "f3-0", ("eq-again", "2.12"), ("eq", "3.0"), ("again", "2.13"), ("code", "3.0"),
     ("cloud", "3.6"), "f3-6", ("eq-again", "3.0"), ("eq", "3.6"), ("again", "3.0"), ("code", "3.6"),
     "final", "takeaways", "thanks",
@@ -87,7 +86,7 @@ SEQUENCE = [
 SECTIONS = {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},
     "scala2": {"description": "Scala 2.5 to 2.13: the ideas arrive before the syntax", "start": "scala2"},
-    "scala3": {"description": "Scala 3.0 to 3.9: the big collapse, then refinements", "start": "scala3"},
+    "scala3": {"description": "Scala 3.0 to 3.9: the big collapse, then refinements", "start": "tc3-0"},
     "closing": {"description": "Where isPalindrome ends up, and what the journey says", "start": "final"},
     "reserve": {"description": "Held back for the Q&A", "start": "r-indexedseq"},
 }
@@ -622,7 +621,7 @@ def with_footer(html: str, version: str | None) -> str:
 
 # Hand-written slides that belong to a version, for the timeline's amber mark ("New in" slides, f2-8 and so on, are
 # marked by their id).
-HAND_VERSIONS = {"s30-collapse": "3.0", "final": "3.9"}
+HAND_VERSIONS = {"scala2": "2.5", "final": "3.9"}
 
 
 def leaving(n: int, default: str | None = "fade") -> str | None:

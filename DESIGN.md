@@ -20,6 +20,11 @@ changes, the ones the next slides use in amber. The version label above the head
 version. A slide before a state shown again leaves without a transition, so the code appears at once and then morphs.
 Each pair is matched on its own, which also lets the two slides show a subset of the code. 52 slides.
 
+5.6 trims it to 54 slides: the method-syntax steps for 2.8 and 2.13 go, because the method slide right after shows
+the same change (`Repr`/`CanBuildFrom`, `IsSeq`/`BuildFrom`), and so do the Scala 3 divider and the 2 → 3 table, which
+the tag-cloud and "New in Scala 3.0" slides now introduce. The 2.10 method-syntax slide still morphs from 2.8's code,
+which is shown again without its own slide; the 2.8 method slide explains what changed in it.
+
 ### Limitations accepted
 
 The Slides format has no setting for how long a magic move takes (only `data-transition="none|fade|push|magic"`), so
