@@ -1,8 +1,10 @@
 """The code morph behind the deck's code slides (talk/deck.py): the palindrome methods, version by version, as code
 tokens with ids, so that each slide turns into the next with a magic-move transition and the code changes in place.
 
-The code comes from each version's src/Palindrome.scala: isPalindrome and palindromize, without comments. Only
-versions where that code changes get a state; a state is labelled with the range of versions that share it.
+The code comes from each version's src/Palindrome.scala, without comments, in three tracks: "code" is isPalindrome
+and palindromize, "eq" the Eq trait and its companion, "ops" Scala 2's method syntax (the wrapper and its conversion;
+Scala 3's extensions are in "code"). In each track, only versions where that code changes get a state; a state is
+labelled with the range of versions that share it.
 
 How the morph works: the Slides format's magic move animates every pinned element that has the same id on two
 adjacent slides from its old place to its new one, and fades the rest out and in. So each code token that survives
@@ -32,11 +34,27 @@ KEYWORDS = {"def", "val", "if", "else", "then", "case", "match", "implicit", "us
 TOKEN = re.compile(r"\s+|@?[A-Za-z_][A-Za-z0-9_]*|\d+|\"[^\"]*\"|[-+*/<>=!:&|^%~?#]+|.")
 
 
-def extract(src: str) -> list[str]:
-    """The palindrome methods of one version, without comments and with the object's indentation removed."""
+def extract(src: str, track: str = "code") -> list[str] | None:
+    """One track's code in one version, without comments and with the enclosing object's indentation removed; None
+    when the version has none (Scala 3 has no separate method syntax)."""
     lines = src.splitlines()
-    start = next(i for i, l in enumerate(lines) if re.match(r"\s*(@tailrec|def isPalindrome|extension \[A)", l))
-    end = next((i for i, l in enumerate(lines) if "Method syntax" in l), len(lines))
+    if track == "code":
+        start = next(i for i, l in enumerate(lines) if re.match(r"\s*(@tailrec|def isPalindrome|extension \[A)", l))
+        end = next((i for i, l in enumerate(lines) if "Method syntax" in l), len(lines))
+    elif track == "eq":
+        start = next(i for i, l in enumerate(lines) if l.startswith("trait Eq"))
+        end = next(i for i, l in enumerate(lines) if l.startswith("object Eq")) + 1
+        while end < len(lines) and (lines[end].startswith(" ") or not lines[end].strip()):
+            end += 1
+        if end < len(lines) and lines[end].startswith("}"):
+            end += 1
+    elif track == "ops":
+        marks = [i for i, l in enumerate(lines) if "Method syntax" in l]
+        if not marks:
+            return None
+        start, end = marks[0] + 1, max(i for i, l in enumerate(lines) if l.startswith("}"))
+    else:
+        raise ValueError(track)
     body = [l for l in lines[start:end] if not l.strip().startswith("//")]
     indent = min(len(l) - len(l.lstrip()) for l in body if l.strip())
     out: list[str] = []
@@ -124,13 +142,15 @@ def glued(toks, i, other, pairs) -> bool:
             and other[b]["col"] - other[a]["col"] == toks[i + 1]["col"] - toks[i]["col"])
 
 
-def load_states() -> list[dict]:
-    """One state per distinct code, oldest first: its first directory, its versions and its lines."""
+def load_states(track: str = "code") -> list[dict]:
+    """One state per distinct code in a track, oldest first: its first directory, its versions and its lines."""
     states = []
     for d in VERSIONS:
         src = (ROOT / d / "src/Palindrome.scala").read_text()
         version = re.match(r"// Scala (\d+\.\d+)", src).group(1)
-        lines = extract(src)
+        lines = extract(src, track)
+        if lines is None:
+            continue
         if states and states[-1]["lines"] == lines:
             states[-1]["versions"].append(version)
         else:
@@ -220,13 +240,14 @@ def run_html(run) -> str:
     return "".join(parts)
 
 
-def code_runs_html(runs, size, lh, cw, left, top) -> list[str]:
-    """One pinned <p> per run, placed from its line and column; the id carries the morph."""
+def code_runs_html(runs, size, lh, cw, left, top, prefix="t") -> list[str]:
+    """One pinned <p> per run, placed from its line and column; the id carries the morph, and its prefix keeps the
+    tracks apart."""
     out = []
     for run in runs:
         first, end = run[0], run[-1]["col"] + len(run[-1]["text"])
         w = round((end - first["col"]) * cw) + 4
-        out.append(f'<p id="t{first["id"]}" style="position:absolute; left:{round(left + first["col"] * cw)}px; '
+        out.append(f'<p id="{prefix}{first["id"]}" style="position:absolute; left:{round(left + first["col"] * cw)}px; '
                    f'top:{round(top + first["line"] * lh, 1)}px; width:{w}px; font-family:\'IBM Plex Mono\', '
                    f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap">'
                    f"{run_html(run)}</p>")
