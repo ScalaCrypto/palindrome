@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.2-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.5-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -30,7 +30,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.2-deck/project"
+DECK = ROOT / "talk/5.5-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -44,9 +44,9 @@ FACES = {
 # Every code slide looks like the hand-written slides with code: eyebrow, heading, then the code in a panel.
 # One code size for the whole deck, the largest at which the tallest code (2.8, 17 lines once wrapped) fits: 24px,
 # line height 1.4.
-# The panel starts where the hand-written slides' flow puts it: 128 + eyebrow 33.6 + gap 36 + heading 70.4 + gap 36.
+# The panel starts below the heading (128 + heading 70.4 + gap 36); the version is on the timeline, not above it.
 SIZE, LH = 24, 33.6
-PANEL_TOP, PANEL_PAD_X, PANEL_PAD_Y = 304, 44, 36
+PANEL_TOP, PANEL_PAD_X, PANEL_PAD_Y = 234, 44, 36
 LEFT, TOP = 128 + 1 + PANEL_PAD_X, PANEL_TOP + 1 + PANEL_PAD_Y  # inside the panel's 1px border and padding
 CW = SIZE * 0.6  # IBM Plex Mono advances 0.6 em
 MAX_CHARS = int((1664 - 2 - 2 * PANEL_PAD_X) / CW)  # longer lines are wrapped
@@ -62,13 +62,25 @@ BG, FG, INK, PAPER, LINE = "#1B1F2A", "#E8E6DF", "#F3E6D3", "#3A4358", "#E3A869"
 HIGHLIGHT = "rgba(227, 168, 105, 0.22)"
 PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 
-# The slide sequence. ("code", first version) is a code state; ("again", first version) shows it once more without
-# notes, after hand-written slides interrupted the morph; anything else is a hand-written slide's id.
+# The slide sequence, one group per Scala version that changes something: ("cloud", v) is that version's slide from
+# the tag-cloud deck (who wrote it), then, for each track whose code changes in v (see morph.py: "eq" for Eq, "ops" for
+# Scala 2's method syntax, "code" for the methods), the track's previous state shown again without a heading or notes
+# (("eq-again", u), ("ops-again", u), ("again", u)), morphing into its state in v. A code slide shows only the methods
+# that change in that step. Anything else is a hand-written slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
-    "scala2", "s25-types", ("code", "2.5"), ("code", "2.8"), ("code", "2.9"), ("code", "2.10"),
-    "s210-valueclass", "s212-sam", ("again", "2.10"), ("code", "2.13"),
-    "scala3", "s30-collapse", ("again", "2.13"), ("code", "3.0"), ("code", "3.6"),
+    "scala2",
+    ("eq", "2.5"), ("ops", "2.5"), ("code", "2.5"),
+    ("cloud", "2.8"), "f2-8", ("eq-again", "2.5"), ("eq", "2.8"), ("ops-again", "2.5"), ("ops", "2.8"), ("again", "2.5"),
+    ("code", "2.8"),
+    ("cloud", "2.9"), "f2-9", ("again", "2.8"), ("code", "2.9"),
+    ("cloud", "2.10"), "f2-10", ("ops-again", "2.8"), ("ops", "2.10"), ("again", "2.9"), ("code", "2.10"),
+    ("cloud", "2.11"), "f2-11", ("ops-again", "2.10"), ("ops", "2.11"),
+    ("cloud", "2.12"), "f2-12", ("eq-again", "2.8"), ("eq", "2.12"),
+    ("cloud", "2.13"), "f2-13", ("ops-again", "2.11"), ("ops", "2.13"), ("again", "2.10"), ("code", "2.13"),
+    "scala3", "s30-collapse",
+    ("cloud", "3.0"), "f3-0", ("eq-again", "2.12"), ("eq", "3.0"), ("again", "2.13"), ("code", "3.0"),
+    ("cloud", "3.6"), "f3-6", ("eq-again", "3.0"), ("eq", "3.6"), ("again", "3.0"), ("code", "3.6"),
     "final", "takeaways", "thanks",
     "r-indexedseq", "r-stringslice", "r-linear",
 ]
@@ -87,7 +99,7 @@ TITLES = {
     "2.9": "tails finds the palindromic suffix",
     "2.10": "x +: middle :+ y peels off both ends",
     "2.13": "IsSeq and BuildFrom replace CanBuildFrom",
-    "3.0": "The methods, collapsed",
+    "3.0": "extension and using",
     "3.6": "Context bounds get names",
 }
 
@@ -171,6 +183,112 @@ NOTES = {
 }
 
 
+# The Eq track: headings, speaker notes and notes per state, as for the methods above.
+EQ_TITLES = {
+    "2.5": "Equality is a type class",
+    "2.8": "Char gets toLower",
+    "2.12": "SAM conversion: lambdas implement traits",
+    "3.0": "given and placeholder lambdas",
+    "3.6": "The new given syntax",
+}
+EQ_ASIDES = {
+    "2.5": "Stage 3, already in 2.5. Universal == is hardwired, so equality becomes a type class: the default instance "
+           "lives in Eq's companion and is found through the implicit scope. Eq.caseInsensitive is an opt-in val you "
+           "pass explicitly or put in scope as an implicit. No lambdas can implement a trait yet, hence the anonymous "
+           "classes.",
+    "2.8": "A library change: the 2.8 collections redesign comes with a richer Char, and toLower replaces "
+           "Character.toLowerCase. Eq itself doesn't change.",
+    "2.12": "SAM conversion: a lambda can implement any trait with a single abstract method, so the two anonymous "
+            "classes shrink to one line each. A good moment for the old-ways speaker to concede one. Nothing else "
+            "about Eq changes until Scala 3.",
+    "3.0": "The big collapse reaches Eq: braces give way to indentation, implicit def becomes given, and the lambdas "
+           "shrink to placeholders, _ == _. caseInsensitive stays a plain val: it's opt-in, so it isn't a given.",
+    "3.6": "The new given syntax: given universal: [A] => Eq[A] reads as \"for every A, an Eq[A]\". 3.5 rejects it. "
+           "3.7 to 3.9 change nothing here.",
+}
+EQ_NOTES = {
+    "2.5": [
+        (["⟨implicit def universal[A]⟩"], "the default, found in\nEq's implicit scope"),
+        (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
+        (["Eq[A] = ⟨new Eq[A] {⟩"], "no lambdas for traits\nyet: anonymous classes"),
+    ],
+    "2.8": [
+        (["= ⟨x.toLower == y.toLower⟩"], "the 2.8 library\nadds toLower to Char"),
+    ],
+    "2.12": [
+        (["Eq[A] = ⟨(x, y) => x == y⟩", "Eq[Char] = ⟨(x, y) => x.toLower == y.toLower⟩"],
+         "a lambda implements\na one-method trait"),
+    ],
+    "3.0": [
+        (["trait Eq[A]⟨:⟩", "object Eq⟨:⟩"], "braces give way\nto indentation"),
+        (["⟨given⟩ universal"], "given replaces\nimplicit def"),
+        (["Eq[A] = ⟨_ == _⟩", "Eq[Char] = ⟨_.toLower == _.toLower⟩"], "placeholder lambdas"),
+    ],
+    "3.6": [
+        (["given universal⟨: [A] =>⟩ Eq[A]"], "for every A, an Eq[A]"),
+    ],
+}
+
+# The method-syntax track (Scala 2 only; Scala 3's extensions are on the code slides).
+OPS_TITLES = {
+    "2.5": "Method syntax through an implicit conversion",
+    "2.8": "CanBuildFrom",
+    "2.10": "Implicit value classes",
+    "2.11": "Value classes may hide their field",
+    "2.13": "IsSeq and BuildFrom",
+}
+OPS_ASIDES = {
+    "2.5": "Stage 6, already in 2.5: method syntax without changing Seq. PalindromeOps is an ordinary wrapper class "
+           "that holds the Seq and forwards to the functions in object Palindrome. The implicit def is the trick: "
+           "when the compiler finds no isPalindrome on a Seq, it looks for an implicit conversion in scope to a type "
+           "that has one, and rewrites xs.isPalindrome to palindromeOps(xs).isPalindrome. The Eq still arrives as an "
+           "implicit, now on the method. Costs: a wrapper object on every call, and one implicit conversion only: "
+           "views don't chain, so a String, which first has to become a Seq, can't use it until 2.13; earlier "
+           "versions write isPalindrome(\"racecar\") or \"racecar\".toList.isPalindrome.",
+    "2.8": "For xs.palindromize to return the caller's type, the wrapper has to know it: it now wraps a "
+           "SeqLike[A, Repr] and asks for the CanBuildFrom too, and isPalindrome passes the collection on as a Seq "
+           "with toSeq.",
+    "2.10": "Talk stage 6, first step. The class and the conversion become one implicit class, and extends AnyVal "
+            "makes it a value class, which usually needs no wrapper object at all. 2.10 insists the value class's "
+            "field is public: it rejects private val with \"value class needs to have a publicly accessible val "
+            "parameter\".",
+    "2.11": "2.11 relaxes that, so the wrapped collection no longer leaks as a public member of every Seq. Strings "
+            "still can't use method syntax up to 2.12: implicit views don't chain (String to WrappedString to "
+            "PalindromeOps).",
+    "2.13": "The 2.13 collections: String is no longer a collection, so the wrapper is rebuilt on IsSeq, following "
+            "the pattern the 2.13 documentation gives. An implicit def again, from any Repr with an IsSeq; the "
+            "singleton type seq.type keeps seq.A known at the call site. It's no longer a value class (it holds xs "
+            "and seq), and it needs import scala.language.implicitConversions. The payoff: the conversion starts from "
+            "String itself, so \"racecar\".isPalindrome finally works in Scala 2.",
+}
+OPS_NOTES = {
+    "2.5": [
+        (["⟨class PalindromeOps[A](xs: Seq[A])⟩"], "a wrapper that\nforwards"),
+        (["⟨implicit def palindromeOps⟩"], "the conversion\nthe compiler adds"),
+    ],
+    "2.8": [
+        (["PalindromeOps⟨[A, Repr](xs: SeqLike[A, Repr])⟩", "isPalindrome(xs⟨.toSeq⟩)",
+          "⟨, bf: CanBuildFrom[Repr, A, Repr]): Repr⟩", "palindromeOps⟨[A, Repr](xs: SeqLike[A, Repr])⟩",
+          ": PalindromeOps⟨[A, Repr]⟩ ="],
+         "Repr travels along"),
+    ],
+    "2.10": [
+        (["⟨implicit class⟩", "(⟨val⟩ xs", "⟨extends AnyVal⟩"], "implicit value class"),
+    ],
+    "2.11": [
+        (["(⟨private⟩ val xs"], "2.11: the field may be private"),
+    ],
+    "2.13": [
+        (["PalindromeOps⟨[Repr, S <: IsSeq[Repr]](xs: Repr, seq: S)⟩", "Eq[⟨seq.A⟩]): Boolean", "isPalindrome(⟨seq(xs)⟩",
+          "Eq[⟨seq.A⟩], bf", "bf: ⟨BuildFrom[Repr, seq.A, Repr]⟩", "palindromize⟨[Repr, seq.A](xs)(seq: seq.type, eq, bf)⟩"],
+         "built on IsSeq, which\nreads any Repr as a Seq"),
+        (["⟨implicit def palindromeOps[Repr](xs: Repr)(implicit seq: IsSeq[Repr])⟩", "⟨: PalindromeOps[Repr, seq.type] =⟩",
+          "⟨new PalindromeOps(xs, seq)⟩"],
+         "from String itself:\nno chain of views"),
+    ],
+}
+
+
 def wrap(line: str) -> list[str]:
     """A line too long for the panel, broken where the hand-written slides break them: after a `)(` between parameter
     lists, else after a `, ` between parameters, rightmost first; continuations are indented 4 more."""
@@ -190,12 +308,12 @@ def wrap(line: str) -> list[str]:
     return [line[:fits[-1]].rstrip()] + wrap(indent + line[fits[-1]:].lstrip())
 
 
-def code_rects(runs):
-    return [(LEFT + r[0]["col"] * CW, TOP + r[0]["line"] * LH,
-             LEFT + (r[-1]["col"] + len(r[-1]["text"])) * CW, TOP + (r[0]["line"] + 1) * LH) for r in runs]
+def code_rects(runs, top=TOP):
+    return [(LEFT + r[0]["col"] * CW, top + r[0]["line"] * LH,
+             LEFT + (r[-1]["col"] + len(r[-1]["text"])) * CW, top + (r[0]["line"] + 1) * LH) for r in runs]
 
 
-def anchor_span(lines, text):
+def anchor_span(lines, text, top=TOP):
     """The (x0, y0, x1, y1) box of the first occurrence of text in the code, plus where that line's text ends."""
     context = text.replace("⟨", "").replace("⟩", "")
     offset = text.index("⟨") if "⟨" in text else 0
@@ -204,7 +322,7 @@ def anchor_span(lines, text):
         c = line.find(context)
         if c >= 0:
             c += offset
-            return LEFT + c * CW, TOP + n * LH, LEFT + (c + len(marked)) * CW, TOP + (n + 1) * LH, LEFT + len(line) * CW
+            return LEFT + c * CW, top + n * LH, LEFT + (c + len(marked)) * CW, top + (n + 1) * LH, LEFT + len(line) * CW
     raise SystemExit(f"note anchor not in the code: {text!r}")
 
 
@@ -332,27 +450,39 @@ def note_html(box, text, order):
             f'font-weight:400; line-height:{NOTE_LH}px; white-space:nowrap; color:{INK}">{body}</p>')
 
 
-def code_slide(slide_id, state, runs, transition, notes, aside):
+def code_slide(*args, **kwargs):
+    """A code slide. When its notes don't fit beside the code, the panel grows by a line at a time: below the code
+    first, then also above it, for a note whose tail could only reach its code from above."""
+    for above in range(4):
+        for below in range(7):
+            try:
+                return _code_slide(*args, **kwargs, above=above, below=below)
+            except SystemExit as e:
+                failure = e
+    raise failure
+
+
+def _code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t", above=0, below=0):
     # The panel is pinned, with one id on every code slide, so a morph resizes it instead of fading it.
-    height = round(len(state["lines"]) * LH + 2 * PANEL_PAD_Y + 2, 1)
+    height = round((len(state["lines"]) + above + below) * LH + 2 * PANEL_PAD_Y + 2, 1)
+    top = TOP + above * LH
     area = (128 + 18, PANEL_TOP + 18, 1792 - 18, int(PANEL_TOP + height - 18))  # bubbles stay inside the panel
     rows = [f'<section id="{slide_id}" data-transition="{transition}" style="background:{BG}; color:{FG}; '
             f"font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; "
             f'flex-direction:column; gap:36px">',
             f'<div id="code-panel" style="position:absolute; left:128px; top:{PANEL_TOP}px; width:1664px; '
             f'height:{height}px; background:{PANEL}; border:1px solid {PANEL_EDGE}; border-radius:16px"></div>',
-            f'<p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; '
-            f'color:#F2A65A">{escape(morph.label(state["versions"]))}</p>',
-            f'<h2 style="font-size:64px; font-weight:600; line-height:1.1">{escape(TITLES[state["versions"][0]])}'
-            f"</h2>"]
+]
+    if title:  # a state shown again has no heading: the next slide's heading names what changes
+        rows.append(f'<h2 style="font-size:64px; font-weight:600; line-height:1.1">{escape(title)}</h2>')
     # Place the notes first: their highlights paint behind the code, their bubbles on top of it.
-    blocked = code_rects(runs)
+    blocked = code_rects(runs, top)
     bubbles, placed = [], []
     # Notes are placed largest first (they still appear in reading order), and a note with several highlights points
     # its tail at whichever one gives the best spot.
     todo = []
     for order, (anchors, text) in enumerate(notes, 1):
-        spans = [anchor_span(state["lines"], a) for a in ([anchors] if isinstance(anchors, str) else anchors)]
+        spans = [anchor_span(state["lines"], a, top) for a in ([anchors] if isinstance(anchors, str) else anchors)]
         todo.append((order, text, spans))
     # If a note finds no room, it moves to the front of the queue and the layout starts over.
     size = lambda text: len(text.split("\n")) * max(len(l) for l in text.split("\n"))
@@ -377,7 +507,7 @@ def code_slide(slide_id, state, runs, transition, notes, aside):
         raise SystemExit(f"no room for the note {failed[1]!r}")
     placed.sort(key=lambda p: p[0])
     rows += [highlight_html(sp, p[0]) for p in placed for sp in p[7]]
-    rows += morph.code_runs_html(runs, SIZE, LH, CW, LEFT, TOP)
+    rows += morph.code_runs_html(runs, SIZE, LH, CW, LEFT, top, prefix)
     for order, text, span, box, side, base, tip, _ in placed:
         rows.append(bubble_svg(box, side, base, tip, span, order))
         rows.append(note_html(box, text, order))
@@ -451,34 +581,133 @@ def uncovered(state, runs, prev_runs, notes) -> list[str]:
     return missing
 
 
+# Per track: the slide id prefix, the code token id prefix, and the headings, speaker notes and notes per state.
+TRACKS = {
+    "code": {"slide": "m", "token": "t", "titles": TITLES, "asides": ASIDES, "notes": NOTES,
+             "again": "Back to the methods as they stand in {v}, before the next version changes them."},
+    "eq": {"slide": "e", "token": "e", "titles": EQ_TITLES, "asides": EQ_ASIDES, "notes": EQ_NOTES,
+           "again": "Back to Eq as it stands in {v}, before the next version changes it."},
+    "ops": {"slide": "o", "token": "o", "titles": OPS_TITLES, "asides": OPS_ASIDES, "notes": OPS_NOTES,
+            "again": "Back to the method syntax as it stands in {v}, before the next version changes it."},
+}
+GENERATED = re.compile(r"^(m|e|o|tc)\d")  # generated slide ids: m2-5, e2-12-again, o2-10, tc2-8, ...
+CLOUDS = ROOT / "talk/tag-cloud/project/slides"  # the tag-cloud deck's slides, one per release (s2-8.html, ...)
+
+
+def _tag_cloud():
+    """talk/tag-cloud.py, for its timeline footer (its file name isn't a module name)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("tag_cloud", ROOT / "talk/tag-cloud.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+TAG_CLOUD = _tag_cloud()
+RELEASES = [d[1:].replace("_", ".") for d in morph.VERSIONS]  # every release on the timeline, 2.5 to 3.9
+
+
+def footer(version: str | None) -> list[str]:
+    """The tag-cloud deck's timeline along the bottom, the slide's version marked in amber (none marked if None)."""
+    return TAG_CLOUD.timeline(RELEASES, version)
+
+
+def with_footer(html: str, version: str | None) -> str:
+    """A hand-written slide with the timeline as its last pinned elements, before the speaker notes; a footer from an
+    earlier build is replaced."""
+    lines = [l for l in html.split("\n") if "data-bleed=" not in l]
+    at = next(i for i in range(len(lines) - 1, -1, -1) if lines[i].startswith(("<aside", "</section")))
+    return "\n".join(lines[:at] + footer(version) + lines[at:])
+
+
+# Hand-written slides that belong to a version, for the timeline's amber mark ("New in" slides, f2-8 and so on, are
+# marked by their id).
+HAND_VERSIONS = {"s30-collapse": "3.0", "final": "3.9"}
+
+
+def leaving(n: int, default: str | None = "fade") -> str | None:
+    """How slide n of SEQUENCE leaves: at once when the next slide shows a state again (it then morphs on), else the
+    default."""
+    nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
+    return "none" if isinstance(nxt, tuple) and track_of(nxt[0])[1] else default
+
+
+def track_of(kind: str) -> tuple[str, bool]:
+    """A sequence item's track, and whether it shows a state again."""
+    if kind in ("code", "again"):
+        return "code", kind == "again"
+    track, _, again = kind.partition("-")
+    return track, again == "again"
+
+
+def blocks(lines: list[str]) -> list[list[str]]:
+    """The methods of a code state: its blocks between blank lines (isPalindrome, then palindromize)."""
+    out, cur = [], []
+    for line in lines + [""]:
+        if line.strip():
+            cur.append(line)
+        elif cur:
+            out.append(cur)
+            cur = []
+    return out
+
+
+def join(parts: list[list[str]]) -> list[str]:
+    return [line for i, part in enumerate(parts) for line in ([""] if i else []) + part]
+
+
+def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict]:
+    """What the slides of the step into state k show: the previous state shown again (None for a track's first state)
+    and state k. On the code track only the methods that change in this step are shown, on both slides."""
+    after, before = states[k], states[k - 1] if k else None
+    if track == "code" and before:
+        a, b = blocks(after["lines"]), blocks(before["lines"])
+        keep = [i for i in range(len(a)) if a[i] != b[i]]
+        after = {**after, "lines": join([a[i] for i in keep])}
+        before = {**before, "lines": join([b[i] for i in keep])}
+    wrapped = lambda st: st and {**st, "lines": [part for line in st["lines"] for part in wrap(line)]}
+    return wrapped(before), wrapped(after)
+
+
 def build():
-    states = morph.load_states()
-    for s in states:
-        s["lines"] = [part for line in s["lines"] for part in wrap(line)]
-    runs_per_state = morph.chain(states)
-    index = {s["versions"][0]: k for k, s in enumerate(states)}
-    assert set(NOTES) == set(ASIDES) == set(index) == set(TITLES), \
-        f"notes for {sorted(NOTES)}, code states {sorted(index)}"
+    steps = {}  # (track, k) -> (before view, after view, before runs, after runs)
+    index = {}
+    for track, spec in TRACKS.items():
+        states = morph.load_states(track)
+        index[track] = {st["versions"][0]: k for k, st in enumerate(states)}
+        assert set(spec["notes"]) == set(spec["asides"]) == set(index[track]) == set(spec["titles"]), \
+            f"{track}: notes for {sorted(spec['notes'])}, states {sorted(index[track])}"
+        for k in range(len(states)):
+            before, after = views(track, states, k)
+            runs = morph.chain([before, after] if before else [after])
+            steps[track, k] = (before, after, runs[0] if before else None, runs[-1])
+            notes = spec["notes"][after["versions"][0]]
+            if before and (missing := uncovered(after, runs[-1], runs[0], notes)):
+                raise SystemExit(f"{track} {after['versions'][0]}: new code without a highlight: " + ", ".join(missing))
 
     ids = []
-    for item in SEQUENCE:
-        if isinstance(item, tuple):
-            kind, v = item
-            ids.append("m" + v.replace(".", "-") + ("-again" if kind == "again" else ""))
-        else:
+    for n, item in enumerate(SEQUENCE):
+        if not isinstance(item, tuple):
             ids.append(item)
-
-    for v, notes in NOTES.items():
-        k = index[v]
-        if k > 0 and (missing := uncovered(states[k], runs_per_state[k], runs_per_state[k - 1], notes)):
-            raise SystemExit(f"{v}: new code without a highlight: " + ", ".join(missing))
+            continue
+        kind, v = item
+        if kind == "cloud":
+            ids.append("tc" + v.replace(".", "-"))
+            continue
+        track, again = track_of(kind)
+        ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + ("-again" if again else ""))
+        if again:  # a state shown again leads straight into the track's next state
+            nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
+            assert isinstance(nxt, tuple) and track_of(nxt[0]) == (track, False) and \
+                index[track][nxt[1]] == index[track][v] + 1, f"{item} must be followed by the next {track} state"
+    assert len(set(ids)) == len(ids), "a slide appears twice in SEQUENCE"
 
     slides = DECK / "slides"
     hand = {item for item in SEQUENCE if not isinstance(item, tuple)}
     files = {f.stem for f in slides.glob("*.html")}
     if missing := sorted(hand - files):
         raise SystemExit("slides in SEQUENCE without a file: " + ", ".join(missing))
-    if stray := sorted(f for f in files - hand if not f.startswith("m")):
+    if stray := sorted(f for f in files - hand if not GENERATED.match(f)):
         raise SystemExit("hand-written slides not in SEQUENCE: " + ", ".join(stray))
     for old in files - hand - set(ids):
         (slides / f"{old}.html").unlink()
@@ -487,18 +716,31 @@ def build():
         if not isinstance(item, tuple):
             path = slides / f"{item}.html"
             html = path.read_text()
-            if (new := normalize(html)) != html:
+            if leave := leaving(n, None):  # it leads into a state shown again
+                html = re.sub(r'(<section id="[^"]+" data-transition=")[a-z]+"', rf'\g<1>{leave}"', html, count=1)
+            new_in = re.match(r"f(\d+)-(\d+)$", item)  # a "New in" slide, f2-8 for 2.8
+            new = with_footer(normalize(html), HAND_VERSIONS.get(item) or (new_in and ".".join(new_in.groups())))
+            if new != html:
                 path.write_text(new)
             continue
         kind, v = item
-        k = index[v]
-        nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
-        morphs = isinstance(nxt, tuple) and index[nxt[1]] == k + 1
-        if kind == "code":
-            notes, aside = NOTES[v], ASIDES[v]
+        if kind == "cloud":
+            html = (CLOUDS / f"s{v.replace('.', '-')}.html").read_text()
+            html = html.replace(f'<section id="s{v.replace(".", "-")}" data-transition="push"',
+                                f'<section id="{ids[n]}" data-transition="{leaving(n, "push")}"', 1)
+            (slides / f"{ids[n]}.html").write_text(html)
+            continue
+        track, again = track_of(kind)
+        spec = TRACKS[track]
+        k = index[track][v]
+        if again:  # the previous state, as the next step shows it
+            view, runs = steps[track, k + 1][0], steps[track, k + 1][2]
+            notes, aside, title, transition = [], spec["again"].format(v=v), "", "magic"
         else:
-            notes, aside = [], f"Back to the methods as they stand in {v}, before the next version changes them."
-        html = code_slide(ids[n], states[k], runs_per_state[k], "magic" if morphs else "fade", notes, aside)
+            view, runs = steps[track, k][1], steps[track, k][3]
+            notes, aside, title, transition = spec["notes"][v], spec["asides"][v], spec["titles"][v], leaving(n)
+        html = code_slide(ids[n], view, runs, transition, notes, aside, title, spec["token"])
+        html = with_footer(html, view["versions"][0])
         (slides / f"{ids[n]}.html").write_text(html)
 
     path = DECK / "deck.json"
@@ -506,7 +748,8 @@ def build():
         {"v": 4, "createdOnFiles": {"v": 1, "at": "2026-09-27T12:00:00Z"}}
     deck.update({"title": TITLE, "order": ids, "sections": SECTIONS, "faces": FACES})
     path.write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
-    print(f"{DECK.parent.name}: {len(ids)} slides, {sum(len(n) for n in NOTES.values())} notes")
+    count = sum(len(n) for spec in TRACKS.values() for n in spec["notes"].values())
+    print(f"{DECK.parent.name}: {len(ids)} slides, {count} notes")
 
 if __name__ == "__main__":
     import sys

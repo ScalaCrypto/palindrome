@@ -5,6 +5,74 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-01 — Version by version, with the tag-cloud slides and timeline (deck 5.5)
+
+### What changed
+
+The deck goes version by version. Each Scala version that changes something (2.8, 2.9, 2.10, 2.11, 2.12, 2.13, 3.0,
+3.6) starts with its slide from the tag-cloud deck, then shows each changed track as a pair: the previous state
+again, without a heading, morphing into the new one. 2.11's and 2.12's changes get their own groups instead of
+waiting for 2.13. A method slide shows only the methods that change in that step, on both slides of the pair: 2.9 and
+2.13 show only `palindromize`, 2.10 only `isPalindrome`. Every slide carries the tag-cloud deck's timeline
+(`timeline()` from `talk/tag-cloud.py`), its version marked in amber; a hand-written slide is marked when its eyebrow
+names a version. After each tag-cloud slide, a hand-written "New in Scala x" slide lists the version's headline
+changes, the ones the next slides use in amber. The version label above the headings is gone: the timeline shows the
+version. A slide before a state shown again leaves without a transition, so the code appears at once and then morphs.
+Each pair is matched on its own, which also lets the two slides show a subset of the code. 52 slides.
+
+### Limitations accepted
+
+The Slides format has no setting for how long a magic move takes (only `data-transition="none|fade|push|magic"`), so
+the morphs can't be slowed down in the presented deck; the review player plays them three times slower.
+
+---
+
+## 2026-10-01 — `Eq` and method syntax as generated, morphing tracks (deck 5.4)
+
+### What changed
+
+The deck builder has three tracks instead of one: the methods (`m*`), `Eq` (`e*`) and Scala 2's method syntax (`o*`,
+the wrapper and its conversion; Scala 3's extensions are on the method slides). Each track gets a slide per version
+where its code changes (`Eq`: 2.5, 2.8, 2.12, 3.0, 3.6; method syntax: 2.5, 2.8, 2.10, 2.11, 2.13), with bubbles that
+cover every change, as the method slides have. Before each method slide come the `Eq` and method-syntax slides of
+the versions it covers; 2.11's and 2.12's changes come before 2.13's method slide. Each slide morphs from its
+track's previous state: where other slides came between, that state is shown once more first (`…-again`). The
+hand-written `s25-types`, `s25-ops`, `s210-valueclass` and `s212-sam` are replaced, their speaker notes carried over.
+The deck grows from 26 to 42 slides, 11 of them shown-again states.
+
+A state shown again has no heading, only its version label: the next slide's heading names what changes. Each
+heading names the feature its version brings (`CanBuildFrom`, implicit value classes, SAM conversion, `extension`
+and `using`, …).
+
+Two layout rules were added for the denser code: a panel grows by an empty line at a time below its code when the
+bubbles don't fit, and above it when a tail could only reach its code from above (2.11's `private`).
+
+### Why
+
+The `Eq` and wrapper code changed as much as the methods did, but only the methods morphed; the rest were static
+side slides, written by hand and unchecked against the sources. As tracks, they're generated from the sources,
+every change is highlighted, and each change morphs in place.
+
+### Alternatives rejected
+
+- **Slides for every version with a method slide**, changed or not: they would repeat the same code.
+- **Fading in after the new slides instead of showing the previous state again**: fewer slides, but no morph.
+- **A method-syntax slide for Scala 3**: the extension is the method slide.
+- **Letting a tail cross code** where no spot fits: it would draw over the code it explains.
+
+### Limitations accepted
+
+Shown-again slides repeat a state seen a few slides earlier, so a version can take up to six slides (2.8). The 2.10
+method-syntax slide has one merged bubble ("implicit value class"), because its first line is the only place with
+room.
+
+### Verification
+
+`talk/deck.py` builds 42 slides with 32 notes; the coverage check passes for all three tracks; `talk/render.py`
+finds no overflow, and the new slides' screenshots were checked.
+
+---
+
 ## 2026-09-30 — A denser, leaner `palindromize`, and a linear one in reserve
 
 ### What changed
