@@ -10,7 +10,8 @@
     "oneliner",
     "goal",
     "eq",
-    "scala2",
+    "tc2-5",
+    "f2-5",
     "e2-5",
     "o2-5",
     "m2-5",
@@ -68,7 +69,7 @@
     },
     "scala2": {
       "description": "Scala 2.5 to 2.13: the ideas arrive before the syntax",
-      "start": "scala2"
+      "start": "tc2-5"
     },
     "scala3": {
       "description": "Scala 3.0 to 3.9: the big collapse, then refinements",

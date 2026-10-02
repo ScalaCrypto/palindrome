@@ -1,7 +1,18 @@
-<section id="scala2" data-transition="push" style="background:#1B1F2A; color:#F7F5EF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; justify-content:center; gap:32px">
-<h1 style="font-size:120px; font-weight:700; line-height:1.05">Scala 2.5</h1>
-<p style="font-size:40px; line-height:1.35; color:#C9CCD3">2.5 → 2.13: the ideas arrive before the syntax</p>
-<aside>Everything the final design needs is already expressible in 2.5. What the next twelve years add is cheaper ways to write it.</aside>
+<section id="tc2-5" data-transition="push" style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 128px; display:flex; flex-direction:column; gap:28px">
+<h2 style="font-size:88px; font-weight:700; line-height:1.3; text-align:center; color:#F2A65A">Scala 2.5 · 2007</h2>
+<div style="flex:1; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px">
+<p style="font-size:45px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Gilles Dubochet</p>
+<p style="font-size:59px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Sean McDirmid</p>
+<p style="font-size:65px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Iulian Dragos</p>
+<p style="font-size:67px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Adriaan Moors</p>
+<p style="font-size:78px; font-weight:600; line-height:1.12; color:#E8E6DF; white-space:nowrap; padding:0 12px">Martin Odersky</p>
+<p style="font-size:104px; font-weight:700; line-height:1.12; color:#F2A65A; white-space:nowrap; padding:0 12px">Stéphane Micheloud</p>
+<p style="font-size:72px; font-weight:600; line-height:1.12; color:#E8E6DF; white-space:nowrap; padding:0 12px">Lex Spoon</p>
+<p style="font-size:66px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Nikolay Mihaylov</p>
+<p style="font-size:65px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Philipp Haller</p>
+<p style="font-size:46px; font-weight:500; line-height:1.12; color:#C3C8D1; white-space:nowrap; padding:0 12px">Burak Emir</p>
+</div>
+<p style="font-size:32px; font-weight:600; line-height:1.3; text-align:center; color:#F2A65A">289 commits by 10 authors</p>
 <svg data-bleed="" aria-label="Timeline of Scala releases from 2.5 to 3.9" width="1920" height="44" viewBox="0 0 1920 44" style="position:absolute; left:0px; top:978px; width:1920px; height:44px"><defs><linearGradient id="fade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="224" y2="0"><stop offset="0" stop-color="#9AA3AF" stop-opacity="0"/><stop offset="1" stop-color="#9AA3AF" stop-opacity="0.55"/></linearGradient></defs><rect x="0" y="21" width="224" height="2" fill="url(#fade)"/><rect x="224" y="21" width="1536" height="2" fill="#9AA3AF" fill-opacity="0.55"/><rect x="137.7" y="16" width="2" height="12" fill="#9AA3AF" fill-opacity="0.5"/><rect x="52.3" y="16" width="2" height="12" fill="#9AA3AF" fill-opacity="0.25"/><circle cx="224.0" cy="22" r="8" fill="#F2A65A"/><rect x="308.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="393.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="479.0" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="564.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="649.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="735.0" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="820.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="905.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="991.0" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1076.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1161.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1247.0" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1332.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1417.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1503.0" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1588.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1673.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1759.0" y="16" width="2" height="12" fill="#9AA3AF"/></svg>
 <p data-bleed="" style="position:absolute; left:99px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF; opacity:0.5">2.4</p>
 <p data-bleed="" style="position:absolute; left:13px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF; opacity:0.25">2.3</p>
@@ -24,4 +35,5 @@
 <p data-bleed="" style="position:absolute; left:1549px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.7</p>
 <p data-bleed="" style="position:absolute; left:1635px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.8</p>
 <p data-bleed="" style="position:absolute; left:1720px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.9</p>
+<aside>v2.4.0..v2.5.0.  Most commits: Stéphane Micheloud 89; Martin Odersky 41; Lex Spoon 32; Adriaan Moors 26; Nikolay Mihaylov 25; Iulian Dragos 23; Philipp Haller 23; Sean McDirmid 17; Burak Emir 7; Gilles Dubochet 6.</aside>
 </section>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.6-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.7-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -30,7 +30,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.6-deck/project"
+DECK = ROOT / "talk/5.7-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -69,7 +69,7 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 # that change in that step. Anything else is a hand-written slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
-    "scala2",
+    ("cloud", "2.5"), "f2-5",
     ("eq", "2.5"), ("ops", "2.5"), ("code", "2.5"),
     ("cloud", "2.8"), "f2-8", ("eq-again", "2.5"), ("eq", "2.8"), ("again", "2.5"),
     ("code", "2.8"),
@@ -85,7 +85,7 @@ SEQUENCE = [
 ]
 SECTIONS = {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},
-    "scala2": {"description": "Scala 2.5 to 2.13: the ideas arrive before the syntax", "start": "scala2"},
+    "scala2": {"description": "Scala 2.5 to 2.13: the ideas arrive before the syntax", "start": "tc2-5"},
     "scala3": {"description": "Scala 3.0 to 3.9: the big collapse, then refinements", "start": "tc3-0"},
     "closing": {"description": "Where isPalindrome ends up, and what the journey says", "start": "final"},
     "reserve": {"description": "Held back for the Q&A", "start": "r-indexedseq"},
@@ -621,7 +621,7 @@ def with_footer(html: str, version: str | None) -> str:
 
 # Hand-written slides that belong to a version, for the timeline's amber mark ("New in" slides, f2-8 and so on, are
 # marked by their id).
-HAND_VERSIONS = {"scala2": "2.5", "final": "3.9"}
+HAND_VERSIONS = {"final": "3.9"}
 
 
 def leaving(n: int, default: str | None = "fade") -> str | None:
