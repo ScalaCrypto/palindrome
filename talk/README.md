@@ -3,7 +3,7 @@
 The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
 `../scaladays-2026-talk.md`, and the code it shows comes from `../EVOLUTION.md`.
 
-- `5.7-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
+- `5.8-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
   holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai Slides artifact
   uses; the paths match the artifact's own.
 - `deck.py`: builds the deck's code slides, their notes and its slide order; below.
@@ -14,7 +14,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck
 
 The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until shared from its Share menu), and
-`5.7-deck/project/` is its versioned copy. It has two kinds of slide:
+`5.8-deck/project/` is its versioned copy. It has two kinds of slide:
 
 - **Code slides** are generated from the version sources by `deck.py`, in three tracks: the palindrome methods
   (`m2-5`, …, `m3-6`), `Eq` (`e2-5`, …, `e3-6`) and Scala 2's method syntax (`o2-5`, …, `o2-13`; Scala 3's extensions
@@ -26,10 +26,16 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   change in that step (2.9: `palindromize`; 2.10: `isPalindrome`). Every slide carries the tag-cloud deck's timeline
   along the bottom, with its version in amber, instead of a version label above the heading. After each tag-cloud
   slide comes a hand-written "New in Scala x" slide (`f2-8`, …): the version's headline changes, with the ones the
-  following slides use in amber. A slide shown again appears without a transition and morphs into the next. From the second state
+  following slides use in amber. A slide shown again appears without a transition, and the next click morphs it into the
+  new state.
+  The code track starts with the opening one-liner (`m0-again`), which morphs into 2.5. From the second state
   of a track on, every change is highlighted and explained in a speech bubble, and the build fails if any code that's
-  new in a version lies outside every highlight. The bubbles fade in one per click after the morph and are placed
-  automatically next to their code; where they don't fit, the code panel grows by a line at a time. The notes are
+  new in a version lies outside every highlight. Where a step changes both methods (2.5, 2.8, 3.0, 3.6), it morphs in two clicks:
+  first `isPalindrome`, onto a slide that still shows the old `palindromize` (`m2-8-is`, …), then `palindromize`. The
+  bubbles fade in one per click after each morph, `isPalindrome`'s before the second, where they stay put; they're placed
+  automatically wherever they fit on the slide, clear of the heading, the code and the timeline: the code panel holds
+  only its code, so a bubble never adds a line to it. A bubble never mentions a later version. After 3.6, a made-up Scala 4.0 follows: its tag-cloud and "New in" slides
+  (`cloud4-0`, `f4-0`, hand-written) and a code slide (`m4-0`) whose match names `x` twice. The notes are
   `NOTES`, `EQ_NOTES` and `OPS_NOTES` in `deck.py`, the speaker notes `ASIDES`, `EQ_ASIDES` and `OPS_ASIDES`, and how
   tokens are matched between versions is in `../DESIGN.md`. **Never edit these by hand**: the next build overwrites them.
 - **Every other slide is hand-written**: the cover, the framing slides, the "New in" slides, the takeaways and the reserve slides. Edit them in the artifact or in their files. The build leaves them
@@ -48,15 +54,15 @@ talk/deck.py                 # rebuild the code slides and deck.json
 talk/render.py --screenshots # check the layout
 ```
 
-then publish `5.7-deck/project/` to the artifact with `5.7-deck/` as the root, so each file keeps its `project/…`
+then publish `5.8-deck/project/` to the artifact with `5.8-deck/` as the root, so each file keeps its `project/…`
 path. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
-into `5.7-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
+into `5.8-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
 artifact's changed slides and copy them here.
 
 ## Deck versions
 
 The deck's directory starts with its version: the major number is the kind of deck, the minor its revision. A
-revision that changes the deck's code or look renames the directory (`git mv talk/5.7-deck talk/5.8-deck`, and `DECK`
+revision that changes the deck's code or look renames the directory (`git mv talk/5.8-deck talk/5.9-deck`, and `DECK`
 in `deck.py`); the artifact keeps its link.
 
 5.0 merged the four decks that came before it: the hand-written talk deck (1.x, light, with its own hand-copied code
@@ -73,7 +79,10 @@ version's tag-cloud slide before it, the timeline on every slide, and only the c
 5.6 drops the method-syntax steps that repeat the method slides' changes (2.8, 2.13) and the Scala 3 divider and
 2 → 3 table, and shows `palindromize`'s results on the goal slide.
 5.7 opens 2.5 like every other version, with its tag-cloud and "New in Scala 2.5" slides instead of the Scala 2
-divider.
+divider. 5.8 starts the code track from the one-liner, places
+the bubbles outside the code panel instead of growing it, morphs `isPalindrome` before `palindromize` where a step
+changes both, drops the last slide's `isPalindrome`, and ends the tour with a made-up Scala 4.0 (Prolog extractors). It also adds
+case-insensitive examples to the goal slide, a QR code to the thank-you slide, and Knuth–Morris–Pratt's full name, without the abbreviation, to `r-linear`.
 
 ## The tag-cloud deck
 
@@ -95,7 +104,7 @@ artifact is <https://claude.ai/artifact/BBnmYfzdH7pmk3VQybdQdm>.
 
 ```bash
 talk/render.py                 # measure every slide of the talk's deck; exit 1 if anything overflows
-talk/render.py --screenshots   # also write out/talk-render/5.7-deck/shots/*.png and contact sheets sheet*.png
+talk/render.py --screenshots   # also write out/talk-render/5.8-deck/shots/*.png and contact sheets sheet*.png
 talk/render.py --screenshots talk/tag-cloud  # the same for another deck, into out/talk-render/tag-cloud/
 ```
 

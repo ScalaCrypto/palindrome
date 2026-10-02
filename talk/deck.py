@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.7-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.8-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -11,7 +11,9 @@ the same padding and code size as the code slides, and the code coloured the sam
 text). It writes deck.json's order, sections and faces, keeping its other keys; the order is SEQUENCE below.
 
 Each code slide gets the notes in NOTES: a bubble placed next to the code it points at, with a tail ending at a
-highlight behind that code. The notes fade in one per click after the morph. From the second code state on, every
+highlight behind that code. The notes fade in one per click after the morph. Where a step changes both methods,
+isPalindrome morphs first, with its notes, onto a slide that still shows the old palindromize, and palindromize
+morphs on the next click. From the second code state on, every
 change is highlighted and explained, and the build fails if any code that's new in a version lies outside every
 highlight. Where a hand-written slide interrupts the morph, the code it interrupts is shown again afterwards, so the
 next change still morphs.
@@ -30,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.7-deck/project"
+DECK = ROOT / "talk/5.8-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -70,7 +72,7 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
     ("cloud", "2.5"), "f2-5",
-    ("eq", "2.5"), ("ops", "2.5"), ("code", "2.5"),
+    ("eq", "2.5"), ("ops", "2.5"), ("again", "0"), ("code", "2.5"),
     ("cloud", "2.8"), "f2-8", ("eq-again", "2.5"), ("eq", "2.8"), ("again", "2.5"),
     ("code", "2.8"),
     ("cloud", "2.9"), "f2-9", ("again", "2.8"), ("code", "2.9"),
@@ -80,30 +82,37 @@ SEQUENCE = [
     ("cloud", "2.13"), "f2-13", ("again", "2.10"), ("code", "2.13"),
     ("cloud", "3.0"), "f3-0", ("eq-again", "2.12"), ("eq", "3.0"), ("again", "2.13"), ("code", "3.0"),
     ("cloud", "3.6"), "f3-6", ("eq-again", "3.0"), ("eq", "3.6"), ("again", "3.0"), ("code", "3.6"),
-    "final", "takeaways", "thanks",
+    "cloud4-0", "f4-0", ("again", "3.6"), ("code", "4.0"),
+    "takeaways", "thanks",
     "r-indexedseq", "r-stringslice", "r-linear",
 ]
 SECTIONS = {
     "intro": {"description": "One tiny function, and the rule that grows it", "start": "cover"},
     "scala2": {"description": "Scala 2.5 to 2.13: the ideas arrive before the syntax", "start": "tc2-5"},
     "scala3": {"description": "Scala 3.0 to 3.9: the big collapse, then refinements", "start": "tc3-0"},
-    "closing": {"description": "Where isPalindrome ends up, and what the journey says", "start": "final"},
+    "closing": {"description": "Where isPalindrome ends up, and what the journey says", "start": "cloud4-0"},
     "reserve": {"description": "Held back for the Q&A", "start": "r-indexedseq"},
 }
 
 # Per code state: the heading, like the hand-written slides' (one line at 64px).
 TITLES = {
-    "2.5": "The functions",
+    "0": "It starts as a one-liner",
+    "2.5": "A better way?",
     "2.8": "CanBuildFrom keeps the collection type",
     "2.9": "tails finds the palindromic suffix",
     "2.10": "+: and :+ extractors",
-    "2.13": "IsSeq and BuildFrom replace CanBuildFrom",
+    "2.13": "IsSeq and BuildFrom",
     "3.0": "using extensions",
     "3.6": "Context bounds get names",
+    "4.0": "Prolog extractors",
 }
 
 # Per code state: the speaker notes.
 ASIDES = {
+    "0": "The one-liners from the start of the talk, about to become 2.5's generic methods.",
+    "4.0": "Not a real release: an ending joke, and a wish. A pattern that names x twice would only match when both "
+           "ends are equal, as unification does in Prolog: the comparison disappears into the pattern. No Scala has "
+           "this, and it would have to decide which equality it means; ours is the caller's Eq.",
     "2.5": "The whole design with 2007 machinery. No +: and :+ extractors yet, so it's index arithmetic; the call is "
            "in tail position, even inside || and &&, so scalac already compiles it to a jump, but nothing checks "
            "that. palindromize finds the longest palindromic suffix with our own isPalindrome, so it takes an Eq too, "
@@ -142,7 +151,7 @@ ASIDES = {
 NOTES = {
     "2.5": [
         ("implicit eq: Eq[A]", "equality: an implicit type class"),
-        ("from >= to ||", "no extractors yet:\nwalk two indices inward"),
+        ("from >= to ||", "walk two indices inward"),
         ("): ⟨Seq[A]⟩ = {", "generic code can only promise a Seq"),
     ],
     "2.8": [
@@ -163,7 +172,7 @@ NOTES = {
     ],
     "2.13": [
         (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨seq: IsSeq[Repr] { type A = A0 }⟩", "val elems = ⟨seq(xs)⟩.toSeq"],
-         "any Repr IsSeq can read,\nas seq(xs); A0 and its\nrefinement are the wart"),
+         "any Repr IsSeq can read, as seq(xs);\nA0 and its refinement are the wart"),
         (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(elems.iterator ++⟩ elems"],
          "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
     ],
@@ -178,6 +187,10 @@ NOTES = {
     "3.6": [
         (["[⟨A: Eq as eq⟩]"], "a context bound\nwith a name"),
         (["[⟨Repr: IsSeq as seq⟩]"], "the same for IsSeq;\nseq.A still works"),
+    ],
+    "0": [],
+    "4.0": [
+        (["middle :+ ⟨x⟩ =>"], "x twice: both ends\nmust be the same"),
     ],
 }
 
@@ -209,7 +222,7 @@ EQ_NOTES = {
     "2.5": [
         (["⟨implicit def universal[A]⟩"], "the default, found in\nEq's implicit scope"),
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
-        (["Eq[A] = ⟨new Eq[A] {⟩"], "no lambdas for traits\nyet: anonymous classes"),
+        (["Eq[A] = ⟨new Eq[A] {⟩"], "each instance is an\nanonymous class"),
     ],
     "2.8": [
         (["= ⟨x.toLower == y.toLower⟩"], "the 2.8 library\nadds toLower to Char"),
@@ -275,7 +288,7 @@ OPS_NOTES = {
         (["⟨implicit class⟩", "(⟨val⟩ xs", "⟨extends AnyVal⟩"], "implicit value class"),
     ],
     "2.11": [
-        (["(⟨private⟩ val xs"], "2.11: the field may be private"),
+        (["(⟨private⟩ val xs"], "may be private"),
     ],
     "2.13": [
         (["PalindromeOps⟨[Repr, S <: IsSeq[Repr]](xs: Repr, seq: S)⟩", "Eq[⟨seq.A⟩]): Boolean", "isPalindrome(⟨seq(xs)⟩",
@@ -393,15 +406,21 @@ def place(note, span, blocked, bubbles, anchor_rects, area, tails=()):
     return best
 
 
-def highlight_html(span, order):
+def built(order, id_=None) -> str:
+    """The attributes of a note's element: its id, if it keeps its place across a morph, and the click it fades in on
+    (none: it's there from the start)."""
+    return (f' id="{id_}"' if id_ else "") + (f' data-build-in="fade {order}"' if order else "")
+
+
+def highlight_html(span, order, id_=None):
     """A soft highlight behind the code a note is about; it's emitted before the code, so the text stays on top."""
     x0, y0, x1, y1 = span[0] - 5, span[1] + 2, span[2] + 5, span[3] - 2
-    return (f'<div data-build-in="fade {order}" style="position:absolute; left:{round(x0, 1)}px; top:{round(y0, 1)}px; '
+    return (f'<div{built(order, id_)} style="position:absolute; left:{round(x0, 1)}px; top:{round(y0, 1)}px; '
             f'width:{round(x1 - x0, 1)}px; height:{round(y1 - y0, 1)}px; background:{HIGHLIGHT}; border-radius:6px">'
             f"</div>")
 
 
-def bubble_svg(box, side, base, tip, span, order):
+def bubble_svg(box, side, base, tip, span, order, id_=None):
     """The bubble and its tail as one outline."""
     x0, y0, x1, y1 = box
     left, top = math.floor(min(x0, tip[0])) - 6, math.floor(min(y0, tip[1])) - 6
@@ -435,37 +454,31 @@ def bubble_svg(box, side, base, tip, span, order):
         d += tail((x0, by + b), (x0, by - b))
     d += f" L{X(x0)},{Y(y0 + r)} Q{X(x0)},{Y(y0)} {X(x0 + r)},{Y(y0)} Z"
     w, h = right - left, bottom - top
-    return (f'<svg aria-label="" data-build-in="fade {order}" width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
+    return (f'<svg aria-label=""{built(order, id_)} width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
             f'style="position:absolute; left:{left}px; top:{top}px; width:{w}px; height:{h}px">'
             f'<path d="{d}" fill="{PAPER}" fill-opacity="0.97" stroke="{LINE}" stroke-width="1.75" '
             f'stroke-linejoin="round"/></svg>')
 
 
-def note_html(box, text, order):
+def note_html(box, text, order, id_=None):
     x0, y0, x1, _ = box
     body = "<br>".join(escape(l) for l in text.split("\n"))
-    return (f'<p data-build-in="fade {order}" style="position:absolute; left:{x0 + PAD_X}px; top:{y0 + PAD_Y}px; '
+    return (f'<p{built(order, id_)} style="position:absolute; left:{x0 + PAD_X}px; top:{y0 + PAD_Y}px; '
             f"width:{x1 - x0 - 2 * PAD_X}px; font-family:'Fuzzy Bubbles', 'Trebuchet MS', sans-serif; font-size:{NOTE_SIZE}px; "
             f'font-weight:400; line-height:{NOTE_LH}px; white-space:nowrap; color:{INK}">{body}</p>')
 
 
-def code_slide(*args, **kwargs):
-    """A code slide. When its notes don't fit beside the code, the panel grows by a line at a time: below the code
-    first, then also above it, for a note whose tail could only reach its code from above."""
-    for above in range(4):
-        for below in range(7):
-            try:
-                return _code_slide(*args, **kwargs, above=above, below=below)
-            except SystemExit as e:
-                failure = e
-    raise failure
-
-
-def _code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t", above=0, below=0):
+def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t", only=None, shown=(), keep=None,
+               layout=None):
+    """A code slide. Its panel holds exactly its code: the bubbles go wherever on the slide they fit, clear of the
+    heading, the code and the timeline. A step split in two (isPalindrome first, then palindromize) shows the notes
+    numbered `only` (1-based, all if None) on its first slide; on its second, those (`shown`) are there from the
+    start, at their places on the first (`keep`) where the code leaves them room, and with ids, so they stay put
+    through the morph. `layout`, if given, receives each note's placement."""
     # The panel is pinned, with one id on every code slide, so a morph resizes it instead of fading it.
-    height = round((len(state["lines"]) + above + below) * LH + 2 * PANEL_PAD_Y + 2, 1)
-    top = TOP + above * LH
-    area = (128 + 18, PANEL_TOP + 18, 1792 - 18, int(PANEL_TOP + height - 18))  # bubbles stay inside the panel
+    height = round(len(state["lines"]) * LH + 2 * PANEL_PAD_Y + 2, 1)
+    top = TOP
+    area = (128, 128, 1792, 952)  # the slide inside its margins, above the timeline
     rows = [f'<section id="{slide_id}" data-transition="{transition}" style="background:{BG}; color:{FG}; '
             f"font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; "
             f'flex-direction:column; gap:36px">',
@@ -476,18 +489,30 @@ def _code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="
         rows.append(f'<h2 style="font-size:64px; font-weight:600; line-height:1.1">{escape(title)}</h2>')
     # Place the notes first: their highlights paint behind the code, their bubbles on top of it.
     blocked = code_rects(runs, top)
+    if title:  # keep clear of the heading too (IBM Plex Sans semibold: about 0.6 em per character)
+        blocked.append((128, 128, 128 + len(title) * 64 * 0.6, 128 + 71))
     bubbles, placed = [], []
     # Notes are placed largest first (they still appear in reading order), and a note with several highlights points
     # its tail at whichever one gives the best spot.
     todo = []
     for order, (anchors, text) in enumerate(notes, 1):
+        if only is not None and order not in only:
+            continue
         spans = [anchor_span(state["lines"], a, top) for a in ([anchors] if isinstance(anchors, str) else anchors)]
         todo.append((order, text, spans))
     # If a note finds no room, it moves to the front of the queue and the layout starts over.
     size = lambda text: len(text.split("\n")) * max(len(l) for l in text.split("\n"))
     queue = sorted(todo, key=lambda n: -size(n[1]))
+    # Notes kept from the step's first slide are placed first, where they were, unless the code is in the way now.
+    kept = [(n, keep[n[0]]) for n in queue if keep and n[0] in keep and
+            not any(overlaps(keep[n[0]][0], r) for r in blocked)]
+    queue = [n for n in queue if n not in [k[0] for k in kept]]
     for attempt in range(len(queue) + 1):
         bubbles, tails, placed, failed = [], [], [], None
+        for (order, text, spans), (box, side, base, tip, span) in kept:
+            bubbles.append(box)
+            tails.append(curve_points(base, tip))
+            placed.append((order, text, span, box, side, base, tip, spans))
         for note in queue:
             order, text, spans = note
             mine = [r for r in blocked if any(overlaps(r, sp) for sp in spans)]
@@ -505,11 +530,17 @@ def _code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="
     else:
         raise SystemExit(f"no room for the note {failed[1]!r}")
     placed.sort(key=lambda p: p[0])
-    rows += [highlight_html(sp, p[0]) for p in placed for sp in p[7]]
+    if layout is not None:
+        layout.update({p[0]: (p[3], p[4], p[5], p[6], p[2]) for p in placed})
+    # The click each note fades in on: those shown from the start take none.
+    click = {n: i for i, n in enumerate((p[0] for p in placed if p[0] not in shown), 1)}
+    split = only is not None or shown
+    nid = lambda n, part: f"{prefix}n{n}{part}" if split else None
+    rows += [highlight_html(sp, click.get(p[0]), nid(p[0], f"h{j}")) for p in placed for j, sp in enumerate(p[7])]
     rows += morph.code_runs_html(runs, SIZE, LH, CW, LEFT, top, prefix)
     for order, text, span, box, side, base, tip, _ in placed:
-        rows.append(bubble_svg(box, side, base, tip, span, order))
-        rows.append(note_html(box, text, order))
+        rows.append(bubble_svg(box, side, base, tip, span, click.get(order), nid(order, "b")))
+        rows.append(note_html(box, text, click.get(order), nid(order, "t")))
     if aside:
         rows.append(f"<aside>{escape(aside, quote=False)}</aside>")
     rows.append("</section>")
@@ -589,7 +620,7 @@ TRACKS = {
     "ops": {"slide": "o", "token": "o", "titles": OPS_TITLES, "asides": OPS_ASIDES, "notes": OPS_NOTES,
             "again": "Back to the method syntax as it stands in {v}, before the next version changes it."},
 }
-GENERATED = re.compile(r"^(m|e|o|tc)\d")  # generated slide ids: m2-5, e2-12-again, o2-10, tc2-8, ...
+GENERATED = re.compile(r"^(m|e|o|tc)\d")  # generated slide ids: m2-5, m2-8-is, e2-12-again, o2-10, tc2-8, ...
 CLOUDS = ROOT / "talk/tag-cloud/project/slides"  # the tag-cloud deck's slides, one per release (s2-8.html, ...)
 
 
@@ -603,7 +634,7 @@ def _tag_cloud():
 
 
 TAG_CLOUD = _tag_cloud()
-RELEASES = [d[1:].replace("_", ".") for d in morph.VERSIONS]  # every release on the timeline, 2.5 to 3.9
+RELEASES = [d[1:].replace("_", ".") for d in morph.VERSIONS] + ["4.0"]  # the timeline: 2.5 to 3.9, and 4.0
 
 
 def footer(version: str | None) -> list[str]:
@@ -621,14 +652,29 @@ def with_footer(html: str, version: str | None) -> str:
 
 # Hand-written slides that belong to a version, for the timeline's amber mark ("New in" slides, f2-8 and so on, are
 # marked by their id).
-HAND_VERSIONS = {"final": "3.9"}
+HAND_VERSIONS = {"cloud4-0": "4.0"}
 
 
 def leaving(n: int, default: str | None = "fade") -> str | None:
     """How slide n of SEQUENCE leaves: at once when the next slide shows a state again (it then morphs on), else the
     default."""
     nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
-    return "none" if isinstance(nxt, tuple) and track_of(nxt[0])[1] else default
+    leads_to_again = isinstance(nxt, tuple) and nxt[0] != "cloud" and track_of(nxt[0])[1]
+    return "none" if leads_to_again else default
+
+
+# Code states that come from no version directory: the one-liner the talk starts from (slide 2), morphed into 2.5's
+# methods; and an imagined Scala 4.0, the ending joke: 3.6's isPalindrome with a Prolog-style pattern that names x
+# twice, so the two ends must be equal. No real Scala compiles it.
+ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
+    "def isPalindrome(s: String): Boolean = s == s.reverse", "", "def palindromize(s: String): String = s + s.reverse"]}
+PROLOG = ("case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
+
+def code_states() -> list[dict]:
+    states = morph.load_states("code")
+    lines = [line.replace(*PROLOG) for line in states[-1]["lines"]]
+    assert lines != states[-1]["lines"], "3.6's match case changed: update PROLOG"
+    return [ONE_LINER] + states + [{"dir": None, "versions": ["4.0"], "lines": lines}]
 
 
 def track_of(kind: str) -> tuple[str, bool]:
@@ -655,46 +701,64 @@ def join(parts: list[list[str]]) -> list[str]:
     return [line for i, part in enumerate(parts) for line in ([""] if i else []) + part]
 
 
-def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict]:
-    """What the slides of the step into state k show: the previous state shown again (None for a track's first state)
-    and state k. On the code track only the methods that change in this step are shown, on both slides."""
-    after, before = states[k], states[k - 1] if k else None
+def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | None, dict]:
+    """What the slides of the step into state k show: the previous state shown again (None for a track's first state),
+    a state between them (None unless both methods change: the new isPalindrome next to the old palindromize, so
+    isPalindrome morphs first), and state k. On the code track only the methods that change in this step are shown,
+    on every slide."""
+    after, before, between = states[k], states[k - 1] if k else None, None
     if track == "code" and before:
         a, b = blocks(after["lines"]), blocks(before["lines"])
         keep = [i for i in range(len(a)) if a[i] != b[i]]
+        if len(keep) == 2:
+            between = {**after, "lines": join([a[0], b[1]])}
         after = {**after, "lines": join([a[i] for i in keep])}
         before = {**before, "lines": join([b[i] for i in keep])}
     wrapped = lambda st: st and {**st, "lines": [part for line in st["lines"] for part in wrap(line)]}
-    return wrapped(before), wrapped(after)
+    return wrapped(before), wrapped(between), wrapped(after)
+
+
+def first_method(state: dict, notes: list) -> set[int]:
+    """The notes (numbered from 1) all of whose anchors are in the first method, isPalindrome."""
+    end = TOP + len(blocks(state["lines"])[0]) * LH
+    return {n for n, (anchors, _) in enumerate(notes, 1)
+            if all(anchor_span(state["lines"], a)[1] < end for a in ([anchors] if isinstance(anchors, str) else anchors))}
 
 
 def build():
-    steps = {}  # (track, k) -> (before view, after view, before runs, after runs)
+    steps = {}  # (track, k) -> (before view, between view, after view, before runs, between runs, after runs)
     index = {}
     for track, spec in TRACKS.items():
-        states = morph.load_states(track)
+        states = code_states() if track == "code" else morph.load_states(track)
         index[track] = {st["versions"][0]: k for k, st in enumerate(states)}
         assert set(spec["notes"]) == set(spec["asides"]) == set(index[track]) == set(spec["titles"]), \
             f"{track}: notes for {sorted(spec['notes'])}, states {sorted(index[track])}"
         for k in range(len(states)):
-            before, after = views(track, states, k)
-            runs = morph.chain([before, after] if before else [after])
-            steps[track, k] = (before, after, runs[0] if before else None, runs[-1])
+            before, between, after = views(track, states, k)
+            runs = morph.chain([v for v in (before, between, after) if v])
+            steps[track, k] = (before, between, after, runs[0] if before else None, runs[1] if between else None,
+                               runs[-1])
             notes = spec["notes"][after["versions"][0]]
-            if before and (missing := uncovered(after, runs[-1], runs[0], notes)):
+            if before and before["versions"] != ONE_LINER["versions"] and (missing := uncovered(after, runs[-1], runs[0], notes)):
                 raise SystemExit(f"{track} {after['versions'][0]}: new code without a highlight: " + ", ".join(missing))
 
-    ids = []
+    ids = []  # every slide's id; a step split in two adds its first slide, <id>-is, before its own
+    item_id = []  # the id of each item of SEQUENCE
     for n, item in enumerate(SEQUENCE):
         if not isinstance(item, tuple):
             ids.append(item)
+            item_id.append(item)
             continue
         kind, v = item
         if kind == "cloud":
             ids.append("tc" + v.replace(".", "-"))
+            item_id.append(ids[-1])
             continue
         track, again = track_of(kind)
+        if not again and steps[track, index[track][v]][1]:
+            ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + "-is")
         ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + ("-again" if again else ""))
+        item_id.append(ids[-1])
         if again:  # a state shown again leads straight into the track's next state
             nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
             assert isinstance(nxt, tuple) and track_of(nxt[0]) == (track, False) and \
@@ -726,21 +790,28 @@ def build():
         if kind == "cloud":
             html = (CLOUDS / f"s{v.replace('.', '-')}.html").read_text()
             html = html.replace(f'<section id="s{v.replace(".", "-")}" data-transition="push"',
-                                f'<section id="{ids[n]}" data-transition="{leaving(n, "push")}"', 1)
-            (slides / f"{ids[n]}.html").write_text(html)
+                                f'<section id="{item_id[n]}" data-transition="{leaving(n, "push")}"', 1)
+            (slides / f"{item_id[n]}.html").write_text(with_footer(html, v))  # the timeline with 4.0
             continue
         track, again = track_of(kind)
         spec = TRACKS[track]
         k = index[track][v]
+        slide = item_id[n]
         if again:  # the previous state, as the next step shows it
-            view, runs = steps[track, k + 1][0], steps[track, k + 1][2]
-            notes, aside, title, transition = [], spec["again"].format(v=v), "", "magic"
-        else:
-            view, runs = steps[track, k][1], steps[track, k][3]
-            notes, aside, title, transition = spec["notes"][v], spec["asides"][v], spec["titles"][v], leaving(n)
-        html = code_slide(ids[n], view, runs, transition, notes, aside, title, spec["token"])
-        html = with_footer(html, view["versions"][0])
-        (slides / f"{ids[n]}.html").write_text(html)
+            view, runs = steps[track, k + 1][0], steps[track, k + 1][3]
+            html = code_slide(slide, view, runs, "magic", [], spec["again"].format(v=v), "", spec["token"])
+            (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
+            continue
+        _, between, view, _, between_runs, runs = steps[track, k]
+        notes, aside, title = spec["notes"][v], spec["asides"][v], spec["titles"][v]
+        first, layout = set(), {}
+        if between:  # isPalindrome morphs first, with its notes; palindromize follows on the next click
+            first = first_method(view, notes)
+            html = code_slide(f"{slide}-is", between, between_runs, "magic", notes, aside, title, spec["token"],
+                              only=first, layout=layout)
+            (slides / f"{slide}-is.html").write_text(with_footer(html, view["versions"][0]))
+        html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], shown=first, keep=layout)
+        (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
 
     path = DECK / "deck.json"
     deck = json.loads(path.read_text()) if path.exists() else \
