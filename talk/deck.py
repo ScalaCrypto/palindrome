@@ -93,12 +93,12 @@ SECTIONS = {
 
 # Per code state: the heading, like the hand-written slides' (one line at 64px).
 TITLES = {
-    "2.5": "The whole design with 2007 machinery",
+    "2.5": "The functions",
     "2.8": "CanBuildFrom keeps the collection type",
     "2.9": "tails finds the palindromic suffix",
-    "2.10": "x +: middle :+ y peels off both ends",
+    "2.10": "+: and :+ extractors",
     "2.13": "IsSeq and BuildFrom replace CanBuildFrom",
-    "3.0": "extension and using",
+    "3.0": "using extensions",
     "3.6": "Context bounds get names",
 }
 
