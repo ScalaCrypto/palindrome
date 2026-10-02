@@ -5,6 +5,49 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-02 — Deletions before the morph, bubbles off the code, and Scala 4.0 (deck 5.8)
+
+### What changed
+
+- **Bubbles.** They're placed anywhere on the slide inside the margins, clear of the heading, the code and the
+  timeline, instead of growing the code panel by a line until they fit. The panel holds exactly its code, so it keeps
+  its shape across a morph. For the bubbles to fit, 2.13's heading is shortened to "IsSeq and BuildFrom" (the bubble
+  says that `BuildFrom` replaces `CanBuildFrom`). The bubbles that mentioned a later version are reworded (2.5's
+  loop and `Eq` instances, 2.11's private field).
+- **The one-liner opens the code track.** `m0-again` shows the opening slide's two `String` functions, and morphs
+  into 2.5. It has no notes, and the coverage check skips it: everything in 2.5 is new.
+- **`isPalindrome` first.** Where a step changes both methods (2.5, 2.8, 3.0, 3.6), it morphs in two clicks.
+  `views()` adds a state between the two: the new `isPalindrome` next to the old `palindromize`, shown on its own
+  slide (`m2-8-is`), with the notes all of whose anchors are in `isPalindrome`. The next click morphs `palindromize`.
+  The step's last slide shows those notes from the start, at their places on the slide before when the code leaves
+  them room, and with ids, so they stay put through the morph; the other notes fade in after it. The three states
+  are matched as one chain, so the runs agree across both morphs. The coverage check still compares the step's
+  first and last states, with all its notes. 2.5's heading becomes "A better way?".
+- **Scala 4.0.** A made-up release closes the tour: a tag-cloud slide of its two "authors", the presenters
+  (`cloud4-0`), a "New in Scala 4.0" slide with Prolog extractors in amber (`f4-0`), and 3.6's `isPalindrome` with
+  `case x +: middle :+ x => middle.isPalindrome` (`m4-0`). The timeline runs to 4.0 on every slide. The speaker
+  notes say it's a joke: Scala rejects a variable bound twice in a pattern.
+- **Hand-written slides.** The goal slide adds case-insensitive calls of both methods under a `given Eq[Char] =
+  Eq.caseInsensitive` (an explicit `(using Eq.caseInsensitive)` on `palindromize` doesn't compile: the `IsSeq`
+  context bound takes the first using clause), and "abcb" for `palindromize`. The thank-you slide gets a QR code
+  for the repository (`qrencode`, error correction M, as an SVG path), and `r-linear` spells out Knuth–Morris–Pratt, without the abbreviation.
+
+### Alternatives rejected
+
+- **Exits before the morph.** The code the next version deletes left on a click before the morph: first with
+  `data-build-out="pop 1"`, then shattered into shards that flew apart (the Slides format's exit effects are fade,
+  rise, drop, left, right, scale and pop, at a fixed speed). Both were dropped: the morph alone is the transition,
+  and it already fades out what goes.
+- **The journey.** A morph of the whole code from 2.5 to 3.6 after the last version (`j2-5`, `j3-6`). Dropped: the
+  tour has already shown every step.
+
+### Limitations accepted
+
+- **The QR code wasn't scanned:** no decoder was installed. Its modules were checked against `qrencode`'s output
+  for the URL instead: all 29×29 match, with a 4-module quiet zone.
+
+---
+
 ## 2026-10-01 — Version by version, with the tag-cloud slides and timeline (deck 5.5)
 
 ### What changed

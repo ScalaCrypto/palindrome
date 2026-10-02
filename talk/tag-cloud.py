@@ -117,7 +117,7 @@ def timeline(versions, current=None):
             parts.append(f'<circle cx="{round(x(i), 1)}" cy="22" r="8" fill="{AMBER}"/>')
         else:
             parts.append(f'<rect x="{round(x(i) - 1, 1)}" y="16" width="2" height="12" fill="{MUTED}"/>')
-    svg = (f'<svg data-bleed="" aria-label="Timeline of Scala releases from 2.5 to 3.9" width="1920" height="44" '
+    svg = (f'<svg data-bleed="" aria-label="Timeline of Scala releases from {versions[0]} to {versions[-1]}" width="1920" height="44" '
            f'viewBox="0 0 1920 44" style="position:absolute; left:0px; top:{top}px; width:1920px; height:44px">'
            + "".join(parts) + "</svg>")
     label = lambda xc, text, style: (f'<p data-bleed="" style="position:absolute; left:{round(xc - 40)}px; '
