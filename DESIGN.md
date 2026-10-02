@@ -25,6 +25,12 @@ the same change (`Repr`/`CanBuildFrom`, `IsSeq`/`BuildFrom`), and so do the Scal
 the tag-cloud and "New in Scala 3.0" slides now introduce. The 2.10 method-syntax slide still morphs from 2.8's code,
 which is shown again without its own slide; the 2.8 method slide explains what changed in it.
 
+5.7 introduces 2.5 like the later versions: its tag-cloud slide and a "New in Scala 2.5" slide replace the "Scala 2.5"
+divider. The 2.5 list is the changelog of the Scala 2.11 specification (type constructor polymorphism, early object
+initialization, placeholder syntax for anonymous functions, revised for-comprehensions, case clauses as functions of
+more than one argument). None is in amber: an item is amber only when it's new in that version and the code uses it,
+and the 2.5 code uses none of them.
+
 ### Limitations accepted
 
 The Slides format has no setting for how long a magic move takes (only `data-transition="none|fade|push|magic"`), so
