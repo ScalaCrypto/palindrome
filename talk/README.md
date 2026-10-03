@@ -31,7 +31,8 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   The code track starts with the opening one-liner (`m0-again`), which morphs into 2.5. From the second state
   of a track on, every change is highlighted and explained in a speech bubble, and the build fails if any code that's
   new in a version lies outside every highlight. Where a step changes both methods (2.5, 2.8, 3.0, 3.6), it morphs in two clicks:
-  first `isPalindrome`, onto a slide that still shows the old `palindromize` (`m2-8-is`, …), then `palindromize`. The
+  first `isPalindrome`, onto a slide that still shows the old `palindromize` (`m2-8-is`, …), then `palindromize`. Its
+  first slide can have a heading of its own (2.8's `@tailrec`); the second then shows only `palindromize`'s bubbles. The
   bubbles fade in one per click after each morph, `isPalindrome`'s before the second, where they stay put; they're placed
   automatically wherever they fit on the slide, clear of the heading, the code and the timeline: the code panel holds
   only its code, so a bubble never adds a line to it. A bubble never mentions a later version. After 3.6, a made-up Scala 4.0 follows: its tag-cloud and "New in" slides

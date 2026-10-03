@@ -94,11 +94,12 @@ SECTIONS = {
     "reserve": {"description": "Held back for the Q&A", "start": "r-indexedseq"},
 }
 
-# Per code state: the heading, like the hand-written slides' (one line at 64px).
+# Per code state: the heading, like the hand-written slides' (one line at 64px). A step split in two may give its
+# first slide (isPalindrome) a heading of its own, as a pair; its second slide then drops the first's notes.
 TITLES = {
     "0": "It starts as a one-liner",
     "2.5": "A better way?",
-    "2.8": "CanBuildFrom keeps the collection type",
+    "2.8": ("@tailrec", "CanBuildFrom keeps the collection type"),
     "2.9": "tails finds the palindromic suffix",
     "2.10": "+: and :+ extractors",
     "2.13": "IsSeq and BuildFrom",
@@ -150,7 +151,6 @@ ASIDES = {
 # highlight. The first code state has nothing to compare with, so its notes pick the main points.
 NOTES = {
     "2.5": [
-        ("implicit eq: Eq[A]", "equality: an implicit type class"),
         ("from >= to ||", "walk two indices inward"),
         ("): ⟨Seq[A]⟩ = {", "generic code can only promise a Seq"),
     ],
@@ -805,12 +805,17 @@ def build():
         _, between, view, _, between_runs, runs = steps[track, k]
         notes, aside, title = spec["notes"][v], spec["asides"][v], spec["titles"][v]
         first, layout = set(), {}
+        first_title, title = title if isinstance(title, tuple) else (title, title)
+        only = None
         if between:  # isPalindrome morphs first, with its notes; palindromize follows on the next click
             first = first_method(view, notes)
-            html = code_slide(f"{slide}-is", between, between_runs, "magic", notes, aside, title, spec["token"],
+            html = code_slide(f"{slide}-is", between, between_runs, "magic", notes, aside, first_title, spec["token"],
                               only=first, layout=layout)
             (slides / f"{slide}-is.html").write_text(with_footer(html, view["versions"][0]))
-        html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], shown=first, keep=layout)
+            if first_title != title:  # a new heading, a new topic: isPalindrome's notes go
+                only, first = set(range(1, len(notes) + 1)) - first, set()
+        html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], only=only, shown=first,
+                          keep=layout)
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
 
     path = DECK / "deck.json"
