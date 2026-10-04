@@ -11,7 +11,9 @@ how it was verified. Current project facts live in `STATE.md`.
 
 The step from 2.13 to 3.0 (`m2-13-again`, `m3-0-is`, `m3-0`) shows Scala 2's method syntax under the methods: an
 `implicit class PalindromeOps` with both methods. Its `isPalindrome` goes when `isPalindrome` becomes an extension, and
-the whole class when `palindromize` does, so the slides show that extensions replace the implicit class.
+the whole class when `palindromize` does, so the slides show that extensions replace the implicit class. From deck
+5.15 the emptied class stays on a slide of its own (`m3-0-ops`, where `palindromize`'s notes come in) and goes on the
+next click.
 
 ### Why the slides' code isn't 2.13's
 

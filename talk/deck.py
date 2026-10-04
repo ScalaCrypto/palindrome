@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.14-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.15-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.14-deck/project"
+DECK = ROOT / "talk/5.15-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -749,12 +749,13 @@ def join(parts: list[list[str]]) -> list[str]:
     return [line for i, part in enumerate(parts) for line in ([""] if i else []) + part]
 
 
-def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | None, dict]:
+def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | None, dict | None, dict]:
     """What the slides of the step into state k show: the previous state shown again (None for a track's first state),
     a state between them (None unless both methods change: the new isPalindrome next to the old palindromize, so
-    isPalindrome morphs first), and state k. On the code and Eq tracks only the methods or definitions that change
-    in this step are shown, on every slide."""
-    after, before, between = states[k], states[k - 1] if k else None, None
+    isPalindrome morphs first), state k with what's left of the implicit class it replaces (None but in 3.0), and
+    state k. On the code and Eq tracks only the methods or definitions that change in this step are shown, on every
+    slide."""
+    after, before, between, shell = states[k], states[k - 1] if k else None, None, None
     if track == "eq" and before:  # only the definitions that change: object Eq, and trait Eq where it changes
         a, b = definitions(after["lines"]), definitions(before["lines"])
         keep = [i for i in range(len(a)) if a[i] != b[i]]
@@ -771,8 +772,9 @@ def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | N
             before["lines"] = join([before["lines"], OPS_2_13])
             if between:
                 between["lines"] = join([between["lines"], OPS_2_13[:1] + OPS_2_13[2:]])
+            shell = {**after, "lines": join([after["lines"], OPS_2_13[:1] + OPS_2_13[3:]])}  # then it goes on a click
     wrapped = lambda st: st and {**st, "lines": [part for line in st["lines"] for part in wrap(line)]}
-    return wrapped(before), wrapped(between), wrapped(after)
+    return wrapped(before), wrapped(between), wrapped(shell), wrapped(after)
 
 
 def first_method(state: dict, notes: list) -> set[int]:
@@ -784,6 +786,7 @@ def first_method(state: dict, notes: list) -> set[int]:
 
 def build():
     steps = {}  # (track, k) -> (before view, between view, after view, before runs, between runs, after runs)
+    shells = {}  # (track, k) -> (shell view, shell runs), where the step has one
     index = {}
     for track, spec in TRACKS.items():
         states = code_states() if track == "code" else morph.load_states(track)
@@ -791,10 +794,12 @@ def build():
         assert set(spec["notes"]) == set(spec["asides"]) == set(index[track]) == set(spec["titles"]), \
             f"{track}: notes for {sorted(spec['notes'])}, states {sorted(index[track])}"
         for k in range(len(states)):
-            before, between, after = views(track, states, k)
-            runs = morph.chain([v for v in (before, between, after) if v])
+            before, between, shell, after = views(track, states, k)
+            runs = morph.chain([v for v in (before, between, shell, after) if v])
             steps[track, k] = (before, between, after, runs[0] if before else None, runs[1] if between else None,
                                runs[-1])
+            if shell:
+                shells[track, k] = (shell, runs[-2])
             notes = spec["notes"][after["versions"][0]]
             if before and before["versions"] != ONE_LINER["versions"] and (missing := uncovered(after, runs[-1], runs[0], notes)):
                 raise SystemExit(f"{track} {after['versions'][0]}: new code without a highlight: " + ", ".join(missing))
@@ -814,6 +819,8 @@ def build():
         track, again = track_of(kind)
         if not again and steps[track, index[track][v]][1]:
             ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + "-is")
+        if not again and (track, index[track][v]) in shells:
+            ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + "-ops")
         ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + ("-again" if again else ""))
         item_id.append(ids[-1])
         if again:  # a state shown again leads straight into the track's next state
@@ -880,6 +887,13 @@ def build():
             (slides / f"{slide}-is.html").write_text(with_footer(html, view["versions"][0]))
             if first_title != title:  # a new heading, a new topic: isPalindrome's notes go
                 only, first = set(range(1, len(notes) + 1)) - first, set()
+        if (track, k) in shells:  # palindromize morphs with its notes, leaving the empty class; it goes on a click
+            shell, shell_runs = shells[track, k]
+            shell_layout = {}
+            html = code_slide(f"{slide}-ops", shell, shell_runs, "magic", notes, aside, title, spec["token"], only=only,
+                              shown=first, keep=layout, layout=shell_layout)
+            (slides / f"{slide}-ops.html").write_text(with_footer(html, view["versions"][0]))
+            first, layout = set(range(1, len(notes) + 1)) if only is None else only, shell_layout
         html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], only=only, shown=first,
                           keep=layout, heading_id=after_again and not between)
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
