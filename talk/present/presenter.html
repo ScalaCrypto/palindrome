@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Presenter</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="present.css">
+<script src="player.js"></script>
+</head>
+<body class="presenter">
+<header>
+  <button data-act="prev" title="Previous (←)">◀</button>
+  <button data-act="next" title="Next (→, space)">▶</button>
+  <span class="count"></span>
+  <span class="id"></span>
+  <span class="spacer"></span>
+  <button data-act="audience" title="Open the slides in a window to move to the external display">Open slides window</button>
+  <button data-act="blank" title="Black out the slides (B)">Black</button>
+  <span class="timer paused" title="Elapsed (T: start or pause)">0:00</span>
+  <button data-act="timer" title="Start or pause the timer (T)">Start</button>
+  <button data-act="reset" title="Reset the timer">Reset</button>
+  <button data-act="smaller" title="Smaller notes (−)">A−</button>
+  <button data-act="larger" title="Larger notes (+)">A+</button>
+  <span class="clock"></span>
+</header>
+<div class="views">
+  <div class="view"><div class="label now"></div><div class="host current"></div></div>
+  <div class="view"><div class="label after"></div><div class="host next"></div></div>
+</div>
+<div class="notes"></div>
+<script>
+(async () => {
+  const deck = await loadDeck();
+  const n = deck.slides.length;
+  const current = new Stage(document.querySelector(".current"));
+  const next = new Stage(document.querySelector(".next"));
+  const $ = s => document.querySelector(s);
+  const store = (key, value) => { try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {} };
+  const stored = key => { try { return JSON.parse(sessionStorage.getItem(key)); } catch { return null; } };
+
+  const test = testParams();  // a headless check: ?at=I.S
+  let pos = clampPos(deck, test ? test.pos : stored("pos") || {i: 0, step: 0});
+  let blanked = false;
+
+  const render = () => {
+    const slide = deck.slides[pos.i], after = nextPos(deck, pos);
+    current.show(deck, pos);
+    next.show(deck, after);
+    $(".count").textContent = `${pos.i + 1} / ${n}` + (slide.steps ? ` · click ${pos.step} of ${slide.steps}` : "");
+    $(".id").textContent = slide.id;
+    $(".now").innerHTML = "Now";
+    $(".now").append(slide.title ? ": " : "", Object.assign(document.createElement("b"), {textContent: slide.title}));
+    const label = after === null ? "End of the deck" : after.i === pos.i ? "Next click: the next note on this slide"
+      : "Next slide";
+    $(".after").textContent = label;
+    if (after && after.i !== pos.i && deck.slides[after.i].title)
+      $(".after").append(": ", Object.assign(document.createElement("b"), {textContent: deck.slides[after.i].title}));
+    const notes = $(".notes");
+    notes.textContent = slide.notes || "No notes for this slide.";
+    notes.classList.toggle("empty", !slide.notes);
+    notes.scrollTop = 0;
+    document.title = `Presenter · ${pos.i + 1} / ${n}`;
+    store("pos", pos);
+  };
+
+  const link = new Link(m => {
+    if (m.type === "hello") link.post({type: "state", ...pos, animate: false});
+    if (m.type === "state") { pos = clampPos(deck, m); render(); }
+    if (m.type === "blank") { blanked = m.on; $('[data-act="blank"]').classList.toggle("on", blanked); }
+  });
+  link.post({type: "hello"});
+
+  const go = to => {
+    if (to.i === pos.i && to.step === pos.step) return;
+    if (timer.start === null && timer.elapsed === 0 && (to.i > 0 || to.step > 0)) toggleTimer();
+    pos = to;
+    render();
+    link.post({type: "state", ...to, animate: true});
+  };
+
+  // The timer: elapsed time, kept across a reload of this page.
+  const timer = Object.assign({start: null, elapsed: 0}, stored("timer") || {});
+  const elapsed = () => timer.elapsed + (timer.start === null ? 0 : Date.now() - timer.start);
+  const toggleTimer = () => {
+    if (timer.start === null) timer.start = Date.now();
+    else { timer.elapsed = elapsed(); timer.start = null; }
+    store("timer", timer);
+    tick();
+  };
+  const tick = () => {
+    const s = Math.floor(elapsed() / 1000);
+    const t = $(".timer");
+    t.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    t.classList.toggle("paused", timer.start === null);
+    $('[data-act="timer"]').textContent = timer.start === null ? (elapsed() ? "Resume" : "Start") : "Pause";
+    $(".clock").textContent = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+  };
+  setInterval(tick, 500);
+
+  let notesSize = stored("notes") || 26;
+  const setNotes = size => {
+    notesSize = Math.max(14, Math.min(60, size));
+    document.body.style.setProperty("--notes", notesSize + "px");
+    store("notes", notesSize);
+  };
+  setNotes(notesSize);
+
+  const setBlank = on => {
+    blanked = on;
+    $('[data-act="blank"]').classList.toggle("on", on);
+    link.post({type: "blank", on});
+  };
+
+  const actions = {
+    prev: () => go(prevPos(deck, pos) || pos),
+    next: () => go(nextPos(deck, pos) || pos),
+    audience: () => {
+      // Opened from a click on this page, so pop-up blockers allow it. Move it to the external display, then press F.
+      const w = window.open("./", "slides", "popup,width=960,height=540");
+      if (w) w.focus();
+    },
+    blank: () => setBlank(!blanked),
+    timer: toggleTimer,
+    reset: () => { timer.start = null; timer.elapsed = 0; store("timer", timer); tick(); },
+    smaller: () => setNotes(notesSize - 2),
+    larger: () => setNotes(notesSize + 2),
+  };
+  for (const b of document.querySelectorAll("button[data-act]"))
+    b.addEventListener("click", e => { actions[b.dataset.act](); b.blur(); });
+
+  // Keys: the shared moves, plus a slide number then Enter to jump there, B to black out, T for the timer.
+  let typed = "";
+  addEventListener("keydown", e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^[0-9]$/.test(e.key)) { typed += e.key; $(".count").textContent = `Go to ${typed}…`; return; }
+    if (e.key === "Enter" && typed) {
+      const i = Number(typed) - 1;
+      typed = "";
+      e.preventDefault();
+      return go(clampPos(deck, {i, step: 0}));
+    }
+    if (e.key === "Escape" && typed) { typed = ""; return render(); }
+    typed = "";
+    if (e.key === "b" || e.key === "B" || e.key === ".") return setBlank(!blanked);
+    if (e.key === "t" || e.key === "T") return toggleTimer();
+    if (e.key === "+" || e.key === "=") return setNotes(notesSize + 2);
+    if (e.key === "-") return setNotes(notesSize - 2);
+    const to = keyMove(deck, pos, e);
+    if (to === undefined) return;
+    e.preventDefault();
+    go(to);
+  });
+
+  render();
+  tick();
+})();
+</script>
+</body>
+</html>

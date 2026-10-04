@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slides</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="present.css">
+<script src="player.js"></script>
+</head>
+<body class="audience">
+<div class="host"></div>
+<div class="blank"></div>
+<div class="hint">F: full screen · drive the talk from the presenter window</div>
+<script>
+(async () => {
+  const deck = await loadDeck();
+  document.title = deck.title || "Slides";
+  const stage = new Stage(document.querySelector(".host"));
+  const test = testParams();
+  let pos = test ? clampPos(deck, test.pos) : {i: 0, step: 0};
+  stage.show(deck, pos);
+
+  if (test) {  // a headless check: no link, no hint
+    document.querySelector(".hint").remove();
+    if (test.next && nextPos(deck, pos)) {
+      stage.go(deck, nextPos(deck, pos));
+      await new Promise(r => setTimeout(r, 0));  // the move starts its animations after a tick
+      if (test.freeze !== null) freezeAll(stage.canvas, test.freeze);
+    }
+    return;
+  }
+
+  const go = (to, animate) => {
+    pos = to;
+    stage.go(deck, to, animate);
+  };
+  const link = new Link(m => {
+    if (m.type === "hello") link.post({type: "state", ...pos, animate: false});
+    if (m.type === "state") go(clampPos(deck, m), m.animate);
+    if (m.type === "blank") document.body.classList.toggle("blanked", m.on);
+  });
+  link.post({type: "hello"});
+
+  const fullScreen = () => {
+    const d = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement)
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else (d.requestFullscreen || d.webkitRequestFullscreen).call(d);
+  };
+  addEventListener("keydown", e => {
+    if (e.key === "f" || e.key === "F") return fullScreen();
+    if (e.key === "b" || e.key === "B" || e.key === ".") {
+      const on = !document.body.classList.contains("blanked");
+      document.body.classList.toggle("blanked", on);
+      return link.post({type: "blank", on});
+    }
+    const to = keyMove(deck, pos, e);
+    if (to === undefined) return;
+    e.preventDefault();
+    go(to, true);
+    link.post({type: "state", ...to, animate: true});
+  });
+  addEventListener("dblclick", fullScreen);
+
+  // The hint fades after a few seconds, and the pointer hides when it's still.
+  const hint = document.querySelector(".hint");
+  setTimeout(() => hint.classList.add("gone"), 6000);
+  let idle;
+  addEventListener("mousemove", () => {
+    document.body.classList.remove("idle");
+    clearTimeout(idle);
+    idle = setTimeout(() => document.body.classList.add("idle"), 2000);
+  });
+})();
+</script>
+</body>
+</html>

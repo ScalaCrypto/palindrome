@@ -84,6 +84,8 @@ palindrome/
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
+│   ├── present.py                  # Presents the deck from this computer: slides window + presenter view (README)
+│   ├── present/                    # The player: index.html (slides), presenter.html, player.js, present.css
 │   ├── tag-cloud.py                # Generates the tag-cloud deck from tag-cloud/authors.json
 │   └── tag-cloud/                  # Who wrote each Scala release: authors.json + GENERATED project/
 ├── .github/workflows/
@@ -230,6 +232,7 @@ talk/deck.py             # rebuild the deck in talk/5.11-deck/ (code slides, not
 talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
+talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
