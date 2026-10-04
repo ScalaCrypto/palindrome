@@ -5,6 +5,31 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-04 — The implicit class goes in 3.0 (deck 5.14)
+
+### What changed
+
+The step from 2.13 to 3.0 (`m2-13-again`, `m3-0-is`, `m3-0`) shows Scala 2's method syntax under the methods: an
+`implicit class PalindromeOps` with both methods. Its `isPalindrome` goes when `isPalindrome` becomes an extension, and
+the whole class when `palindromize` does, so the slides show that extensions replace the implicit class.
+
+### Why the slides' code isn't 2.13's
+
+`v2_13` writes the wrapper as a class plus an `implicit def` to it (`PalindromeOps[Repr, seq.type]`), eight lines that
+don't fit on the slide under 2.13's methods. The slides show it as an implicit class, like 2.11's (slide `o2-11`), with
+the refinement `palindromize` itself uses: `implicit class PalindromeOps[Repr, A0](xs: Repr)(implicit isSeq:
+IsSeq[Repr] { type A = A0 })`. It's `OPS_2_13` in `talk/deck.py`, not in the sources. In place of `v2_13`'s wrapper it
+compiles and passes 2.13's 13 tests (checked with `./mill v2_13.test`, then reverted).
+
+### Alternatives rejected
+
+- **2.11's implicit class verbatim**: `SeqLike` and `CanBuildFrom` don't exist in 2.13's code next to it.
+- **`v2_13`'s class and implicit def**: about 20 code lines, past the slide's bottom edge.
+- **An implicit class with `implicit val seq: IsSeq[Repr]`**: `seq.A` is then abstract, and 2.13 can't build a
+  `String` from it.
+
+---
+
 ## 2026-10-04 — The goal slide builds over two clicks (deck 5.12)
 
 ### What changed
