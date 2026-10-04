@@ -5,6 +5,51 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-04 — Scala 3's `x === y`, and `Eq` slides without the unchanged trait (deck 5.10)
+
+### What changed
+
+- **`===` in Scala 3.** `trait Eq` gains `extension (x: A) def ===(y: A): Boolean = eqv(x, y)` in 3.0–3.9. An
+  extension defined in a given is available wherever that given is in scope, so `isPalindrome` compares `x === y`.
+  It no longer needs a name for its `Eq`: 3.0 takes it as an unnamed context bound, `extension [A: Eq](xs: Seq[A])`,
+  instead of `(using eq: Eq[A])`, and 3.6 keeps that instead of `[A: Eq as eq]`. So 3.6 changes only `palindromize`
+  (`[Repr: IsSeq as seq]`) and the given syntax, and its step has no `isPalindrome`-first slide. `eqv` stays the
+  trait's single abstract method, so the `_ == _` lambdas still implement it. `palindromize` keeps its named
+  `using eq: Eq[seq.A]`.
+- **`Eq` slides.** They show only the top-level definitions that change (`definitions` in `talk/deck.py`), as the
+  method slides show only the methods that change: the trait in 2.5 and 3.0, `object Eq` on every `Eq` slide.
+- **Notes.** 3.0's `===` gets a bubble on the `Eq` slide; on the method slide it joins the note on extensions called
+  as methods, which is now "=== and isPalindrome: extensions, called like methods", and the `IsSeq` note wraps to
+  three lines: with the shorter `x === y` line, the notes fit no other way. `f3-6` shows `[Repr: IsSeq as seq]` as
+  its named context bound.
+
+### Why
+
+The comparison reads as what it is, `x === y`, and Scala 3 makes the syntax nearly free: one line in the trait, no
+wrapper class, no name for the instance. Scala 2 keeps `eq.eqv(x, y)`: infix syntax there needs a second implicit
+class on every version, more machinery than the problem needs. `eqv` stays the method's name, as in cats, where
+`===` is syntax on top of `eqv`.
+
+### Alternatives rejected
+
+- **`===` as the trait's method.** `eq.===(x, y)` reads worse than `eq.eqv(x, y)`, and it's only better as infix.
+- **Keeping `using eq: Eq[A]` and `[A: Eq as eq]`.** The names would be unused once `===` does the comparison.
+- **`===` in Scala 2.** A second implicit class (an `implicit def` before 2.10) in every Scala 2 version.
+
+### Limitations accepted
+
+- The reserve slides (`r-indexedseq`, `r-linear`) keep `eq.eqv` and `[A: Eq as eq]` in their Scala 3 code: they stand
+  alone, and are left as they are.
+- `scaladays-2026-talk.md` keeps its own sketches of the stages, with `eq.eqv`.
+
+### Verification
+
+`./mill __.test` passes on all 14 Mill-built versions (13 tests each); 2.5–2.9 are unchanged. `talk/deck.py` builds
+62 slides with 32 notes, and `talk/render.py --screenshots` passes; `e2-8`, `e3-0`, `e3-6`, `m3-0` and `m3-6` were
+checked in the screenshots.
+
+---
+
 ## 2026-10-03 — Larger code: 25px (deck 5.9)
 
 ### What changed
