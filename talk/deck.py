@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.10-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.11-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.10-deck/project"
+DECK = ROOT / "talk/5.11-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -137,15 +137,15 @@ ASIDES = {
             "this is quietly O(n²); a Vector keeps it (effectively) linear.",
     "2.13": "The 2.12 code stops compiling for String: StringOps is no longer a collection, so Repr is inferred as "
             "WrappedString. IsSeq accepts anything readable as a Seq, String included; BuildFrom replaces "
-            "CanBuildFrom. The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element "
+            "CanBuildFrom. The wart: Scala 2 can't mention isSeq.A in the same parameter list as isSeq, so the element "
             "type becomes an extra type parameter A0, tied by a refinement.",
     "3.0": "The big collapse, on the methods. Braces go; implicit becomes a context bound and using; object "
            "Palindrome and the wrapper class disappear, because an extension method is an ordinary method too: "
            "isPalindrome(xs) and xs.isPalindrome are the same method. x === y is Eq's own extension, found because "
            "the context bound's Eq is a given in scope: no name for it, no second wrapper. palindromize loses 2.13's "
            "refinement and extra type parameter, because the method's using clause comes after the extension's and "
-           "can name seq.A.",
-    "3.6": "palindromize's using clause folds into the type parameter: a context bound can now be named, and seq.A "
+           "can name isSeq.A.",
+    "3.6": "palindromize's using clause folds into the type parameter: a context bound can now be named, and isSeq.A "
            "still works. isPalindrome needs no name for its Eq, so it doesn't change. The given syntax changes too, "
            "on the Eq slide: given universal: [A] => Eq[A], \"for every A, an Eq[A]\". 3.5 rejects both. 3.7 to 3.9 "
            "change nothing this code uses.",
@@ -164,13 +164,13 @@ NOTES = {
     "2.8": [
         (["@tailrec"], "now the compiler\nchecks the loop"),
         (["palindromize⟨[A, Repr]⟩", "⟨SeqLike[A, Repr]⟩", "⟨, bf: CanBuildFrom[Repr, A, Repr]⟩", "): ⟨Repr⟩ = {",
-          "⟨val elems = xs.toSeq⟩", "(0 to ⟨elems⟩.length)", "isPalindrome(⟨elems⟩.drop"],
+          "⟨val seq = xs.toSeq⟩", "(0 to ⟨seq⟩.length)", "isPalindrome(⟨seq⟩.drop"],
          "Repr: the caller's own type,\nwith a builder factory for it;\ntoSeq reads it as a Seq"),
-        (["⟨(bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result⟩"],
+        (["⟨(bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result⟩"],
          "the input, then\nits reversed prefix:\nString in, String out"),
     ],
     "2.9": [
-        (["elems.⟨tails.indexWhere(isPalindrome(_))⟩"], "every suffix in turn; the first\npalindrome is where to\nstart mirroring"),
+        (["seq.⟨tails.indexWhere(isPalindrome(_))⟩"], "every suffix in turn; the first\npalindrome is where to\nstart mirroring"),
     ],
     "2.10": [
         (["⟨case x +: middle :+ y =>⟩", "=> ⟨eq.eqv(x, y)⟩"], "peel off both ends,\ncompare them directly"),
@@ -178,9 +178,9 @@ NOTES = {
          "one match replaces the loop,\nrecursing on the middle"),
     ],
     "2.13": [
-        (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨seq: IsSeq[Repr] { type A = A0 }⟩", "val elems = ⟨seq(xs)⟩.toSeq"],
-         "any Repr IsSeq can read, as seq(xs);\nA0 and its refinement are the wart"),
-        (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(elems.iterator ++⟩ elems"],
+        (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨isSeq: IsSeq[Repr] { type A = A0 }⟩", "val seq = ⟨isSeq(xs)⟩.toSeq"],
+         "any Repr IsSeq can read, as isSeq(xs);\nA0 and its refinement are the wart"),
+        (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(seq.iterator ++⟩ seq"],
          "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
     ],
     "3.0": [
@@ -188,12 +188,12 @@ NOTES = {
          "extension and a context bound replace\nthe object, wrapper class and implicit"),
         (["=> ⟨x === y⟩", "⟨middle.isPalindrome⟩", "indexWhere(⟨_.isPalindrome⟩)"],
          "=== and isPalindrome:\nextensions, called\nlike methods"),
-        (["⟨extension [Repr](xs: Repr)(using seq: IsSeq[Repr])⟩", "palindromize⟨(using eq: Eq[seq.A]⟩",
-          "BuildFrom[Repr, ⟨seq.A⟩, Repr]"],
-         "IsSeq in the extension's\nusing; later clauses\nsee seq.A: no A0"),
+        (["⟨extension [Repr](xs: Repr)(using isSeq: IsSeq[Repr])⟩", "palindromize⟨(using eq: Eq[isSeq.A]⟩",
+          "BuildFrom[Repr, ⟨isSeq.A⟩, Repr]"],
+         "IsSeq in the extension's\nusing; later clauses\nsee isSeq.A: no A0"),
     ],
     "3.6": [
-        (["[⟨Repr: IsSeq as seq⟩]"], "a context bound with\na name: seq.A still works"),
+        (["[⟨Repr: IsSeq as isSeq⟩]"], "a context bound with\na name: isSeq.A still works"),
     ],
     "0": [],
     "4.0": [

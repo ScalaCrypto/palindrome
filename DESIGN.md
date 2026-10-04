@@ -5,6 +5,31 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-04 — `palindromize`'s `seq` and `isSeq` (deck 5.11)
+
+### What changed
+
+In `palindromize`, from 2.8 on, the input read as a `Seq` is `seq` instead of `elems`, and where an `IsSeq` instance
+is in scope (2.13, Scala 3) it's `isSeq` instead of `seq`: `val seq = isSeq(xs).toSeq`, `Eq[isSeq.A]`,
+`[Repr: IsSeq as isSeq]`. The notes, the deck's notes and asides, `f3-6` and `STATE.md` follow.
+
+### Why
+
+`seq` says what the value is, a `Seq` of the input's elements; `isSeq` names the instance after its type class, as
+`eq` is named after `Eq`.
+
+### Limitations accepted
+
+2.13's method-syntax wrapper keeps its own `seq` for the `IsSeq` it holds (`PalindromeOps[Repr, seq.type]`): it's
+outside `palindromize`, and there's no `elems` there to collide with.
+
+### Verification
+
+`./mill __.test` passes on all 14 Mill-built versions, `legacy/test.sh 2.8 2.9` passes, `tools/evolution.py --check`
+passes, and `talk/deck.py` and `talk/render.py --screenshots` pass.
+
+---
+
 ## 2026-10-04 — Scala 3's `x === y`, and `Eq` slides without the unchanged trait (deck 5.10)
 
 ### What changed

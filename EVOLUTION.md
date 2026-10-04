@@ -122,7 +122,7 @@ object Palindrome {
   were called on. Generic code gets the same power by taking the source collection as `SeqLike[A, Repr]` (`Repr` is
   its concrete type) and an implicit `CanBuildFrom[Repr, A, Repr]`, a factory for builders of `Repr`s.
   `bf(xs.repr)` gives a builder, and `palindromize` fills it in one expression,
-  `(bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result`: the elements, then the ones before the
+  `(bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result`: the elements, then the ones before the
   palindromic suffix, reversed. `reverseIterator` (new in 2.8) hands them over back to front without building a
   reversed copy first. `xs.toSeq` reads the input as a `Seq` once, for `isPalindrome` and for the builder. Now `palindromize("abc")` is the `String` `"abcba"`,
   and a `List` or `Vector` gives back a `List` or `Vector`. The `String` case works because 2.8's `StringOps` is
@@ -178,9 +178,9 @@ object Palindrome {
 -    xs ++ xs.take(start).reverse
 +  // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
 +  def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
-+    val elems = xs.toSeq
-+    val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
-+    (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
++    val seq = xs.toSeq
++    val start = (0 to seq.length).find(i => isPalindrome(seq.drop(i))).get
++    (bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result
    }
  
 -  // Method syntax (xs.isPalindrome) through an implicit conversion to a wrapper.
@@ -291,10 +291,10 @@ object Palindrome {
 
 *Compared with Scala 2.8.2; changes: source.*
 
-- **`elems.tails.indexWhere(isPalindrome(_))`**: the 2.9 library adds `tails` to sequences, an iterator over `elems`,
-  `elems.drop(1)`, and so on down to the empty sequence. `indexWhere` gives the position of the first suffix that's a
+- **`seq.tails.indexWhere(isPalindrome(_))`**: the 2.9 library adds `tails` to sequences, an iterator over `seq`,
+  `seq.drop(1)`, and so on down to the empty sequence. `indexWhere` gives the position of the first suffix that's a
   palindrome, which is where the mirrored part starts. It's the same search as 2.8's
-  `(0 to elems.length).find(i => isPalindrome(elems.drop(i))).get`, in the same order and at the same cost, without
+  `(0 to seq.length).find(i => isPalindrome(seq.drop(i))).get`, in the same order and at the same cost, without
   the index arithmetic or the `.get`: the empty suffix always matches. 2.8 rejects it ("value tails is not a member
   of Seq[A]"). This is a library change, not a language one.
 
@@ -308,10 +308,10 @@ object Palindrome {
 @@ -33,7 +33,7 @@
    // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
    def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
-     val elems = xs.toSeq
--    val start = (0 to elems.length).find(i => isPalindrome(elems.drop(i))).get
-+    val start = elems.tails.indexWhere(isPalindrome(_))
-     (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
+     val seq = xs.toSeq
+-    val start = (0 to seq.length).find(i => isPalindrome(seq.drop(i))).get
++    val start = seq.tails.indexWhere(isPalindrome(_))
+     (bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result
    }
 ```
 
@@ -352,7 +352,7 @@ object Palindrome {
  
    // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
 @@ -37,11 +37,9 @@
-     (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
+     (bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result
    }
  
 -  // Method syntax (xs.isPalindrome) through an implicit conversion; Repr lets palindromize keep the type.
@@ -454,11 +454,11 @@ object Palindrome {
   fails with "found: WrappedString, required: String". `SeqLike` itself survives only as a deprecated alias of
   `SeqOps`, and `CanBuildFrom` as an alias of `BuildFrom`.
 - **`IsSeq[Repr]`** is the new way to accept "anything that can be read as a `Seq`", `String` and `Array` included:
-  `seq(xs)` gives its `SeqOps`. **`BuildFrom[Repr, A, Repr]`** replaces `CanBuildFrom`. In the body,
-  `seq(xs).toSeq` replaces `xs.toSeq`, and `bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)`
+  `isSeq(xs)` gives its `SeqOps`. **`BuildFrom[Repr, A, Repr]`** replaces `CanBuildFrom`. In the body,
+  `isSeq(xs).toSeq` replaces `xs.toSeq`, and `bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)`
   builds the result in one call, straight from the two iterators, replacing the builder chain on `bf(xs.repr)`.
 - **The `{ type A = A0 }` refinement** is the awkward part. The element type is a type member of `IsSeq`, and Scala
-  2 can't write `BuildFrom[Repr, seq.A, Repr]` in the same parameter list as `seq`. So the element type gets an
+  2 can't write `BuildFrom[Repr, isSeq.A, Repr]` in the same parameter list as `isSeq`. So the element type gets an
   extra type parameter, `A0`, tied to it by a refinement. Scala 3 removes this (see 3.0).
 - **The wrapper is rebuilt on `IsSeq` too**, following the pattern the 2.13 documentation gives for custom collection
   operations: an `implicit def` from any `Repr` that has an `IsSeq`, to `PalindromeOps[Repr, seq.type]`. The
@@ -497,14 +497,14 @@ still needed where the source type isn't a collection class, as with `String` he
    // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 -  // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
 -  def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
--    val elems = xs.toSeq
+-    val seq = xs.toSeq
 +  // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
 +  def palindromize[Repr, A0](xs: Repr)(
-+      implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
-+    val elems = seq(xs).toSeq
-     val start = elems.tails.indexWhere(isPalindrome(_))
--    (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
-+    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
++      implicit isSeq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
++    val seq = isSeq(xs).toSeq
+     val start = seq.tails.indexWhere(isPalindrome(_))
+-    (bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result
++    bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)
    }
  
 -  // Method syntax (xs.isPalindrome) through an implicit value class; Repr lets palindromize keep the type.
@@ -591,8 +591,8 @@ The headline of the 2 → 3 transition, shown on one slide:
   `isPalindrome(xs)` and `xs.isPalindrome` are the same method, so the recursion reads `middle.isPalindrome`.
 - **`_ == _` lambdas** for `Eq`.
 - **`palindromize` loses its refinement** (stage 5). Scala 3 uses the 2.13 collections, so it's still `IsSeq` plus
-  `BuildFrom`. But the extension's `using seq: IsSeq[Repr]` clause comes before the method's own `using` clause, so
-  `BuildFrom[Repr, seq.A, Repr]` can depend on `seq` directly. 2.13's `{ type A = A0 }` workaround and extra type
+  `BuildFrom`. But the extension's `using isSeq: IsSeq[Repr]` clause comes before the method's own `using` clause, so
+  `BuildFrom[Repr, isSeq.A, Repr]` can depend on `isSeq` directly. 2.13's `{ type A = A0 }` workaround and extra type
   parameter disappear, and so do its wrapper class, its `seq.type` trick and its `implicitConversions` import: one
   extension provides both `"abc".palindromize` and `palindromize("abc")`.
 - **Tests**: `"racecar".isPalindrome` works on the plain `Seq[A]` extension, because an extension's receiver may be
@@ -637,10 +637,10 @@ object Palindrome {
   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
   // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
   def palindromize[Repr, A0](xs: Repr)(
-      implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
-    val elems = seq(xs).toSeq
-    val start = elems.tails.indexWhere(isPalindrome(_))
-    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
+      implicit isSeq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
+    val seq = isSeq(xs).toSeq
+    val start = seq.tails.indexWhere(isPalindrome(_))
+    bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)
   }
 
   // Method syntax (xs.isPalindrome, "abc".palindromize) for anything IsSeq accepts, String included.
@@ -686,11 +686,11 @@ extension [A: Eq](xs: Seq[A])
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
 // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
-extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
-  def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
-    val elems = seq(xs).toSeq
-    val start = elems.tails.indexWhere(_.isPalindrome)
-    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
+extension [Repr](xs: Repr)(using isSeq: IsSeq[Repr])
+  def palindromize(using eq: Eq[isSeq.A], bf: BuildFrom[Repr, isSeq.A, Repr]): Repr =
+    val seq = isSeq(xs).toSeq
+    val start = seq.tails.indexWhere(_.isPalindrome)
+    bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)
 ```
 
 **Tests**
@@ -949,8 +949,8 @@ The source is unchanged. 3.4 and 3.5 are identical.
 
 - **`given universal: [A] => Eq[A]`**: the 3.6 given syntax reads as "for every `A`, an `Eq[A]`", replacing
   `given universal[A]: Eq[A]`.
-- **`[Repr: IsSeq as seq]`**: a context bound can now be named, so `palindromize`'s `using seq: IsSeq[Repr]`
-  clause folds into the type parameter, and `seq.A` still works in the `BuildFrom`. `isPalindrome` needs no name
+- **`[Repr: IsSeq as isSeq]`**: a context bound can now be named, so `palindromize`'s `using isSeq: IsSeq[Repr]`
+  clause folds into the type parameter, and `isSeq.A` still works in the `BuildFrom`. `isPalindrome` needs no name
   for its `Eq`, since `===` comes from the given itself, so it keeps 3.0's `[A: Eq]`.
 
 3.5 rejects both. 3.7 to 3.9 are identical.
@@ -973,11 +973,11 @@ The source is unchanged. 3.4 and 3.5 are identical.
  // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
  // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
  // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
--extension [Repr](xs: Repr)(using seq: IsSeq[Repr])
-+extension [Repr: IsSeq as seq](xs: Repr)
-   def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
-     val elems = seq(xs).toSeq
-     val start = elems.tails.indexWhere(_.isPalindrome)
+-extension [Repr](xs: Repr)(using isSeq: IsSeq[Repr])
++extension [Repr: IsSeq as isSeq](xs: Repr)
+   def palindromize(using eq: Eq[isSeq.A], bf: BuildFrom[Repr, isSeq.A, Repr]): Repr =
+     val seq = isSeq(xs).toSeq
+     val start = seq.tails.indexWhere(_.isPalindrome)
 ```
 
 <a id="final"></a>
@@ -1015,9 +1015,9 @@ extension [A: Eq](xs: Seq[A])
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
 // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
-extension [Repr: IsSeq as seq](xs: Repr)
-  def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
-    val elems = seq(xs).toSeq
-    val start = elems.tails.indexWhere(_.isPalindrome)
-    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
+extension [Repr: IsSeq as isSeq](xs: Repr)
+  def palindromize(using eq: Eq[isSeq.A], bf: BuildFrom[Repr, isSeq.A, Repr]): Repr =
+    val seq = isSeq(xs).toSeq
+    val start = seq.tails.indexWhere(_.isPalindrome)
+    bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)
 ```

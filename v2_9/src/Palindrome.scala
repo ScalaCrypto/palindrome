@@ -33,9 +33,9 @@ object Palindrome {
   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
   // CanBuildFrom supplies a builder for the input's own type (Repr), so a String gives a String.
   def palindromize[A, Repr](xs: SeqLike[A, Repr])(implicit eq: Eq[A], bf: CanBuildFrom[Repr, A, Repr]): Repr = {
-    val elems = xs.toSeq
-    val start = elems.tails.indexWhere(isPalindrome(_))
-    (bf(xs.repr) ++= elems ++= elems.take(start).reverseIterator).result
+    val seq = xs.toSeq
+    val start = seq.tails.indexWhere(isPalindrome(_))
+    (bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result
   }
 
   // Method syntax (xs.isPalindrome) through an implicit conversion; Repr lets palindromize keep the type.

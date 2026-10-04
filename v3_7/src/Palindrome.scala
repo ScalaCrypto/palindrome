@@ -27,9 +27,9 @@ extension [A: Eq](xs: Seq[A])
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
 // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
 // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
-extension [Repr: IsSeq as seq](xs: Repr)
-  def palindromize(using eq: Eq[seq.A], bf: BuildFrom[Repr, seq.A, Repr]): Repr =
-    val elems = seq(xs).toSeq
-    val start = elems.tails.indexWhere(_.isPalindrome)
-    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
+extension [Repr: IsSeq as isSeq](xs: Repr)
+  def palindromize(using eq: Eq[isSeq.A], bf: BuildFrom[Repr, isSeq.A, Repr]): Repr =
+    val seq = isSeq(xs).toSeq
+    val start = seq.tails.indexWhere(_.isPalindrome)
+    bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)
 
