@@ -6,7 +6,7 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.10-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.11-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
 
 Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, `palindromize`, which builds a palindrome of the input's own collection type, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
 
@@ -79,7 +79,7 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── 5.10-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
+│   ├── 5.11-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
@@ -122,10 +122,10 @@ Each `Palindrome.scala` defines, in every version:
 - **`isPalindrome(xs): Boolean`**, generic over `Seq[A]`, with an `Eq[A]`. A `String` is accepted through the standard `String` → `Seq[Char]` conversion. 2.5–2.9 walk two indices inward in an inner `loop`; from 2.10, `isPalindrome` recurses on itself through `case x +: middle :+ y`.
 - **`palindromize(xs)`**: the shortest palindrome that starts with `xs` (`"abcb"` → `"abcba"`, `"abb"` → `"abba"`). It finds
   where the longest palindromic suffix starts with `isPalindrome` (so `palindromize` takes an `Eq[A]` too):
-  `(0 to xs.length).find(i => isPalindrome(xs.drop(i))).get` in 2.5–2.8, `elems.tails.indexWhere(…)` from 2.9, where
+  `(0 to xs.length).find(i => isPalindrome(xs.drop(i))).get` in 2.5–2.8, `seq.tails.indexWhere(…)` from 2.9, where
   `tails` arrives. It mirrors only the elements before it, in one expression: `xs ++ xs.take(start).reverse` in 2.5–2.7;
-  from 2.8 without temporary collections, from `elems.take(start).reverseIterator`, through a `CanBuildFrom` builder
-  chain in 2.8–2.12 and `bf.fromSpecific(xs)(elems.iterator ++ …)` from 2.13. The search tries
+  from 2.8 without temporary collections, from `seq.take(start).reverseIterator`, through a `CanBuildFrom` builder
+  chain in 2.8–2.12 and `bf.fromSpecific(xs)(seq.iterator ++ …)` from 2.13. The search tries
   each suffix in turn: O(n²) on a `Vector`, worse on a `List` or a `String`. From 2.8 it returns the input's own collection type (`String`, `List`,
   `Vector`, …), which shows the collections redesigns: a plain `Seq` in 2.5–2.7, `SeqLike` + `CanBuildFrom` in
   2.8–2.12, and `IsSeq` + `BuildFrom` from 2.13.
@@ -158,8 +158,8 @@ The tests are the same in every version, apart from the syntax of each version a
 | 1. Generalize to `Seq[A]` | 2.5 |
 | 2. Recursion: `@tailrec` / `x +: middle :+ y` | 2.8 (`@tailrec`) / 2.10 (extractors) |
 | 3. `Eq` type class via `implicit` | 2.5 (lambda instances from 2.12) |
-| 4. `given`/`using`, optional braces | 3.0 (`[Repr: IsSeq as seq]` from 3.6) |
-| 5. `palindromize`: `Seq` → `CanBuildFrom` → `IsSeq`/`BuildFrom` → dependent `using` | 2.5 → 2.8 → 2.13 → 3.0 (`[Repr: IsSeq as seq]` from 3.6) |
+| 4. `given`/`using`, optional braces | 3.0 (`[Repr: IsSeq as isSeq]` from 3.6) |
+| 5. `palindromize`: `Seq` → `CanBuildFrom` → `IsSeq`/`BuildFrom` → dependent `using` | 2.5 → 2.8 → 2.13 → 3.0 (`[Repr: IsSeq as isSeq]` from 3.6) |
 | 6. Extension method: `implicit def` → `implicit class` → `extension` | 2.5 → 2.10 → 3.0 |
 
 Stage 0 (`s == s.reverse`) is a slide, not a version: it doesn't work before 2.8, where `==` on collections isn't content-based. There's no result ADT (`sealed trait` → `enum`): `isPalindrome` returns a `Boolean` and `palindromize` a collection. The talk's reserve material (opaque types, `@main`, `inline`, `CanEqual`, §4–§5 of the talk spec) is not in the code. The deck ends with three reserve slides for the Q&A, none of them in the code (why is in `DESIGN.md`): `r-indexedseq`, an O(n) index-loop `isPalindrome` for `IndexedSeq`, `r-stringslice`, an `IndexedSeqSlice` that makes the extractor O(n) on any `IndexedSeq` by slicing without copying, and `r-linear`, an O(n) `palindromize` that finds the longest palindromic suffix with KMP string matching.
@@ -190,9 +190,9 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
-- **Deck version**: the deck's directory starts with its version (`5.10-deck`). A revision that changes the deck's
+- **Deck version**: the deck's directory starts with its version (`5.11-deck`). A revision that changes the deck's
   code or look renames it (`git mv`, and `DECK` in `talk/deck.py`); `talk/README.md` has the history.
-- **The deck is `talk/5.10-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
+- **The deck is `talk/5.11-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
   - **Code slides** are generated from the version sources by `talk/deck.py`, in three tracks that each morph from
     version to version where their code changes: the methods (`m*.html`), `Eq` (`e*.html`) and Scala 2's method
     syntax (`o*.html`), with the notes in its `NOTES`/`EQ_NOTES`/`OPS_NOTES` and `ASIDES`/`EQ_ASIDES`/`OPS_ASIDES`.
@@ -210,8 +210,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
 - **After changing the code, the notes or a slide**, run `talk/deck.py`, check it with `talk/render.py
-  --screenshots`, and republish `talk/5.10-deck/project/` to the artifact. **After editing the artifact**, read the
-  changed slides back into `talk/5.10-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
+  --screenshots`, and republish `talk/5.11-deck/project/` to the artifact. **After editing the artifact**, read the
+  changed slides back into `talk/5.11-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -226,7 +226,7 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/deck.py             # rebuild the deck in talk/5.10-deck/ (code slides, notes, order)
+talk/deck.py             # rebuild the deck in talk/5.11-deck/ (code slides, notes, order)
 talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck

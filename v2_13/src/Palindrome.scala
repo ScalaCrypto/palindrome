@@ -30,10 +30,10 @@ object Palindrome {
   // ("abcb" -> "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
   // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
   def palindromize[Repr, A0](xs: Repr)(
-      implicit seq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
-    val elems = seq(xs).toSeq
-    val start = elems.tails.indexWhere(isPalindrome(_))
-    bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)
+      implicit isSeq: IsSeq[Repr] { type A = A0 }, eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = {
+    val seq = isSeq(xs).toSeq
+    val start = seq.tails.indexWhere(isPalindrome(_))
+    bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)
   }
 
   // Method syntax (xs.isPalindrome, "abc".palindromize) for anything IsSeq accepts, String included.

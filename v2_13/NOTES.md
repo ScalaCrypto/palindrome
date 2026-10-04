@@ -7,11 +7,11 @@
   fails with "found: WrappedString, required: String". `SeqLike` itself survives only as a deprecated alias of
   `SeqOps`, and `CanBuildFrom` as an alias of `BuildFrom`.
 - **`IsSeq[Repr]`** is the new way to accept "anything that can be read as a `Seq`", `String` and `Array` included:
-  `seq(xs)` gives its `SeqOps`. **`BuildFrom[Repr, A, Repr]`** replaces `CanBuildFrom`. In the body,
-  `seq(xs).toSeq` replaces `xs.toSeq`, and `bf.fromSpecific(xs)(elems.iterator ++ elems.take(start).reverseIterator)`
+  `isSeq(xs)` gives its `SeqOps`. **`BuildFrom[Repr, A, Repr]`** replaces `CanBuildFrom`. In the body,
+  `isSeq(xs).toSeq` replaces `xs.toSeq`, and `bf.fromSpecific(xs)(seq.iterator ++ seq.take(start).reverseIterator)`
   builds the result in one call, straight from the two iterators, replacing the builder chain on `bf(xs.repr)`.
 - **The `{ type A = A0 }` refinement** is the awkward part. The element type is a type member of `IsSeq`, and Scala
-  2 can't write `BuildFrom[Repr, seq.A, Repr]` in the same parameter list as `seq`. So the element type gets an
+  2 can't write `BuildFrom[Repr, isSeq.A, Repr]` in the same parameter list as `isSeq`. So the element type gets an
   extra type parameter, `A0`, tied to it by a refinement. Scala 3 removes this (see 3.0).
 - **The wrapper is rebuilt on `IsSeq` too**, following the pattern the 2.13 documentation gives for custom collection
   operations: an `implicit def` from any `Repr` that has an `IsSeq`, to `PalindromeOps[Repr, seq.type]`. The

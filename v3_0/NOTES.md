@@ -14,8 +14,8 @@ The headline of the 2 → 3 transition, shown on one slide:
   `isPalindrome(xs)` and `xs.isPalindrome` are the same method, so the recursion reads `middle.isPalindrome`.
 - **`_ == _` lambdas** for `Eq`.
 - **`palindromize` loses its refinement** (stage 5). Scala 3 uses the 2.13 collections, so it's still `IsSeq` plus
-  `BuildFrom`. But the extension's `using seq: IsSeq[Repr]` clause comes before the method's own `using` clause, so
-  `BuildFrom[Repr, seq.A, Repr]` can depend on `seq` directly. 2.13's `{ type A = A0 }` workaround and extra type
+  `BuildFrom`. But the extension's `using isSeq: IsSeq[Repr]` clause comes before the method's own `using` clause, so
+  `BuildFrom[Repr, isSeq.A, Repr]` can depend on `isSeq` directly. 2.13's `{ type A = A0 }` workaround and extra type
   parameter disappear, and so do its wrapper class, its `seq.type` trick and its `implicitConversions` import: one
   extension provides both `"abc".palindromize` and `palindromize("abc")`.
 - **Tests**: `"racecar".isPalindrome` works on the plain `Seq[A]` extension, because an extension's receiver may be
