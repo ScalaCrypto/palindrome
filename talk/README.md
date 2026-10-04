@@ -3,7 +3,7 @@
 The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
 `../scaladays-2026-talk.md`, and the code it shows comes from `../EVOLUTION.md`.
 
-- `5.12-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
+- `5.13-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
   holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai Slides artifact
   uses; the paths match the artifact's own.
 - `deck.py`: builds the deck's code slides, their notes and its slide order; below.
@@ -15,21 +15,21 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck
 
 The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until shared from its Share menu), and
-`5.12-deck/project/` is its versioned copy. It has two kinds of slide:
+`5.13-deck/project/` is its versioned copy. It has two kinds of slide:
 
 - **Code slides** are generated from the version sources by `deck.py`, in three tracks: the palindrome methods
   (`m2-5`, …, `m3-6`), `Eq` (`e2-5`, …, `e3-6`) and Scala 2's method syntax (`o2-5`, …, `o2-13`; Scala 3's extensions
   are on the method slides). Each track gets a slide per version where its code changes, and each slide morphs from
   the track's previous one with a magic-move transition, so the code changes in place. The deck goes version by
   version: each Scala version that changes something starts with its slide from the tag-cloud deck (`tc2-8`, …, copied
-  from `tag-cloud/project/`), then, for each track that changes, the track's previous state shown again without a
-  heading (`…-again`) and its new state, so the change morphs in place. A method slide shows only the methods that
+  from `tag-cloud/project/`), then, for each track that changes, the track's previous state shown again (`…-again`),
+  whose last click fades in the next slide's heading, and its new state, so the change morphs in place. A method slide shows only the methods that
   change in that step (2.9: `palindromize`; 2.10: `isPalindrome`), and an `Eq` slide only the definitions that change
   (`object Eq`, and `trait Eq` in 2.5 and 3.0). Every slide carries the tag-cloud deck's timeline
   along the bottom, with its version in amber, instead of a version label above the heading. After each tag-cloud
   slide comes a hand-written "New in Scala x" slide (`f2-8`, …): the version's headline changes, with the ones the
-  following slides use in amber. A slide shown again appears without a transition, and the next click morphs it into the
-  new state.
+  following slides use in amber. A slide shown again appears without a transition and without a heading; a click brings in the
+  next slide's heading, and the click after that morphs it into the new state, the heading staying in place.
   The code track starts with the opening one-liner (`m0-again`), which morphs into 2.5. From the second state
   of a track on, every change is highlighted and explained in a speech bubble, and the build fails if any code that's
   new in a version lies outside every highlight. Where a step changes both methods (2.5, 2.8, 3.0), it morphs in two clicks:
@@ -57,15 +57,15 @@ talk/deck.py                 # rebuild the code slides and deck.json
 talk/render.py --screenshots # check the layout
 ```
 
-then publish `5.12-deck/project/` to the artifact with `5.12-deck/` as the root, so each file keeps its `project/…`
+then publish `5.13-deck/project/` to the artifact with `5.13-deck/` as the root, so each file keeps its `project/…`
 path. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
-into `5.12-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
+into `5.13-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
 artifact's changed slides and copy them here.
 
 ## Deck versions
 
 The deck's directory starts with its version: the major number is the kind of deck, the minor its revision. A
-revision that changes the deck's code or look renames the directory (`git mv talk/5.12-deck talk/5.13-deck`, and `DECK`
+revision that changes the deck's code or look renames the directory (`git mv talk/5.13-deck talk/5.14-deck`, and `DECK`
 in `deck.py`); the artifact keeps its link.
 
 5.0 merged the four decks that came before it: the hand-written talk deck (1.x, light, with its own hand-copied code
@@ -92,6 +92,11 @@ bound), so 3.6 changes only `palindromize`; the `Eq` slides show `trait Eq` only
 5.11 renames `palindromize`'s `elems` to `seq`, and the `IsSeq` instance it reads it from to `isSeq`.
 5.12 builds the goal slide over two clicks: `isPalindrome`, then `palindromize`, then the case-insensitive
 examples, under a `// case insensitive` comment instead of the `given`; the subheading is gone.
+5.13 adds a bubble to 2.5's `palindromize`, before the `Seq` one: it keeps the palindromic tail and mirrors only the
+rest, so the result is the shortest palindrome. The two-liner before 2.5 (`m0-again`) gets the heading "What's
+wrong?", which 2.5's "A better way" (no longer a question) replaces, and bubbles: the one-liner `isPalindrome` copies
+the string just to compare, and its `palindromize` isn't always the shortest. Every slide shown again fades in the
+next slide's heading on its last click, so the version's topic comes before the morph.
 
 ## The tag-cloud deck
 
@@ -134,7 +139,7 @@ here as well as in the artifact: the player follows the format, but it isn't the
 
 ```bash
 talk/render.py                 # measure every slide of the talk's deck; exit 1 if anything overflows
-talk/render.py --screenshots   # also write out/talk-render/5.12-deck/shots/*.png and contact sheets sheet*.png
+talk/render.py --screenshots   # also write out/talk-render/5.13-deck/shots/*.png and contact sheets sheet*.png
 talk/render.py --screenshots talk/tag-cloud  # the same for another deck, into out/talk-render/tag-cloud/
 ```
 

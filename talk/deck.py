@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.12-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.13-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.12-deck/project"
+DECK = ROOT / "talk/5.13-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -70,8 +70,9 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 
 # The slide sequence, one group per Scala version that changes something: ("cloud", v) is that version's slide from
 # the tag-cloud deck (who wrote it), then, for each track whose code changes in v (see morph.py: "eq" for Eq, "ops" for
-# Scala 2's method syntax, "code" for the methods), the track's previous state shown again without a heading or notes
-# (("eq-again", u), ("ops-again", u), ("again", u)), morphing into its state in v. A code slide shows only the methods
+# Scala 2's method syntax, "code" for the methods), the track's previous state shown again, with no notes (but the one-liner's)
+# and the next slide's heading fading in on its last click (("eq-again", u), ("ops-again", u), ("again", u)),
+# morphing into its state in v. A code slide shows only the methods
 # that change in that step. Anything else is a hand-written slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
@@ -101,8 +102,8 @@ SECTIONS = {
 # Per code state: the heading, like the hand-written slides' (one line at 64px). A step split in two may give its
 # first slide (isPalindrome) a heading of its own, as a pair; its second slide then drops the first's notes.
 TITLES = {
-    "0": "It starts as a one-liner",
-    "2.5": "A better way?",
+    "0": "What's wrong?",
+    "2.5": "A better way",
     "2.8": ("@tailrec", "CanBuildFrom keeps the collection type"),
     "2.9": "tails finds the palindromic suffix",
     "2.10": "+: and :+ extractors",
@@ -155,10 +156,13 @@ ASIDES = {
 # tail pointing at the first) and its text. An anchor is exact code text, first occurrence; with ⟨ ⟩ inside it,
 # only the marked part is highlighted (the rest is context to find the right place). From the second code state
 # on, the notes cover every change: the build fails if any code that's new in a version lies outside every
-# highlight. The first code state has nothing to compare with, so its notes pick the main points.
+# highlight. The first code state has nothing to compare with, so its notes pick the main points. The one-liner
+# ("0") has no code slide of its own (it's the hand-written oneliner), so its notes go on its "again" slide.
 NOTES = {
     "2.5": [
         ("from >= to ||", "walk two indices inward"),
+        (["⟨(0 to xs.length).find(i => isPalindrome(xs.drop(i))).get⟩", "⟨xs.take(start).reverse⟩"],
+         "keep the palindromic tail,\nmirror only the rest:\nthe shortest palindrome"),
         ("): ⟨Seq[A]⟩ = {", "generic code can only promise a Seq"),
     ],
     "2.8": [
@@ -195,7 +199,10 @@ NOTES = {
     "3.6": [
         (["[⟨Repr: IsSeq as isSeq⟩]"], "a context bound with\na name: isSeq.A still works"),
     ],
-    "0": [],
+    "0": [
+        ("s == ⟨s.reverse⟩", "copies the string\njust to compare"),
+        ("s + ⟨s.reverse⟩", "not always\nthe shortest"),
+    ],
     "4.0": [
         (["middle :+ ⟨x⟩ =>"], "x twice: both ends\nmust be the same"),
     ],
@@ -483,12 +490,14 @@ def note_html(box, text, order, id_=None):
 
 
 def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t", only=None, shown=(), keep=None,
-               layout=None):
+               layout=None, upcoming=None, heading_id=False):
     """A code slide. Its panel holds exactly its code: the bubbles go wherever on the slide they fit, clear of the
     heading, the code and the timeline. A step split in two (isPalindrome first, then palindromize) shows the notes
     numbered `only` (1-based, all if None) on its first slide; on its second, those (`shown`) are there from the
     start, at their places on the first (`keep`) where the code leaves them room, and with ids, so they stay put
-    through the morph. `layout`, if given, receives each note's placement."""
+    through the morph. `layout`, if given, receives each note's placement. A state shown again has no heading of
+    its own; `upcoming`, the next slide's heading, fades in on its last click, pinned where the next slide has it, and
+    with the id that heading gets with `heading_id`, so the morph leaves it in place."""
     # The panel is pinned, with one id on every code slide, so a morph resizes it instead of fading it.
     height = round(len(state["lines"]) * LH + 2 * PANEL_PAD_Y + 2, 1)
     top = TOP
@@ -500,11 +509,12 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
             f'height:{height}px; background:{PANEL}; border:1px solid {PANEL_EDGE}; border-radius:16px"></div>',
 ]
     if title:  # a state shown again has no heading: the next slide's heading names what changes
-        rows.append(f'<h2 style="font-size:64px; font-weight:600; line-height:1.1">{escape(title)}</h2>')
+        hid = ' id="heading"' if heading_id else ""
+        rows.append(f'<h2{hid} style="font-size:64px; font-weight:600; line-height:1.1">{escape(title)}</h2>')
     # Place the notes first: their highlights paint behind the code, their bubbles on top of it.
     blocked = code_rects(runs, top)
-    if title:  # keep clear of the heading too (IBM Plex Sans semibold: about 0.6 em per character)
-        blocked.append((128, 128, 128 + len(title) * 64 * 0.6, 128 + 71))
+    if title or upcoming:  # keep clear of the heading too (IBM Plex Sans semibold: about 0.6 em per character)
+        blocked.append((128, 128, 128 + len(title or upcoming) * 64 * 0.6, 128 + 71))
     bubbles, placed = [], []
     # Notes are placed largest first (they still appear in reading order), and a note with several highlights points
     # its tail at whichever one gives the best spot.
@@ -555,6 +565,9 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     for order, text, span, box, side, base, tip, _ in placed:
         rows.append(bubble_svg(box, side, base, tip, span, click.get(order), nid(order, "b")))
         rows.append(note_html(box, text, click.get(order), nid(order, "t")))
+    if upcoming:
+        rows.append(f'<h2 id="heading" data-build-in="fade {len(click) + 1}" style="position:absolute; left:128px; '
+                    f'top:128px; width:1664px; font-size:64px; font-weight:600; line-height:1.1">{escape(upcoming)}</h2>')
     if aside:
         rows.append(f"<aside>{escape(aside, quote=False)}</aside>")
     rows.append("</section>")
@@ -828,9 +841,16 @@ def build():
         spec = TRACKS[track]
         k = index[track][v]
         slide = item_id[n]
-        if again:  # the previous state, as the next step shows it
+        if again:  # the previous state, as the next step shows it, the next step's first heading fading in last;
+            # the one-liner has no slide of its own, so it shows its own heading and notes instead
             view, runs = steps[track, k + 1][0], steps[track, k + 1][3]
-            html = code_slide(slide, view, runs, "magic", [], spec["again"].format(v=v), "", spec["token"])
+            if view["versions"] == ONE_LINER["versions"]:
+                notes, title, upcoming = spec["notes"][v], spec["titles"][v], None
+            else:
+                notes, title, upcoming = [], "", spec["titles"][SEQUENCE[n + 1][1]]
+                upcoming = upcoming[0] if isinstance(upcoming, tuple) else upcoming
+            html = code_slide(slide, view, runs, "magic", notes, spec["again"].format(v=v), title, spec["token"],
+                              upcoming=upcoming)
             (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
             continue
         _, between, view, _, between_runs, runs = steps[track, k]
@@ -838,15 +858,17 @@ def build():
         first, layout = set(), {}
         first_title, title = title if isinstance(title, tuple) else (title, title)
         only = None
+        after_again = n > 0 and isinstance(SEQUENCE[n - 1], tuple) and track_of(SEQUENCE[n - 1][0]) == (track, True) \
+            and k - 1 != index[track].get(ONE_LINER["versions"][0])  # the one-liner's own heading differs
         if between:  # isPalindrome morphs first, with its notes; palindromize follows on the next click
             first = first_method(view, notes)
             html = code_slide(f"{slide}-is", between, between_runs, "magic", notes, aside, first_title, spec["token"],
-                              only=first, layout=layout)
+                              only=first, layout=layout, heading_id=after_again)
             (slides / f"{slide}-is.html").write_text(with_footer(html, view["versions"][0]))
             if first_title != title:  # a new heading, a new topic: isPalindrome's notes go
                 only, first = set(range(1, len(notes) + 1)) - first, set()
         html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], only=only, shown=first,
-                          keep=layout)
+                          keep=layout, heading_id=after_again and not between)
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
 
     path = DECK / "deck.json"
