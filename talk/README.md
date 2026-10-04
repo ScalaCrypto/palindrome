@@ -3,7 +3,7 @@
 The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
 `../scaladays-2026-talk.md`, and the code it shows comes from `../EVOLUTION.md`.
 
-- `5.14-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
+- `5.15-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
   holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai Slides artifact
   uses; the paths match the artifact's own.
 - `deck.py`: builds the deck's code slides, their notes and its slide order; below.
@@ -15,7 +15,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck
 
 The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until shared from its Share menu), and
-`5.14-deck/project/` is its versioned copy. It has two kinds of slide:
+`5.15-deck/project/` is its versioned copy. It has two kinds of slide:
 
 - **Code slides** are generated from the version sources by `deck.py`, in three tracks: the palindrome methods
   (`m2-5`, …, `m3-6`), `Eq` (`e2-5`, …, `e3-6`) and Scala 2's method syntax (`o2-5`, …, `o2-13`; Scala 3's extensions
@@ -57,15 +57,15 @@ talk/deck.py                 # rebuild the code slides and deck.json
 talk/render.py --screenshots # check the layout
 ```
 
-then publish `5.14-deck/project/` to the artifact with `5.14-deck/` as the root, so each file keeps its `project/…`
+then publish `5.15-deck/project/` to the artifact with `5.15-deck/` as the root, so each file keeps its `project/…`
 path. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
-into `5.14-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
+into `5.15-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
 artifact's changed slides and copy them here.
 
 ## Deck versions
 
 The deck's directory starts with its version: the major number is the kind of deck, the minor its revision. A
-revision that changes the deck's code or look renames the directory (`git mv talk/5.14-deck talk/5.15-deck`, and `DECK`
+revision that changes the deck's code or look renames the directory (`git mv talk/5.15-deck talk/5.16-deck`, and `DECK`
 in `deck.py`); the artifact keeps its link.
 
 5.0 merged the four decks that came before it: the hand-written talk deck (1.x, light, with its own hand-copied code
@@ -99,6 +99,8 @@ the string just to compare, and its `palindromize` isn't always the shortest. Ev
 next slide's heading on its last click, so the version's topic comes before the morph.
 5.14 shows 2.13's method syntax, as an implicit class, next to 2.13's methods before 3.0: its `isPalindrome` goes
 when `isPalindrome` becomes an extension, and the class when `palindromize` does.
+5.15 leaves the empty class standing after `palindromize` becomes an extension (`m3-0-ops`); it goes on the next
+click.
 
 ## The tag-cloud deck
 
@@ -142,7 +144,7 @@ here as well as in the artifact: the player follows the format, but it isn't the
 
 ```bash
 talk/render.py                 # measure every slide of the talk's deck; exit 1 if anything overflows
-talk/render.py --screenshots   # also write out/talk-render/5.14-deck/shots/*.png and contact sheets sheet*.png
+talk/render.py --screenshots   # also write out/talk-render/5.15-deck/shots/*.png and contact sheets sheet*.png
 talk/render.py --screenshots talk/tag-cloud  # the same for another deck, into out/talk-render/tag-cloud/
 ```
 
