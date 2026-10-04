@@ -5,6 +5,27 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-04 — The goal slide builds over two clicks (deck 5.12)
+
+### What changed
+
+The goal slide shows the `isPalindrome` examples first; `palindromize`'s appear on the first click and the
+case-insensitive ones on the second. A `// case insensitive` comment replaces `given Eq[Char] = Eq.caseInsensitive`,
+and the subheading ("Both functions should handle…") is gone.
+
+### How
+
+The Slides format builds only pinned (absolutely positioned) children, not lines inside a flowing panel. So the code
+panel keeps its full height with blank lines where the later examples go, and each group is a pinned code `div`
+(`data-build-in="fade 1"`, `"fade 2"`) laid over its blank lines. `deck.py` normalizes those `div`s like any code panel,
+since they're in IBM Plex Mono. Their `top` is measured: moving the heading or the panel means moving them too.
+
+### Alternatives rejected
+
+- **Three panels**, one per group, each built in: three boxes instead of one, and the panel would grow on each click.
+
+---
+
 ## 2026-10-04 — A local presenter: `talk/present.py`
 
 ### What changed
