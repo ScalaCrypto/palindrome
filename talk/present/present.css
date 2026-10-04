@@ -1,0 +1,55 @@
+/* The slide canvas: the Slides format's 1920x1080 sections, with the defaults the format has and browsers don't. */
+.canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+.canvas .layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.canvas .layer * { margin: 0; box-sizing: border-box; }
+.canvas section { width: 1920px; height: 1080px; position: relative; overflow: hidden; }
+.canvas h1 { font-size: 96px; font-weight: 600; line-height: 1.1; }
+.canvas h2 { font-size: 64px; font-weight: 600; line-height: 1.15; }
+.canvas h3 { font-size: 44px; font-weight: 600; line-height: 1.2; }
+.canvas p { font-size: 32px; font-weight: 400; line-height: 1.4; }
+.canvas table { border-collapse: collapse; width: 100%; }
+.canvas td, .canvas th { padding: 0.35em 0.6em; border-bottom: 1px solid rgba(0, 0, 0, 0.15); }
+.canvas th { font-weight: 600; }
+.canvas aside { display: none; }
+.canvas .end { background: #000; color: #9aa3af; display: flex; align-items: center; justify-content: center;
+  font: 48px 'IBM Plex Sans', Arial, sans-serif; }
+
+html, body { margin: 0; height: 100%; }
+body { background: #000; overflow: hidden; }
+
+/* Audience page */
+.audience .host { position: fixed; inset: 0; }
+.audience .blank { position: fixed; inset: 0; background: #000; display: none; z-index: 2; }
+.audience.blanked .blank { display: block; }
+.audience.idle { cursor: none; }
+.audience .hint { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 3;
+  font: 15px -apple-system, BlinkMacSystemFont, sans-serif; color: #e8e6df; background: rgba(30, 34, 44, 0.92);
+  padding: 8px 14px; border-radius: 8px; transition: opacity 0.4s; }
+.audience .hint.gone { opacity: 0; pointer-events: none; }
+
+/* Presenter page */
+.presenter { --fg: #e8e6df; --dim: #9aa3af; --panel: #242a38; --edge: #343b4c; --amber: #f2a65a;
+  background: #15181f; color: var(--fg); font: 15px -apple-system, BlinkMacSystemFont, 'IBM Plex Sans', sans-serif;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.8fr); height: 100vh; }
+.presenter header { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--edge);
+  flex-wrap: wrap; }
+.presenter header .count { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.presenter header .id { color: var(--dim); }
+.presenter header .spacer { flex: 1; }
+.presenter header .timer { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--amber); }
+.presenter header .timer.paused { color: var(--dim); }
+.presenter header .clock { font-size: 20px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.presenter button { font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--edge);
+  border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.presenter button:hover { border-color: var(--dim); }
+.presenter button.on { border-color: var(--amber); color: var(--amber); }
+.presenter .views { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; padding: 12px 16px 8px; min-height: 0; }
+.presenter .view { display: flex; flex-direction: column; min-height: 0; gap: 6px; }
+.presenter .view .label { color: var(--dim); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.presenter .view .label b { color: var(--fg); text-transform: none; letter-spacing: 0; font-weight: 600; }
+.presenter .view .host { position: relative; flex: 1; min-height: 0; background: #000; border: 1px solid var(--edge); }
+.presenter .notes { margin: 0 16px 12px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--edge);
+  border-radius: 8px; overflow: auto; white-space: pre-wrap; line-height: 1.45; font-size: var(--notes, 26px); }
+.presenter .notes.empty { color: var(--dim); font-style: italic; }
+.presenter .help { color: var(--dim); font-size: 13px; }

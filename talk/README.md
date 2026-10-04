@@ -10,6 +10,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
 - `render.py`: renders a deck, the talk's deck unless another is named, in headless Chrome and checks the layout.
+- `present.py` and `present/`: presents the deck from this computer, with a presenter view; below.
 
 ## The deck
 
@@ -105,6 +106,27 @@ its `method` says how, including the releases that needed another range (2.7, 3.
 24px, so the generator shows as many names as fit on a slide (at most 60), and the speaker notes say when it's the
 top ones. The deck isn't versioned like the talk's deck: it shows who wrote Scala, not this repository's code. Its
 artifact is <https://claude.ai/artifact/BBnmYfzdH7pmk3VQybdQdm>.
+
+## Presenting
+
+The artifact's own speaker-notes window can't open: the frame claude.ai shows the deck in blocks the pop-up, in
+Safari and in Chrome alike. So the talk is presented from this computer instead:
+
+```bash
+talk/present.py                # serve the deck on http://localhost:8765 and open the presenter view
+```
+
+In the presenter view, click "Open slides window", move that window to the external display and press F in it for
+full screen. Then drive the talk from the presenter view on the laptop: it shows the current slide, what the next
+click shows (the next note, or the next slide), the speaker notes and a timer. → or space for the next click, ← back,
+a slide number then Enter to jump, B to black out the slides, T to start or pause the timer, + and − for the notes'
+size. The two pages stay in step through the browser (`BroadcastChannel`), so either can be reloaded.
+
+The player, in `present/`, covers what the deck uses of the Slides format's motion: the `fade`, `push`, `none` and
+`magic` transitions, and `fade` builds. Magic move works like the artifact's: children with the same `id` on both
+slides move and resize, and the rest fade. The deck is read from its files on every page load, and the fonts come from
+`render.py`'s cache, so the talk needs no network once the fonts are cached. Before the talk, run through the deck
+here as well as in the artifact: the player follows the format, but it isn't the artifact's own renderer.
 
 ## Checking the layout
 

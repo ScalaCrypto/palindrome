@@ -5,6 +5,48 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-04 — A local presenter: `talk/present.py`
+
+### What changed
+
+`talk/present.py` serves the deck from this computer, with two pages: the slides (`talk/present/index.html`), shown
+full screen on the external display, and a presenter view (`presenter.html`) on the laptop with the current slide,
+what the next click shows, the speaker notes, a timer and a clock. The pages keep in step through a
+`BroadcastChannel`. `talk/present/player.js` plays the deck from its files: the `fade`, `push`, `none` and `magic`
+transitions and `fade` builds, the part of the Slides format's motion the deck uses. Magic move matches children by
+`id` and moves and resizes them with the Web Animations API; children identical on both slides stay still, a
+child without an `id` where one of the same kind was (a heading, the timeline) crossfades, and the rest fade out or
+in. The fonts come from `render.py`'s cache, so no network is needed during the talk.
+
+### Why
+
+Presented from the artifact, the slides and the speaker notes share one screen: the artifact's notes window never
+opens, because the frame claude.ai shows the deck in blocks its pop-up, in Safari and Chrome alike, with pop-ups
+allowed for every site.
+
+### Alternatives rejected
+
+- **Exporting to Keynote or PowerPoint** for their presenter displays. They show the next slide as a picture, but the
+  code morphs, the point of the talk, wouldn't survive the export, and the export is a copy to keep in step.
+- **The artifact's notes below the slide**, on one screen, mirrored to the projector: the audience would see the
+  notes.
+
+### Limitations accepted
+
+- The player follows the format; it isn't the artifact's renderer. The format's defaults it needs are in
+  `present.css` (the same as `render.py`'s, plus the default text sizes), and the morphs' timing and easing are its
+  own.
+- The next slide is shown as it is when it arrives, not as the morph into it.
+
+### Verification
+
+In headless Chrome: a slide at its last click matches `render.py`'s screenshot; magic moves, a build and a push
+frozen halfway through (the player's `?at=I.S&next=1&freeze=MS` hook) look as intended; a page holding the presenter
+view and the slides showed both following → three times, B, and a jump to slide 17, and a reloaded presenter view
+taking up the slides' position. Not yet tried in Safari or on two displays.
+
+---
+
 ## 2026-10-04 — `palindromize`'s `seq` and `isSeq` (deck 5.11)
 
 ### What changed
