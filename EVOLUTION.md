@@ -580,8 +580,12 @@ still needed where the source type isn't a collection class, as with `String` he
 The headline of the 2 → 3 transition, shown on one slide:
 
 - **Significant indentation**: braces go; `xs match` takes its cases by indentation.
-- **`implicit` → `given`/`using`** (talk stage 4): the companion default is a `given`, and the `Eq` arrives through a
-  `using` clause.
+- **`implicit` → `given`/`using`** (talk stage 4): the companion default is a `given`. `isPalindrome` takes its `Eq`
+  through a context bound, `[A: Eq]`, and `palindromize` through a `using` clause.
+- **`x === y`**: `Eq` gains an extension method, `===`, inside the trait. An extension defined in a given is
+  available wherever that given is in scope, and the context bound's evidence is, so `isPalindrome` compares
+  `x === y` with no wrapper class and no name for the `Eq`. Scala 2 would have needed a second implicit class
+  for that syntax. The trait still declares `eqv`, the single abstract method, so the `_ == _` lambdas still work.
 - **`implicit class` → `extension`** (stage 6), at top level. `object Palindrome` disappears, because Scala 3 has
   top-level definitions. The wrapper class disappears too, because an extension method is also an ordinary method:
   `isPalindrome(xs)` and `xs.isPalindrome` are the same method, so the recursion reads `middle.isPalindrome`.
@@ -661,6 +665,8 @@ import scala.collection.generic.IsSeq
 // Equality as a type class: the caller decides what "the same element" means.
 trait Eq[A]:
   def eqv(x: A, y: A): Boolean
+  // Infix syntax, wherever an Eq[A] is a given in scope: x === y.
+  extension (x: A) def ===(y: A): Boolean = eqv(x, y)
 
 object Eq:
   // The default, found in Eq's implicit scope: universal equality.
@@ -670,11 +676,11 @@ object Eq:
   val caseInsensitive: Eq[Char] = _.toLower == _.toLower
 
 // A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
-extension [A](xs: Seq[A])(using eq: Eq[A])
+extension [A: Eq](xs: Seq[A])
   // x +: middle :+ y peels off the first and the last element in one pattern.
   @tailrec
   def isPalindrome: Boolean = xs match
-    case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome
+    case x +: middle :+ y => x === y && middle.isPalindrome
     case _ => true
 
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
@@ -943,9 +949,9 @@ The source is unchanged. 3.4 and 3.5 are identical.
 
 - **`given universal: [A] => Eq[A]`**: the 3.6 given syntax reads as "for every `A`, an `Eq[A]`", replacing
   `given universal[A]: Eq[A]`.
-- **`[A: Eq as eq]`**: a context bound can now be named, so the `using eq: Eq[A]` clause folds into the type
-  parameter. `eq` stays usable by name in the body. `palindromize` gets the same treatment:
-  `extension [Repr: IsSeq as seq](xs: Repr)`, and `seq.A` still works in the `BuildFrom`.
+- **`[Repr: IsSeq as seq]`**: a context bound can now be named, so `palindromize`'s `using seq: IsSeq[Repr]`
+  clause folds into the type parameter, and `seq.A` still works in the `BuildFrom`. `isPalindrome` needs no name
+  for its `Eq`, since `===` comes from the given itself, so it keeps 3.0's `[A: Eq]`.
 
 3.5 rejects both. 3.7 to 3.9 are identical.
 
@@ -954,7 +960,7 @@ The source is unchanged. 3.4 and 3.5 are identical.
 ```diff
 --- v3_5/src/Palindrome.scala
 +++ v3_6/src/Palindrome.scala
-@@ -8,13 +8,13 @@
+@@ -10,7 +10,7 @@
  
  object Eq:
    // The default, found in Eq's implicit scope: universal equality.
@@ -963,14 +969,7 @@ The source is unchanged. 3.4 and 3.5 are identical.
  
    // Opt-in: pass it with `using`, or bring it into scope as a given.
    val caseInsensitive: Eq[Char] = _.toLower == _.toLower
- 
- // A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
--extension [A](xs: Seq[A])(using eq: Eq[A])
-+extension [A: Eq as eq](xs: Seq[A])
-   // x +: middle :+ y peels off the first and the last element in one pattern.
-   @tailrec
-   def isPalindrome: Boolean = xs match
-@@ -24,7 +24,7 @@
+@@ -26,7 +26,7 @@
  // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
  // ("abcb".palindromize == "abcba"). The Eq decides what counts as a palindrome; the empty suffix always is one.
  // IsSeq lets any Repr, String included, be read as a Seq; BuildFrom builds a new Repr.
@@ -995,6 +994,8 @@ import scala.collection.generic.IsSeq
 // Equality as a type class: the caller decides what "the same element" means.
 trait Eq[A]:
   def eqv(x: A, y: A): Boolean
+  // Infix syntax, wherever an Eq[A] is a given in scope: x === y.
+  extension (x: A) def ===(y: A): Boolean = eqv(x, y)
 
 object Eq:
   // The default, found in Eq's implicit scope: universal equality.
@@ -1004,11 +1005,11 @@ object Eq:
   val caseInsensitive: Eq[Char] = _.toLower == _.toLower
 
 // A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
-extension [A: Eq as eq](xs: Seq[A])
+extension [A: Eq](xs: Seq[A])
   // x +: middle :+ y peels off the first and the last element in one pattern.
   @tailrec
   def isPalindrome: Boolean = xs match
-    case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome
+    case x +: middle :+ y => x === y && middle.isPalindrome
     case _ => true
 
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix

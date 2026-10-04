@@ -3,8 +3,12 @@
 The headline of the 2 → 3 transition, shown on one slide:
 
 - **Significant indentation**: braces go; `xs match` takes its cases by indentation.
-- **`implicit` → `given`/`using`** (talk stage 4): the companion default is a `given`, and the `Eq` arrives through a
-  `using` clause.
+- **`implicit` → `given`/`using`** (talk stage 4): the companion default is a `given`. `isPalindrome` takes its `Eq`
+  through a context bound, `[A: Eq]`, and `palindromize` through a `using` clause.
+- **`x === y`**: `Eq` gains an extension method, `===`, inside the trait. An extension defined in a given is
+  available wherever that given is in scope, and the context bound's evidence is, so `isPalindrome` compares
+  `x === y` with no wrapper class and no name for the `Eq`. Scala 2 would have needed a second implicit class
+  for that syntax. The trait still declares `eqv`, the single abstract method, so the `_ == _` lambdas still work.
 - **`implicit class` → `extension`** (stage 6), at top level. `object Palindrome` disappears, because Scala 3 has
   top-level definitions. The wrapper class disappears too, because an extension method is also an ordinary method:
   `isPalindrome(xs)` and `xs.isPalindrome` are the same method, so the recursion reads `middle.isPalindrome`.

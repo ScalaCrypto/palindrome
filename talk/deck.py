@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.9-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.10-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.9-deck/project"
+DECK = ROOT / "talk/5.10-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -139,13 +139,16 @@ ASIDES = {
             "WrappedString. IsSeq accepts anything readable as a Seq, String included; BuildFrom replaces "
             "CanBuildFrom. The wart: Scala 2 can't mention seq.A in the same parameter list as seq, so the element "
             "type becomes an extra type parameter A0, tied by a refinement.",
-    "3.0": "The big collapse, on the methods. Braces go; implicit becomes using; object Palindrome and the wrapper "
-           "class disappear, because an extension method is an ordinary method too: isPalindrome(xs) and "
-           "xs.isPalindrome are the same method. palindromize loses 2.13's refinement and extra type parameter, "
-           "because the method's using clause comes after the extension's and can name seq.A.",
-    "3.6": "The using clauses fold into the type parameters: a context bound can now be named. The given syntax "
-           "changes too, off this slide: given universal: [A] => Eq[A], \"for every A, an Eq[A]\". 3.5 rejects both. "
-           "3.7 to 3.9 change nothing this code uses.",
+    "3.0": "The big collapse, on the methods. Braces go; implicit becomes a context bound and using; object "
+           "Palindrome and the wrapper class disappear, because an extension method is an ordinary method too: "
+           "isPalindrome(xs) and xs.isPalindrome are the same method. x === y is Eq's own extension, found because "
+           "the context bound's Eq is a given in scope: no name for it, no second wrapper. palindromize loses 2.13's "
+           "refinement and extra type parameter, because the method's using clause comes after the extension's and "
+           "can name seq.A.",
+    "3.6": "palindromize's using clause folds into the type parameter: a context bound can now be named, and seq.A "
+           "still works. isPalindrome needs no name for its Eq, so it doesn't change. The given syntax changes too, "
+           "on the Eq slide: given universal: [A] => Eq[A], \"for every A, an Eq[A]\". 3.5 rejects both. 3.7 to 3.9 "
+           "change nothing this code uses.",
 }
 
 # Per code state: the notes, in the order they appear. A note is its highlighted code (one or more anchors, the
@@ -181,16 +184,16 @@ NOTES = {
          "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
     ],
     "3.0": [
-        (["⟨extension [A](xs: Seq[A])⟩", "⟨(using eq: Eq[A])⟩"],
-         "extension and using replace the\nobject, wrapper class and implicit"),
-        (["⟨middle.isPalindrome⟩", "indexWhere(⟨_.isPalindrome⟩)"], "an extension is also\nan ordinary method"),
+        (["⟨extension [A: Eq](xs: Seq[A])⟩"],
+         "extension and a context bound replace\nthe object, wrapper class and implicit"),
+        (["=> ⟨x === y⟩", "⟨middle.isPalindrome⟩", "indexWhere(⟨_.isPalindrome⟩)"],
+         "=== and isPalindrome:\nextensions, called\nlike methods"),
         (["⟨extension [Repr](xs: Repr)(using seq: IsSeq[Repr])⟩", "palindromize⟨(using eq: Eq[seq.A]⟩",
           "BuildFrom[Repr, ⟨seq.A⟩, Repr]"],
-         "IsSeq in the extension's using;\nlater clauses see seq.A: no A0"),
+         "IsSeq in the extension's\nusing; later clauses\nsee seq.A: no A0"),
     ],
     "3.6": [
-        (["[⟨A: Eq as eq⟩]"], "a context bound\nwith a name"),
-        (["[⟨Repr: IsSeq as seq⟩]"], "the same for IsSeq;\nseq.A still works"),
+        (["[⟨Repr: IsSeq as seq⟩]"], "a context bound with\na name: seq.A still works"),
     ],
     "0": [],
     "4.0": [
@@ -218,7 +221,9 @@ EQ_ASIDES = {
             "classes shrink to one line each. A good moment for the old-ways speaker to concede one. Nothing else "
             "about Eq changes until Scala 3.",
     "3.0": "The big collapse reaches Eq: braces give way to indentation, implicit def becomes given, and the lambdas "
-           "shrink to placeholders, _ == _. caseInsensitive stays a plain val: it's opt-in, so it isn't a given.",
+           "shrink to placeholders, _ == _. caseInsensitive stays a plain val: it's opt-in, so it isn't a given. The "
+           "trait gains ===, an extension: wherever an Eq[A] is a given in scope, x === y calls its eqv. eqv stays "
+           "the single abstract method, so the lambdas still implement Eq.",
     "3.6": "The new given syntax: given universal: [A] => Eq[A] reads as \"for every A, an Eq[A]\". 3.5 rejects it. "
            "3.7 to 3.9 change nothing here.",
 }
@@ -238,6 +243,7 @@ EQ_NOTES = {
     "3.0": [
         (["trait Eq[A]⟨:⟩", "object Eq⟨:⟩"], "braces give way\nto indentation"),
         (["⟨given⟩ universal"], "given replaces\nimplicit def"),
+        (["⟨extension (x: A) def ===(y: A): Boolean = eqv(x, y)⟩"], "x === y, wherever an\nEq[A] is a given in scope"),
         (["Eq[A] = ⟨_ == _⟩", "Eq[Char] = ⟨_.toLower == _.toLower⟩"], "placeholder lambdas"),
     ],
     "3.6": [
@@ -676,7 +682,7 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
 # twice, so the two ends must be equal. No real Scala compiles it.
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
     "def isPalindrome(s: String): Boolean = s == s.reverse", "", "def palindromize(s: String): String = s + s.reverse"]}
-PROLOG = ("case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
+PROLOG = ("case x +: middle :+ y => x === y && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
 
 def code_states() -> list[dict]:
     states = morph.load_states("code")
@@ -705,6 +711,18 @@ def blocks(lines: list[str]) -> list[list[str]]:
     return out
 
 
+def definitions(lines: list[str]) -> list[list[str]]:
+    """The top-level definitions of an Eq state (trait Eq, then object Eq): a definition starts at column 0, after a
+    blank line."""
+    out = [[]]
+    for n, line in enumerate(lines):
+        if n and line[:1].isalpha() and not lines[n - 1].strip():
+            out[-1].pop()  # the blank line between them; join puts it back
+            out.append([])
+        out[-1].append(line)
+    return out
+
+
 def join(parts: list[list[str]]) -> list[str]:
     return [line for i, part in enumerate(parts) for line in ([""] if i else []) + part]
 
@@ -712,9 +730,14 @@ def join(parts: list[list[str]]) -> list[str]:
 def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | None, dict]:
     """What the slides of the step into state k show: the previous state shown again (None for a track's first state),
     a state between them (None unless both methods change: the new isPalindrome next to the old palindromize, so
-    isPalindrome morphs first), and state k. On the code track only the methods that change in this step are shown,
-    on every slide."""
+    isPalindrome morphs first), and state k. On the code and Eq tracks only the methods or definitions that change
+    in this step are shown, on every slide."""
     after, before, between = states[k], states[k - 1] if k else None, None
+    if track == "eq" and before:  # only the definitions that change: object Eq, and trait Eq where it changes
+        a, b = definitions(after["lines"]), definitions(before["lines"])
+        keep = [i for i in range(len(a)) if a[i] != b[i]]
+        after = {**after, "lines": join([a[i] for i in keep])}
+        before = {**before, "lines": join([b[i] for i in keep])}
     if track == "code" and before:
         a, b = blocks(after["lines"]), blocks(before["lines"])
         keep = [i for i in range(len(a)) if a[i] != b[i]]

@@ -6,6 +6,8 @@ import scala.collection.generic.IsSeq
 // Equality as a type class: the caller decides what "the same element" means.
 trait Eq[A]:
   def eqv(x: A, y: A): Boolean
+  // Infix syntax, wherever an Eq[A] is a given in scope: x === y.
+  extension (x: A) def ===(y: A): Boolean = eqv(x, y)
 
 object Eq:
   // The default, found in Eq's implicit scope: universal equality.
@@ -15,11 +17,11 @@ object Eq:
   val caseInsensitive: Eq[Char] = _.toLower == _.toLower
 
 // A top-level extension method: "racecar".isPalindrome, or called as a function, isPalindrome(xs).
-extension [A: Eq as eq](xs: Seq[A])
+extension [A: Eq](xs: Seq[A])
   // x +: middle :+ y peels off the first and the last element in one pattern.
   @tailrec
   def isPalindrome: Boolean = xs match
-    case x +: middle :+ y => eq.eqv(x, y) && middle.isPalindrome
+    case x +: middle :+ y => x === y && middle.isPalindrome
     case _ => true
 
 // The shortest palindrome starting with xs: mirror only what comes before its longest palindromic suffix
