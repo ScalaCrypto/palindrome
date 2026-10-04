@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.13-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.14-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.13-deck/project"
+DECK = ROOT / "talk/5.14-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -695,6 +695,15 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
 # twice, so the two ends must be equal. No real Scala compiles it.
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
     "def isPalindrome(s: String): Boolean = s == s.reverse", "", "def palindromize(s: String): String = s + s.reverse"]}
+# Scala 2's method syntax as 2.13 could write it, an implicit class like 2.11's (v2_13 writes a class and an implicit
+# def), shown next to 2.13's methods before 3.0: its isPalindrome goes when isPalindrome becomes an extension, and the
+# class when palindromize does. It compiles and passes 2.13's tests in place of v2_13's, but isn't in the sources.
+OPS_2_13 = [
+    "implicit class PalindromeOps[Repr, A0](xs: Repr)(implicit isSeq: IsSeq[Repr] { type A = A0 }) {",
+    "  def isPalindrome(implicit eq: Eq[A0]): Boolean = Palindrome.isPalindrome(isSeq(xs).toSeq)",
+    "  def palindromize(implicit eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = Palindrome.palindromize(xs)",
+    "}",
+]
 PROLOG = ("case x +: middle :+ y => x === y && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
 
 def code_states() -> list[dict]:
@@ -758,6 +767,10 @@ def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | N
             between = {**after, "lines": join([a[0], b[1]])}
         after = {**after, "lines": join([a[i] for i in keep])}
         before = {**before, "lines": join([b[i] for i in keep])}
+        if after["versions"][0] == "3.0":  # the implicit class the extensions replace, one method at a time
+            before["lines"] = join([before["lines"], OPS_2_13])
+            if between:
+                between["lines"] = join([between["lines"], OPS_2_13[:1] + OPS_2_13[2:]])
     wrapped = lambda st: st and {**st, "lines": [part for line in st["lines"] for part in wrap(line)]}
     return wrapped(before), wrapped(between), wrapped(after)
 
