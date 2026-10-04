@@ -5,6 +5,43 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-03 — Larger code: 25px (deck 5.9)
+
+### What changed
+
+The code slides' code, and the hand-written slides' code panels, go from 24px to 25px, still with line height 1.4.
+`SIZE` in `talk/deck.py` now derives the line height, the wrap width and the hand-written panels' style. The three
+reserve slides keep 24px (`RESERVE`): their code is the longest, and they're only shown in the Q&A.
+
+At 25px a panel holds 104 characters instead of 109, so the 105–107-character lines of the method-syntax slides
+(`o2-8`, `o2-10`, `o2-11`) wrap. `wrap` gains a break after the ` = ` that starts a definition's body, tried after
+`)(` and before `, `; 2.8's `implicit def palindromeOps … = new PalindromeOps(xs)` has neither of the others. At
+24px it breaks nothing. Three `OPS_NOTES` anchors follow the code they mark: 2.13's conversion is two anchors, one
+per line it can wrap onto, and two anchors take in a `{` and a `Palindrome.` that the morph now treats as new.
+Bubbles are placed 6px inside the margins, the width of their outline's padding: on `o2-11` the outline crossed the
+right margin by 4px.
+
+### Why
+
+Larger code reads better from the back of the room, and the slides had space to spare below the code.
+
+### Alternatives rejected
+
+- **26px to 29px.** Each builds with the anchor changes, but a bubble finds no room: the widest code lines leave a
+  note on a first line no side to come from (a tail may not cross other code), and the heading is above it. 26px
+  fails on `o2-11`'s "may be private", 27px on 2.9's note, 28px on 2.8's, 29px on `o2-5`'s. From 30px a line of
+  `o2-10` can't be wrapped at all.
+- **Narrower panel padding.** With none at all, the 107-character lines fit up to about 25.9px: no whole size gained.
+- **24.5px.** Fits without new wrapping, but the difference doesn't show.
+
+### Verification
+
+`talk/deck.py` builds 63 slides with 32 notes, and `talk/render.py --screenshots` passes; the wrapped slides
+(`o2-8`, `o2-10`, `o2-11`) and `m2-8` were checked in the screenshots. At 24px the new wrapper rebuilds the 5.8 deck
+unchanged.
+
+---
+
 ## 2026-10-02 — Deletions before the morph, bubbles off the code, and Scala 4.0 (deck 5.8)
 
 ### What changed

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.8-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.9-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.8-deck/project"
+DECK = ROOT / "talk/5.9-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -44,15 +44,19 @@ FACES = {
 }
 
 # Every code slide looks like the hand-written slides with code: eyebrow, heading, then the code in a panel.
-# One code size for the whole deck, the largest at which the tallest code (2.8, 17 lines once wrapped) fits: 24px,
-# line height 1.4.
+# One code size for every code slide, the largest at which every bubble still finds room: 25px, line height 1.4. At
+# 26px the widest code leaves a note on its first line no side to come from. The reserve slides keep 24px.
 # The panel starts below the heading (128 + heading 70.4 + gap 36); the version is on the timeline, not above it.
-SIZE, LH = 24, 33.6
+SIZE = 25
+LH = round(SIZE * 1.4, 1)
 PANEL_TOP, PANEL_PAD_X, PANEL_PAD_Y = 234, 44, 36
 LEFT, TOP = 128 + 1 + PANEL_PAD_X, PANEL_TOP + 1 + PANEL_PAD_Y  # inside the panel's 1px border and padding
 CW = SIZE * 0.6  # IBM Plex Mono advances 0.6 em
 MAX_CHARS = int((1664 - 2 - 2 * PANEL_PAD_X) / CW)  # longer lines are wrapped
-CODE_STYLE = "font-size:24px; line-height:1.4"
+CODE_STYLE = f"font-size:{SIZE}px; line-height:1.4"
+# The reserve slides keep the code size they were written for: their code is longer, and only shown in the Q&A.
+RESERVE = {"r-indexedseq", "r-stringslice", "r-linear"}
+RESERVE_CODE_STYLE = "font-size:24px; line-height:1.4"
 
 # Bubbles: Fuzzy Bubbles at 26px (it looks as large as a handwriting script at 36); 0.60 em per character is a
 # little over its average advance, so text never overflows.
@@ -291,10 +295,10 @@ OPS_NOTES = {
         (["(⟨private⟩ val xs"], "may be private"),
     ],
     "2.13": [
-        (["PalindromeOps⟨[Repr, S <: IsSeq[Repr]](xs: Repr, seq: S)⟩", "Eq[⟨seq.A⟩]): Boolean", "isPalindrome(⟨seq(xs)⟩",
-          "Eq[⟨seq.A⟩], bf", "bf: ⟨BuildFrom[Repr, seq.A, Repr]⟩", "palindromize⟨[Repr, seq.A](xs)(seq: seq.type, eq, bf)⟩"],
+        (["PalindromeOps⟨[Repr, S <: IsSeq[Repr]](xs: Repr, seq: S) {⟩", "Eq[⟨seq.A⟩]): Boolean", "isPalindrome(⟨seq(xs)⟩",
+          "Eq[⟨seq.A⟩], bf", "bf: ⟨BuildFrom[Repr, seq.A, Repr]⟩", "Palindrome⟨.palindromize[Repr, seq.A](xs)(seq: seq.type, eq, bf)⟩"],
          "built on IsSeq, which\nreads any Repr as a Seq"),
-        (["⟨implicit def palindromeOps[Repr](xs: Repr)(implicit seq: IsSeq[Repr])⟩", "⟨: PalindromeOps[Repr, seq.type] =⟩",
+        (["⟨implicit def palindromeOps[Repr](xs: Repr)(⟩", "⟨implicit seq: IsSeq[Repr])⟩:", "⟨: PalindromeOps[Repr, seq.type] =⟩",
           "⟨new PalindromeOps(xs, seq)⟩"],
          "from String itself:\nno chain of views"),
     ],
@@ -303,17 +307,21 @@ OPS_NOTES = {
 
 def wrap(line: str) -> list[str]:
     """A line too long for the panel, broken where the hand-written slides break them: after a `)(` between parameter
-    lists, else after a `, ` between parameters, rightmost first; continuations are indented 4 more."""
+    lists, else after the ` = ` that starts a definition's body, else after a `, ` between parameters, rightmost
+    first; continuations are indented 4 more."""
     if len(line) <= MAX_CHARS:
         return [line]
-    cuts, between, depth = [], [], 0
+    cuts, between, body, depth = [], [], [], 0
     for i, ch in enumerate(line):
         depth += ch in "[{" and 1 or ch in "]}" and -1 or 0
         if line.startswith(")(", i) and depth == 0:
             between.append(i + 2)
+        elif line.startswith(" = ", i) and depth == 0:
+            body.append(i + 3)
         elif line.startswith(", ", i) and depth == 0:
             cuts.append(i + 2)
-    fits = [c for c in between if c <= MAX_CHARS] or [c for c in cuts if c <= MAX_CHARS]
+    fits = [c for c in between if c <= MAX_CHARS] or [c for c in body if c <= MAX_CHARS] or \
+        [c for c in cuts if c <= MAX_CHARS]
     if not fits:
         raise SystemExit(f"can't wrap: {line!r}")
     indent = " " * (len(line) - len(line.lstrip()) + 4)
@@ -478,7 +486,7 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     # The panel is pinned, with one id on every code slide, so a morph resizes it instead of fading it.
     height = round(len(state["lines"]) * LH + 2 * PANEL_PAD_Y + 2, 1)
     top = TOP
-    area = (128, 128, 1792, 952)  # the slide inside its margins, above the timeline
+    area = (128 + 6, 128, 1792 - 6, 952)  # inside the margins and above the timeline, less a bubble's 6px outline
     rows = [f'<section id="{slide_id}" data-transition="{transition}" style="background:{BG}; color:{FG}; '
             f"font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; "
             f'flex-direction:column; gap:36px">',
@@ -580,19 +588,19 @@ def highlight_line(m) -> str:
     return f'<p style="{style}">{prefix}{highlight(text)}</p>'
 
 
-def uniform_panels(html: str) -> str:
-    """Every code panel like the code slides': the same padding, and the same code size and line height."""
+def uniform_panels(html: str, style: str = CODE_STYLE) -> str:
+    """Every code panel like the code slides': the same padding, and the same code size and line height (`style`)."""
     def panel(d):
         opening = re.sub(r"padding:[\d ]+px(?: \d+px)?", f"padding:{PANEL_PAD_Y}px {PANEL_PAD_X}px", d.group(1))
-        body = re.sub(r"font-size:\d+px; line-height:[\d.]+", CODE_STYLE, d.group(2))
+        body = re.sub(r"font-size:\d+px; line-height:[\d.]+", style, d.group(2))
         return opening + body + d.group(3)
     return re.sub(r"(<div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(.*?)(</div>)", panel, html, flags=re.S)
 
 
-def normalize(html: str) -> str:
+def normalize(html: str, style: str = CODE_STYLE) -> str:
     """A hand-written slide's code panels like the code slides': uniform_panels, and each code line coloured by
     highlight_line. Both only depend on the text, so running this again changes nothing."""
-    html = uniform_panels(html)
+    html = uniform_panels(html, style)
     return re.sub(r"(<div style=\"[^\"]*IBM Plex Mono[^\"]*\">)(.*?)(</div>)",
                   lambda d: d.group(1) + re.sub(r'<p style="([^"]*)">(.*?)</p>', highlight_line, d.group(2),
                                                 flags=re.S) + d.group(3), html, flags=re.S)
@@ -782,7 +790,7 @@ def build():
             if leave := leaving(n, None):  # it leads into a state shown again
                 html = re.sub(r'(<section id="[^"]+" data-transition=")[a-z]+"', rf'\g<1>{leave}"', html, count=1)
             new_in = re.match(r"f(\d+)-(\d+)$", item)  # a "New in" slide, f2-8 for 2.8
-            new = with_footer(normalize(html), HAND_VERSIONS.get(item) or (new_in and ".".join(new_in.groups())))
+            new = with_footer(normalize(html, RESERVE_CODE_STYLE if item in RESERVE else CODE_STYLE), HAND_VERSIONS.get(item) or (new_in and ".".join(new_in.groups())))
             if new != html:
                 path.write_text(new)
             continue

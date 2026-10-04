@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Renders a deck (the talk's deck, talk/5.8-deck/, unless another is named) with headless Chrome and checks
+"""Renders a deck (the talk's deck, talk/5.9-deck/, unless another is named) with headless Chrome and checks
 its layout.
 
 Usage: talk/render.py                 measure every slide; exit 1 if anything overflows
        talk/render.py --screenshots   also write one PNG per slide, plus contact sheets, to
-                                      out/talk-render/5.8-deck/
+                                      out/talk-render/5.9-deck/
        talk/render.py [--screenshots] talk/tag-cloud   the same for another deck, into out/talk-render/tag-cloud/
 
 Each slide is laid out on the deck's fixed 1920x1080 canvas with the deck's own fonts, then measured:
@@ -31,7 +31,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.8-deck/project"
+DECK = ROOT / "talk/5.9-deck/project"
 OUT = ROOT / "out/talk-render"
 FONTS = OUT / "fonts"
 BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
