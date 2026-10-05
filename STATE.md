@@ -6,7 +6,7 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.15-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.16-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
 
 Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, `palindromize`, which builds a palindrome of the input's own collection type, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
 
@@ -79,7 +79,7 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── 5.15-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
+│   ├── 5.16-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
@@ -192,17 +192,17 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
-- **Deck version**: the deck's directory starts with its version (`5.15-deck`). A revision that changes the deck's
+- **Deck version**: the deck's directory starts with its version (`5.16-deck`). A revision that changes the deck's
   code or look renames it (`git mv`, and `DECK` in `talk/deck.py`); `talk/README.md` has the history.
-- **The deck is `talk/5.15-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
+- **The deck is `talk/5.16-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
   - **Code slides** are generated from the version sources by `talk/deck.py`, in three tracks that each morph from
     version to version where their code changes: the methods (`m*.html`), `Eq` (`e*.html`) and Scala 2's method
     syntax (`o*.html`), with the notes in its `NOTES`/`EQ_NOTES`/`OPS_NOTES` and `ASIDES`/`EQ_ASIDES`/`OPS_ASIDES`.
     Never edit them by hand: the next build overwrites them. The deck goes version by version, each version
     introduced by its slide from the tag-cloud deck (`tc*.html`, copied in by the build), followed by a hand-written "New in" slide (`f*.html`), and every slide gets the
     tag-cloud deck's timeline footer, which replaces the version label above the heading. The code track starts from the opening one-liner. The step from 2.13 to 3.0
-    also shows 2.13's method syntax as an implicit class (`OPS_2_13`, not in the sources; `DESIGN.md`), emptied
-    method by method and then removed on a click of its own (`m3-0-ops`). Where a
+    also shows 2.13's method syntax as an implicit class (`OPS_2_13`, not in the sources; `DESIGN.md`), commented
+    out method by method, and then as a whole on a click of its own (`m3-0-ops`), with a note that it's obsolete. Where a
     step changes both methods, `isPalindrome` morphs first, with its bubbles (`m*-is.html`), and `palindromize` on the
     next click. The tour ends with a made-up Scala 4.0 (`cloud4-0`, `f4-0`,
     `m4-0`: Prolog extractors, a match that names `x` twice). The bubbles go anywhere on the slide outside the code,
@@ -214,8 +214,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
 - **After changing the code, the notes or a slide**, run `talk/deck.py`, check it with `talk/render.py
-  --screenshots`, and republish `talk/5.15-deck/project/` to the artifact. **After editing the artifact**, read the
-  changed slides back into `talk/5.15-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
+  --screenshots`, and republish `talk/5.16-deck/project/` to the artifact. **After editing the artifact**, read the
+  changed slides back into `talk/5.16-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -230,7 +230,7 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/deck.py             # rebuild the deck in talk/5.15-deck/ (code slides, notes, order)
+talk/deck.py             # rebuild the deck in talk/5.16-deck/ (code slides, notes, order)
 talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck

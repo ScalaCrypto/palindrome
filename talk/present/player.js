@@ -8,7 +8,7 @@
 // A position in the show is (slide index, step): step 0 shows no builds, step N the builds up to N.
 
 const W = 1920, H = 1080;
-const MAGIC = 1600, FADE = 500, PUSH = 600, BUILD = 400;  // durations, ms; a morph slow enough to follow
+const MAGIC = 2400, FADE = 500, PUSH = 600, BUILD = 400;  // durations, ms; a morph slow enough to follow
 const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
 function buildOrder(el) {
