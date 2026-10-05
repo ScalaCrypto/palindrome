@@ -6,7 +6,10 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 - `5.16-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
   holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai Slides artifact
   uses; the paths match the artifact's own.
-- `deck.py`: builds the deck's code slides, their notes and its slide order; below.
+- `script.md`: the talk as a dialogue between Martin and Odd, slide by slide, with stage directions and timing.
+  Its spoken lines are every slide's speaker notes: `deck.py` copies them in, so edit the dialogue there, not in the
+  artifact or the slide files.
+- `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
 - `render.py`: renders a deck, the talk's deck unless another is named, in headless Chrome and checks the layout.
@@ -39,7 +42,7 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   automatically wherever they fit on the slide, clear of the heading, the code and the timeline: the code panel holds
   only its code, so a bubble never adds a line to it. A bubble never mentions a later version. After 3.6, a made-up Scala 4.0 follows: its tag-cloud and "New in" slides
   (`cloud4-0`, `f4-0`, hand-written) and a code slide (`m4-0`) whose match names `x` twice. The notes are
-  `NOTES`, `EQ_NOTES` and `OPS_NOTES` in `deck.py`, the speaker notes `ASIDES`, `EQ_ASIDES` and `OPS_ASIDES`, and how
+  `NOTES`, `EQ_NOTES` and `OPS_NOTES` in `deck.py`, and how
   tokens are matched between versions is in `../DESIGN.md`. **Never edit these by hand**: the next build overwrites them.
 - **Every other slide is hand-written**: the cover, the framing slides, the "New in" slides, the takeaways and the reserve slides. Edit them in the artifact or in their files. The build leaves them
   as they are, except that it normalizes their code panels: the code slides' padding and code size, and the code
