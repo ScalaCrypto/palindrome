@@ -212,7 +212,7 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     their code panels, which it normalizes (size, padding, colouring), so write that code as plain text. Their code
     is copied from the sources and isn't checked against them: after a code change, compare them with `EVOLUTION.md`.
   - **The speaker notes are `talk/script.md`**: the talk as a dialogue between Martin and Odd (good cop, bad cop),
-    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes,
+    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `*`),
     hand-written slides included, on every build, so edit the dialogue there; the build fails if the script's slides
     don't follow the deck's order. Adding, removing or reordering a slide means editing the script too.
   - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
