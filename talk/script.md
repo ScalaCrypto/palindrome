@@ -19,7 +19,8 @@ from recognition: everybody in the room has lived through CanBuildFrom.
 
 - `MARTIN:`, `ODD:` and `BOTH:` lines are spoken. They, and only they, become the slides' speaker notes:
   `talk/deck.py` copies them into every slide's notes, so edit the dialogue here, not in the artifact.
-- `[click]` inside a line: click there, mid-sentence if needed. `[brackets]` are never spoken.
+- `[click]` inside a line: click there, mid-sentence if needed. In the speaker notes it's an asterisk, `*`.
+  Other `[brackets]` are never spoken, and stay out of the notes.
 - Lines starting with `>` are stage directions: who does what, and when to click.
 - Each slide's heading gives its number, its id in the deck, and roughly how long it takes, with the clock at its
   start.

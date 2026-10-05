@@ -726,7 +726,8 @@ def first_method(state: dict, notes: list) -> set[int]:
 
 # The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
 # "## <number> · <slide id> — ..."; its MARTIN:, ODD: and BOTH: lines are what's said, and become the slide's notes,
-# without the [bracketed] stage directions. Everything else in the file is for the speakers only.
+# with each [click] as an asterisk and without the other [bracketed] stage directions. Everything else in the file is
+# for the speakers only.
 SCRIPT = ROOT / "talk/script.md"
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+)$", re.M)
 
@@ -738,7 +739,7 @@ def script_notes() -> list[tuple[int, str, str]]:
     out = []
     for i, h in enumerate(heads):
         body = text[h.end():heads[i + 1].start() if i + 1 < len(heads) else len(text)]
-        lines = [f"{who}: " + re.sub(r"\s+", " ", re.sub(r"\[[^\]]*\]", "", said)).strip()
+        lines = [f"{who}: " + re.sub(r"\s+", " ", re.sub(r"\[[^\]]*\]", "", said.replace("[click]", "*"))).strip()
                  for who, said in SPEECH.findall(body)]
         out.append((int(h.group(1)), h.group(2), "\n".join(lines)))
     return out

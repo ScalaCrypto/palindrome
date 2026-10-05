@@ -36,8 +36,8 @@
 <p data-bleed="" style="position:absolute; left:1639px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.9</p>
 <p data-bleed="" style="position:absolute; left:1720px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">4.0</p>
 <aside>MARTIN: Now method syntax. Seq has no isPalindrome, and we can't change Seq.
-ODD: So we wrap it.
-MARTIN: A wrapper that forwards. And an implicit def the compiler slips in whenever you call something Seq doesn't have.
+ODD: So we wrap it. *
+MARTIN: A wrapper that forwards. * And an implicit def the compiler slips in whenever you call something Seq doesn't have.
 ODD: So every call allocates a wrapper. And conversions don't chain, so "racecar".isPalindrome won't compile until 2.13.
 MARTIN: That's 2019.
 ODD: Twelve years to call a method on a String.</aside>
