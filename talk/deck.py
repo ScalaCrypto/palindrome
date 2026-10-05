@@ -202,6 +202,7 @@ NOTES = {
     "0": [
         ("s == ⟨s.reverse⟩", "copies the string\njust to compare"),
         ("s + ⟨s.reverse⟩", "not always\nthe shortest"),
+        ("palindromize(s: ⟨String⟩", "Only String\nWe want Seq[A]"),
     ],
     "4.0": [
         (["middle :+ ⟨x⟩ =>"], "x twice: both ends\nmust be the same"),
@@ -214,7 +215,7 @@ EQ_TITLES = {
     "2.5": "Equality is a type class",
     "2.8": "Char gets toLower",
     "2.12": "SAM conversion: lambdas implement traits",
-    "3.0": "given, indentation and extensions",
+    "3.0": "given indentation and extensions",
     "3.6": "The new given syntax",
 }
 EQ_ASIDES = {
@@ -241,7 +242,7 @@ EQ_NOTES = {
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
     ],
     "2.8": [
-        (["= ⟨x.toLower == y.toLower⟩"], "the 2.8 library\nadds toLower to Char"),
+        (["= ⟨x.toLower == y.toLower⟩"], "Char now has toLower"),
     ],
     "2.12": [
         (["Eq[A] = ⟨(x, y) => x == y⟩", "Eq[Char] = ⟨(x, y) => x.toLower == y.toLower⟩"],
