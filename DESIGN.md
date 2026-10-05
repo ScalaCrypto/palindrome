@@ -13,7 +13,8 @@ The step from 2.13 to 3.0 (`m2-13-again`, `m3-0-is`, `m3-0`) shows Scala 2's met
 `implicit class PalindromeOps` with both methods. Its `isPalindrome` goes when `isPalindrome` becomes an extension, and
 the whole class when `palindromize` does, so the slides show that extensions replace the implicit class. From deck
 5.15 the emptied class stays on a slide of its own (`m3-0-ops`, where `palindromize`'s notes come in) and goes on the
-next click.
+next click. From 5.16 nothing is removed: each method is commented out (`//` before each of its lines, in grey: the
+lines in a view's `struck`), and on that click the whole class, with a note (`OPS_NOTE`) that it's obsolete.
 
 ### Why the slides' code isn't 2.13's
 

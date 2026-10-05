@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Presents a deck (the talk's deck, talk/5.15-deck/, unless another is named) from this computer, with a presenter
+"""Presents a deck (the talk's deck, talk/5.16-deck/, unless another is named) from this computer, with a presenter
 view: the slides full screen on the external display, and on the laptop the current slide, what the next click
 shows, the speaker notes and a timer.
 

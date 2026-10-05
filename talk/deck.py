@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.15-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.16-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -32,7 +32,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.15-deck/project"
+DECK = ROOT / "talk/5.16-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -214,7 +214,7 @@ EQ_TITLES = {
     "2.5": "Equality is a type class",
     "2.8": "Char gets toLower",
     "2.12": "SAM conversion: lambdas implement traits",
-    "3.0": "given and placeholder lambdas",
+    "3.0": "given, indentation and extensions",
     "3.6": "The new given syntax",
 }
 EQ_ASIDES = {
@@ -236,9 +236,9 @@ EQ_ASIDES = {
 }
 EQ_NOTES = {
     "2.5": [
+        (["Eq[A] = ⟨new Eq[A] {⟩"], "each instance is an\nanonymous class"),
         (["⟨implicit def universal[A]⟩"], "the default, found in\nEq's implicit scope"),
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
-        (["Eq[A] = ⟨new Eq[A] {⟩"], "each instance is an\nanonymous class"),
     ],
     "2.8": [
         (["= ⟨x.toLower == y.toLower⟩"], "the 2.8 library\nadds toLower to Char"),
@@ -249,8 +249,8 @@ EQ_NOTES = {
     ],
     "3.0": [
         (["trait Eq[A]⟨:⟩", "object Eq⟨:⟩"], "braces give way\nto indentation"),
-        (["⟨given⟩ universal"], "given replaces\nimplicit def"),
         (["⟨extension (x: A) def ===(y: A): Boolean = eqv(x, y)⟩"], "x === y, wherever an\nEq[A] is a given in scope"),
+        (["⟨given⟩ universal"], "given replaces\nimplicit def"),
         (["Eq[A] = ⟨_ == _⟩", "Eq[Char] = ⟨_.toLower == _.toLower⟩"], "placeholder lambdas"),
     ],
     "3.6": [
@@ -561,7 +561,7 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     split = only is not None or shown
     nid = lambda n, part: f"{prefix}n{n}{part}" if split else None
     rows += [highlight_html(sp, click.get(p[0]), nid(p[0], f"h{j}")) for p in placed for j, sp in enumerate(p[7])]
-    rows += morph.code_runs_html(runs, SIZE, LH, CW, LEFT, top, prefix)
+    rows += morph.code_runs_html(runs, SIZE, LH, CW, LEFT, top, prefix, commented=state.get("struck", ()))
     for order, text, span, box, side, base, tip, _ in placed:
         rows.append(bubble_svg(box, side, base, tip, span, click.get(order), nid(order, "b")))
         rows.append(note_html(box, text, click.get(order), nid(order, "t")))
@@ -626,11 +626,12 @@ def normalize(html: str, style: str = CODE_STYLE) -> str:
 
 
 def uncovered(state, runs, prev_runs, notes) -> list[str]:
-    """New code in this state (tokens the previous state has no counterpart for) outside every highlight."""
+    """New code in this state (tokens the previous state has no counterpart for) outside every highlight; code
+    commented out isn't new."""
     prev_ids = {t["id"] for r in prev_runs for t in r}
     spans = [anchor_span(state["lines"], a) for anchors, _ in notes for a in anchors]
     missing = []
-    for t in (t for r in runs for t in r if t["id"] not in prev_ids):
+    for t in (t for r in runs for t in r if t["id"] not in prev_ids and t["line"] not in state.get("struck", ())):
         x0, y = LEFT + t["col"] * CW, TOP + t["line"] * LH
         x1 = x0 + len(t["text"]) * CW
         if not any(sp[0] - 0.5 <= x0 and x1 <= sp[2] + 0.5 and abs(sp[1] - y) < 1 for sp in spans):
@@ -696,14 +697,15 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
     "def isPalindrome(s: String): Boolean = s == s.reverse", "", "def palindromize(s: String): String = s + s.reverse"]}
 # Scala 2's method syntax as 2.13 could write it, an implicit class like 2.11's (v2_13 writes a class and an implicit
-# def), shown next to 2.13's methods before 3.0: its isPalindrome goes when isPalindrome becomes an extension, and the
-# class when palindromize does. It compiles and passes 2.13's tests in place of v2_13's, but isn't in the sources.
+# def), shown next to 2.13's methods before 3.0: its isPalindrome is commented out when isPalindrome becomes an
+# extension, its palindromize when palindromize does, and then the whole class, with a note (OPS_NOTE). It compiles and passes 2.13's tests in place of v2_13's, but isn't in the sources.
 OPS_2_13 = [
     "implicit class PalindromeOps[Repr, A0](xs: Repr)(implicit isSeq: IsSeq[Repr] { type A = A0 }) {",
     "  def isPalindrome(implicit eq: Eq[A0]): Boolean = Palindrome.isPalindrome(isSeq(xs).toSeq)",
     "  def palindromize(implicit eq: Eq[A0], bf: BuildFrom[Repr, A0, Repr]): Repr = Palindrome.palindromize(xs)",
     "}",
 ]
+OPS_NOTE = (["⟨implicit class PalindromeOps⟩"], "obsolete: the extensions\ndo its job, so it can go")
 PROLOG = ("case x +: middle :+ y => x === y && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
 
 def code_states() -> list[dict]:
@@ -768,12 +770,28 @@ def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | N
             between = {**after, "lines": join([a[0], b[1]])}
         after = {**after, "lines": join([a[i] for i in keep])}
         before = {**before, "lines": join([b[i] for i in keep])}
-        if after["versions"][0] == "3.0":  # the implicit class the extensions replace, one method at a time
-            before["lines"] = join([before["lines"], OPS_2_13])
+        if after["versions"][0] == "3.0":  # the implicit class the extensions replace, commented out a method at a time
+            def with_ops(st, struck):
+                start = len(st["lines"]) + 1
+                return {**st, "lines": join([st["lines"], OPS_2_13]), "struck": {start + i for i in struck}}
+            before = with_ops(before, ())
             if between:
-                between["lines"] = join([between["lines"], OPS_2_13[:1] + OPS_2_13[2:]])
-            shell = {**after, "lines": join([after["lines"], OPS_2_13[:1] + OPS_2_13[3:]])}  # then it goes on a click
-    wrapped = lambda st: st and {**st, "lines": [part for line in st["lines"] for part in wrap(line)]}
+                between = with_ops(between, (1,))
+            shell = with_ops(after, (1, 2))
+            after = with_ops(after, range(len(OPS_2_13)))  # then the whole class, on a click
+
+    def wrapped(st):
+        if not st:
+            return st
+        lines, struck = [], set()  # struck: the lines commented out, each part of a wrapped line its own // comment
+        for i, line in enumerate(st["lines"]):
+            for part in wrap(line):
+                if i in st.get("struck", ()):
+                    struck.add(len(lines))
+                    indent = len(part) - len(part.lstrip())
+                    part = part[:indent] + "// " + part[indent:]
+                lines.append(part)
+        return {**st, "lines": lines, "struck": struck}
     return wrapped(before), wrapped(between), wrapped(shell), wrapped(after)
 
 
@@ -887,13 +905,17 @@ def build():
             (slides / f"{slide}-is.html").write_text(with_footer(html, view["versions"][0]))
             if first_title != title:  # a new heading, a new topic: isPalindrome's notes go
                 only, first = set(range(1, len(notes) + 1)) - first, set()
-        if (track, k) in shells:  # palindromize morphs with its notes, leaving the empty class; it goes on a click
+        if (track, k) in shells:  # palindromize morphs with its notes, striking out the class's last method; then
+            # the whole class is struck out on a click, with its own note (OPS_NOTE, the last)
             shell, shell_runs = shells[track, k]
+            notes = notes + [OPS_NOTE]
+            ops_only = (set(range(1, len(notes))) if only is None else only)
             shell_layout = {}
-            html = code_slide(f"{slide}-ops", shell, shell_runs, "magic", notes, aside, title, spec["token"], only=only,
-                              shown=first, keep=layout, layout=shell_layout)
+            html = code_slide(f"{slide}-ops", shell, shell_runs, "magic", notes, aside, title, spec["token"],
+                              only=ops_only, shown=first, keep=layout, layout=shell_layout)
             (slides / f"{slide}-ops.html").write_text(with_footer(html, view["versions"][0]))
-            first, layout = set(range(1, len(notes) + 1)) if only is None else only, shell_layout
+            first, layout = ops_only, shell_layout
+            only = ops_only | {len(notes)}
         html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], only=only, shown=first,
                           keep=layout, heading_id=after_again and not between)
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))

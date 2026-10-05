@@ -229,6 +229,17 @@ def color(text: str) -> str | None:
     return None
 
 
+def esc_run(run) -> str:
+    """A run as plain text, its tokens spaced as in the code."""
+    parts, prev_end = [], None
+    for t in run:
+        if prev_end is not None:
+            parts.append("&#160;" * (t["col"] - prev_end))
+        parts.append(esc(t["text"]))
+        prev_end = t["col"] + len(t["text"])
+    return "".join(parts)
+
+
 def run_html(run) -> str:
     parts, prev_end = [], None
     for t in run:
@@ -240,15 +251,16 @@ def run_html(run) -> str:
     return "".join(parts)
 
 
-def code_runs_html(runs, size, lh, cw, left, top, prefix="t") -> list[str]:
+def code_runs_html(runs, size, lh, cw, left, top, prefix="t", commented=()) -> list[str]:
     """One pinned <p> per run, placed from its line and column; the id carries the morph, and its prefix keeps the
-    tracks apart."""
+    tracks apart. Runs on the lines numbered in `commented` are commented out: grey, like a comment."""
     out = []
     for run in runs:
         first, end = run[0], run[-1]["col"] + len(run[-1]["text"])
         w = round((end - first["col"]) * cw) + 4
         out.append(f'<p id="{prefix}{first["id"]}" style="position:absolute; left:{round(left + first["col"] * cw)}px; '
                    f'top:{round(top + first["line"] * lh, 1)}px; width:{w}px; font-family:\'IBM Plex Mono\', '
-                   f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap">'
-                   f"{run_html(run)}</p>")
+                   f'\'Courier New\', monospace; font-size:{size}px; line-height:{lh}px; white-space:nowrap'
+                   f'{f"; color:{MUTED}" if first["line"] in commented else ""}">'
+                   f"{esc_run(run) if first['line'] in commented else run_html(run)}</p>")
     return out
