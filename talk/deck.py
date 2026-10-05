@@ -21,6 +21,9 @@ next change still morphs.
 Bubbles are placed automatically: the position nearest the anchor that overlaps no code and no other bubble, and
 whose tail crosses no code but its own. The script fails if a note's anchor isn't in the code, or no place fits.
 It also fails if a slide in SEQUENCE has no file, or a hand-written slide's file isn't in SEQUENCE.
+
+Every slide's speaker notes, hand-written slides included, are the spoken lines of its section in talk/script.md; the
+build fails if the script doesn't follow the deck's slide order.
 """
 
 import json
@@ -113,44 +116,6 @@ TITLES = {
     "4.0": "Prolog extractors",
 }
 
-# Per code state: the speaker notes.
-ASIDES = {
-    "0": "The one-liners from the start of the talk, about to become 2.5's generic methods.",
-    "4.0": "Not a real release: an ending joke, and a wish. A pattern that names x twice would only match when both "
-           "ends are equal, as unification does in Prolog: the comparison disappears into the pattern. No Scala has "
-           "this, and it would have to decide which equality it means; ours is the caller's Eq.",
-    "2.5": "The whole design with 2007 machinery. No +: and :+ extractors yet, so it's index arithmetic; the call is "
-           "in tail position, even inside || and &&, so scalac already compiles it to a jump, but nothing checks "
-           "that. palindromize finds the longest palindromic suffix with our own isPalindrome, so it takes an Eq too, "
-           "and mirrors what comes before it. Generic code can't build the same kind of collection, so it returns a "
-           "Seq: \"abcb\" gives a Seq[Char], not a String.",
-    "2.8": "Two changes. @tailrec turns a promise into a check: the generated code is unchanged. And the collections "
-           "redesign: SeqLike[A, Repr] names the concrete type, and CanBuildFrom is a factory for builders of it. "
-           "bf(xs.repr) gives a builder, and we fill it. Now palindromize(\"abcb\") is the String \"abcba\". Be "
-           "honest: it worked, and the signatures scared people.",
-    "2.9": "A library change, not a language one: 2.9 adds tails, every suffix from the whole sequence down to the "
-           "empty one. indexWhere returns the first that's a palindrome, which is where the mirrored part starts. "
-           "Same search, same order and cost as 2.8's (0 to n).find(...).get, without the index arithmetic or the "
-           ".get. 2.10 to 3.9 keep it.",
-    "2.10": "Talk stage 2. x +: middle :+ y parses as (x +: middle) :+ y: an operator's first character sets its "
-            "precedence. With no index to carry, the inner loop goes and @tailrec moves onto isPalindrome itself. Say "
-            "the caveat: on a List, :+ needs init and last, which are O(n), and a String copies on every step, so "
-            "this is quietly O(n²); a Vector keeps it (effectively) linear.",
-    "2.13": "The 2.12 code stops compiling for String: StringOps is no longer a collection, so Repr is inferred as "
-            "WrappedString. IsSeq accepts anything readable as a Seq, String included; BuildFrom replaces "
-            "CanBuildFrom. The wart: Scala 2 can't mention isSeq.A in the same parameter list as isSeq, so the element "
-            "type becomes an extra type parameter A0, tied by a refinement.",
-    "3.0": "The big collapse, on the methods. Braces go; implicit becomes a context bound and using; object "
-           "Palindrome and the wrapper class disappear, because an extension method is an ordinary method too: "
-           "isPalindrome(xs) and xs.isPalindrome are the same method. x === y is Eq's own extension, found because "
-           "the context bound's Eq is a given in scope: no name for it, no second wrapper. palindromize loses 2.13's "
-           "refinement and extra type parameter, because the method's using clause comes after the extension's and "
-           "can name isSeq.A.",
-    "3.6": "palindromize's using clause folds into the type parameter: a context bound can now be named, and isSeq.A "
-           "still works. isPalindrome needs no name for its Eq, so it doesn't change. The given syntax changes too, "
-           "on the Eq slide: given universal: [A] => Eq[A], \"for every A, an Eq[A]\". 3.5 rejects both. 3.7 to 3.9 "
-           "change nothing this code uses.",
-}
 
 # Per code state: the notes, in the order they appear. A note is its highlighted code (one or more anchors, the
 # tail pointing at the first) and its text. An anchor is exact code text, first occurrence; with ⟨ ⟩ inside it,
@@ -218,23 +183,6 @@ EQ_TITLES = {
     "3.0": "given indentation and extensions",
     "3.6": "The new given syntax",
 }
-EQ_ASIDES = {
-    "2.5": "Stage 3, already in 2.5. Universal == is hardwired, so equality becomes a type class: the default instance "
-           "lives in Eq's companion and is found through the implicit scope. Eq.caseInsensitive is an opt-in val you "
-           "pass explicitly or put in scope as an implicit. No lambdas can implement a trait yet, hence the anonymous "
-           "classes.",
-    "2.8": "A library change: the 2.8 collections redesign comes with a richer Char, and toLower replaces "
-           "Character.toLowerCase. Eq itself doesn't change.",
-    "2.12": "SAM conversion: a lambda can implement any trait with a single abstract method, so the two anonymous "
-            "classes shrink to one line each. A good moment for the old-ways speaker to concede one. Nothing else "
-            "about Eq changes until Scala 3.",
-    "3.0": "The big collapse reaches Eq: braces give way to indentation, implicit def becomes given, and the lambdas "
-           "shrink to placeholders, _ == _. caseInsensitive stays a plain val: it's opt-in, so it isn't a given. The "
-           "trait gains ===, an extension: wherever an Eq[A] is a given in scope, x === y calls its eqv. eqv stays "
-           "the single abstract method, so the lambdas still implement Eq.",
-    "3.6": "The new given syntax: given universal: [A] => Eq[A] reads as \"for every A, an Eq[A]\". 3.5 rejects it. "
-           "3.7 to 3.9 change nothing here.",
-}
 EQ_NOTES = {
     "2.5": [
         (["Eq[A] = ⟨new Eq[A] {⟩"], "each instance is an\nanonymous class"),
@@ -266,30 +214,6 @@ OPS_TITLES = {
     "2.10": "Implicit value classes",
     "2.11": "Value classes may hide their field",
     "2.13": "IsSeq and BuildFrom",
-}
-OPS_ASIDES = {
-    "2.5": "Stage 6, already in 2.5: method syntax without changing Seq. PalindromeOps is an ordinary wrapper class "
-           "that holds the Seq and forwards to the functions in object Palindrome. The implicit def is the trick: "
-           "when the compiler finds no isPalindrome on a Seq, it looks for an implicit conversion in scope to a type "
-           "that has one, and rewrites xs.isPalindrome to palindromeOps(xs).isPalindrome. The Eq still arrives as an "
-           "implicit, now on the method. Costs: a wrapper object on every call, and one implicit conversion only: "
-           "views don't chain, so a String, which first has to become a Seq, can't use it until 2.13; earlier "
-           "versions write isPalindrome(\"racecar\") or \"racecar\".toList.isPalindrome.",
-    "2.8": "For xs.palindromize to return the caller's type, the wrapper has to know it: it now wraps a "
-           "SeqLike[A, Repr] and asks for the CanBuildFrom too, and isPalindrome passes the collection on as a Seq "
-           "with toSeq.",
-    "2.10": "Talk stage 6, first step. The class and the conversion become one implicit class, and extends AnyVal "
-            "makes it a value class, which usually needs no wrapper object at all. 2.10 insists the value class's "
-            "field is public: it rejects private val with \"value class needs to have a publicly accessible val "
-            "parameter\".",
-    "2.11": "2.11 relaxes that, so the wrapped collection no longer leaks as a public member of every Seq. Strings "
-            "still can't use method syntax up to 2.12: implicit views don't chain (String to WrappedString to "
-            "PalindromeOps).",
-    "2.13": "The 2.13 collections: String is no longer a collection, so the wrapper is rebuilt on IsSeq, following "
-            "the pattern the 2.13 documentation gives. An implicit def again, from any Repr with an IsSeq; the "
-            "singleton type seq.type keeps seq.A known at the call site. It's no longer a value class (it holds xs "
-            "and seq), and it needs import scala.language.implicitConversions. The payoff: the conversion starts from "
-            "String itself, so \"racecar\".isPalindrome finally works in Scala 2.",
 }
 OPS_NOTES = {
     "2.5": [
@@ -640,14 +564,11 @@ def uncovered(state, runs, prev_runs, notes) -> list[str]:
     return missing
 
 
-# Per track: the slide id prefix, the code token id prefix, and the headings, speaker notes and notes per state.
+# Per track: the slide id prefix, the code token id prefix, and the headings and notes per state.
 TRACKS = {
-    "code": {"slide": "m", "token": "t", "titles": TITLES, "asides": ASIDES, "notes": NOTES,
-             "again": "Back to the methods as they stand in {v}, before the next version changes them."},
-    "eq": {"slide": "e", "token": "e", "titles": EQ_TITLES, "asides": EQ_ASIDES, "notes": EQ_NOTES,
-           "again": "Back to Eq as it stands in {v}, before the next version changes it."},
-    "ops": {"slide": "o", "token": "o", "titles": OPS_TITLES, "asides": OPS_ASIDES, "notes": OPS_NOTES,
-            "again": "Back to the method syntax as it stands in {v}, before the next version changes it."},
+    "code": {"slide": "m", "token": "t", "titles": TITLES, "notes": NOTES},
+    "eq": {"slide": "e", "token": "e", "titles": EQ_TITLES, "notes": EQ_NOTES},
+    "ops": {"slide": "o", "token": "o", "titles": OPS_TITLES, "notes": OPS_NOTES},
 }
 GENERATED = re.compile(r"^(m|e|o|tc)\d")  # generated slide ids: m2-5, m2-8-is, e2-12-again, o2-10, tc2-8, ...
 CLOUDS = ROOT / "talk/tag-cloud/project/slides"  # the tag-cloud deck's slides, one per release (s2-8.html, ...)
@@ -803,6 +724,34 @@ def first_method(state: dict, notes: list) -> set[int]:
             if all(anchor_span(state["lines"], a)[1] < end for a in ([anchors] if isinstance(anchors, str) else anchors))}
 
 
+# The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
+# "## <number> · <slide id> — ..."; its MARTIN:, ODD: and BOTH: lines are what's said, and become the slide's notes,
+# without the [bracketed] stage directions. Everything else in the file is for the speakers only.
+SCRIPT = ROOT / "talk/script.md"
+SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+)$", re.M)
+
+
+def script_notes() -> list[tuple[int, str, str]]:
+    """(number, slide id, notes) for each slide in the script, in its order."""
+    text = SCRIPT.read_text()
+    heads = list(re.finditer(r"^## (\d+) · ([\w-]+) — ", text, re.M))
+    out = []
+    for i, h in enumerate(heads):
+        body = text[h.end():heads[i + 1].start() if i + 1 < len(heads) else len(text)]
+        lines = [f"{who}: " + re.sub(r"\s+", " ", re.sub(r"\[[^\]]*\]", "", said)).strip()
+                 for who, said in SPEECH.findall(body)]
+        out.append((int(h.group(1)), h.group(2), "\n".join(lines)))
+    return out
+
+
+def with_notes(html: str, notes: str) -> str:
+    """A slide with `notes` as its speaker notes, in place of any it had."""
+    aside = f"<aside>{escape(notes, quote=False)}</aside>" if notes else ""
+    if re.search(r"<aside>.*?</aside>", html, re.S):
+        return re.sub(r"\n?<aside>.*?</aside>", lambda _: ("\n" + aside) if aside else "", html, count=1, flags=re.S)
+    return html.replace("</section>", (aside + "\n" if aside else "") + "</section>", 1)
+
+
 def build():
     steps = {}  # (track, k) -> (before view, between view, after view, before runs, between runs, after runs)
     shells = {}  # (track, k) -> (shell view, shell runs), where the step has one
@@ -810,7 +759,7 @@ def build():
     for track, spec in TRACKS.items():
         states = code_states() if track == "code" else morph.load_states(track)
         index[track] = {st["versions"][0]: k for k, st in enumerate(states)}
-        assert set(spec["notes"]) == set(spec["asides"]) == set(index[track]) == set(spec["titles"]), \
+        assert set(spec["notes"]) == set(index[track]) == set(spec["titles"]), \
             f"{track}: notes for {sorted(spec['notes'])}, states {sorted(index[track])}"
         for k in range(len(states)):
             before, between, shell, after = views(track, states, k)
@@ -888,12 +837,12 @@ def build():
             else:
                 notes, title, upcoming = [], "", spec["titles"][SEQUENCE[n + 1][1]]
                 upcoming = upcoming[0] if isinstance(upcoming, tuple) else upcoming
-            html = code_slide(slide, view, runs, "magic", notes, spec["again"].format(v=v), title, spec["token"],
+            html = code_slide(slide, view, runs, "magic", notes, "", title, spec["token"],
                               upcoming=upcoming)
             (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
             continue
         _, between, view, _, between_runs, runs = steps[track, k]
-        notes, aside, title = spec["notes"][v], spec["asides"][v], spec["titles"][v]
+        notes, aside, title = spec["notes"][v], "", spec["titles"][v]
         first, layout = set(), {}
         first_title, title = title if isinstance(title, tuple) else (title, title)
         only = None
@@ -920,6 +869,20 @@ def build():
         html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], only=only, shown=first,
                           keep=layout, heading_id=after_again and not between)
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
+
+    script = script_notes()
+    if [(n, sid) for n, sid, _ in script] != list(enumerate(ids, 1)):
+        expected = [f"{n} {sid}" for n, sid in enumerate(ids, 1)]
+        got = [f"{n} {sid}" for n, sid, _ in script]
+        first = next((i for i, (e, g) in enumerate(zip(expected, got)) if e != g), min(len(expected), len(got)))
+        raise SystemExit(f"talk/script.md doesn't follow the deck: slide {first + 1} is "
+                         f"{expected[first] if first < len(expected) else 'missing'}, the script has "
+                         f"{got[first] if first < len(got) else 'nothing'}")
+    for _, sid, notes in script:
+        path = slides / f"{sid}.html"
+        html = path.read_text()
+        if (new := with_notes(html, notes)) != html:
+            path.write_text(new)
 
     path = DECK / "deck.json"
     deck = json.loads(path.read_text()) if path.exists() else \

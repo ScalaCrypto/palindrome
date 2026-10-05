@@ -81,6 +81,7 @@ palindrome/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
 │   ├── 5.16-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
+│   ├── script.md                   # The talk as a dialogue, slide by slide: every slide's speaker notes come from it
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
@@ -197,7 +198,7 @@ the reference for what each version looks like. It is **generated** by `tools/ev
 - **The deck is `talk/5.16-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
   - **Code slides** are generated from the version sources by `talk/deck.py`, in three tracks that each morph from
     version to version where their code changes: the methods (`m*.html`), `Eq` (`e*.html`) and Scala 2's method
-    syntax (`o*.html`), with the notes in its `NOTES`/`EQ_NOTES`/`OPS_NOTES` and `ASIDES`/`EQ_ASIDES`/`OPS_ASIDES`.
+    syntax (`o*.html`), with the bubbles in its `NOTES`/`EQ_NOTES`/`OPS_NOTES`.
     Never edit them by hand: the next build overwrites them. The deck goes version by version, each version
     introduced by its slide from the tag-cloud deck (`tc*.html`, copied in by the build), followed by a hand-written "New in" slide (`f*.html`), and every slide gets the
     tag-cloud deck's timeline footer, which replaces the version label above the heading. The code track starts from the opening one-liner. The step from 2.13 to 3.0
@@ -210,6 +211,10 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   - **Every other slide is hand-written**, in the artifact or in its file. The build leaves them alone except for
     their code panels, which it normalizes (size, padding, colouring), so write that code as plain text. Their code
     is copied from the sources and isn't checked against them: after a code change, compare them with `EVOLUTION.md`.
+  - **The speaker notes are `talk/script.md`**: the talk as a dialogue between Martin and Odd (good cop, bad cop),
+    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes,
+    hand-written slides included, on every build, so edit the dialogue there; the build fails if the script's slides
+    don't follow the deck's order. Adding, removing or reordering a slide means editing the script too.
   - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
