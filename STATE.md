@@ -6,7 +6,7 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.16-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.17-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
 
 Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, `palindromize`, which builds a palindrome of the input's own collection type, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
 
@@ -79,9 +79,11 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── 5.16-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
+│   ├── 5.17-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
 │   ├── script.md                   # The talk as a dialogue, slide by slide: every slide's speaker notes come from it
+│   ├── script-merged.md            # script.md with a code review's technical points: the merged deck's notes
+│   ├── 5.17-deck-merged/project/    # GENERATED: the talk's slides with script-merged.md's notes
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
@@ -144,8 +146,9 @@ Each `Palindrome.scala` defines, in every version:
 The check compares elements pairwise through `Eq`, never whole collections with `==`. That keeps it correct on 2.5–2.7, where `==` between collections isn't content-based (before the 2.8 collections redesign, `"racecar".reverse == "racecar"` is `false`).
 
 The tests are the same in every version, apart from the syntax of each version and these differences:
-- **Method syntax on a `String`**: 2.5–2.12 can't do it, because implicit views don't chain (`String` →
-  `WrappedString` → `PalindromeOps`). Their tests call `isPalindrome("racecar")`, `"racecar".toList.isPalindrome`
+- **Method syntax on a `String`**: 2.5–2.12's wrappers can't take one, because implicit views don't chain (`String` →
+  `WrappedString` → `PalindromeOps`); the language could (a `String` wrapper, or `IsSeqLike` from 2.11; `DESIGN.md`
+  says why the code doesn't). Their tests call `isPalindrome("racecar")`, `"racecar".toList.isPalindrome`
   and `palindromize("abc")`. 2.13's `IsSeq` wrapper starts from `String` itself, so its tests use `"racecar".isPalindrome`
   and `"abc".palindromize`. Scala 3 accepts both forms, because an extension method's receiver may be converted.
 - **2.5–2.7** use `List` for every sequence: there's no `Vector` before 2.8, and no `Seq(...)` factory in 2.5 and 2.6.
@@ -193,9 +196,9 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
-- **Deck version**: the deck's directory starts with its version (`5.16-deck`). A revision that changes the deck's
+- **Deck version**: the deck's directory starts with its version (`5.17-deck`). A revision that changes the deck's
   code or look renames it (`git mv`, and `DECK` in `talk/deck.py`); `talk/README.md` has the history.
-- **The deck is `talk/5.16-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
+- **The deck is `talk/5.17-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
   - **Code slides** are generated from the version sources by `talk/deck.py`, in three tracks that each morph from
     version to version where their code changes: the methods (`m*.html`), `Eq` (`e*.html`) and Scala 2's method
     syntax (`o*.html`), with the bubbles in its `NOTES`/`EQ_NOTES`/`OPS_NOTES`.
@@ -215,12 +218,20 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `*`),
     hand-written slides included, on every build, so edit the dialogue there; the build fails if the script's slides
     don't follow the deck's order. Adding, removing or reordering a slide means editing the script too.
+    `talk/script-merged.md`, the same dialogue with the technical points a code review asks for woven in, makes a
+    second deck the same way, `talk/5.17-deck-merged/` (a generated copy of the talk's slides, so edit slides only in
+    `talk/5.17-deck/`), published to an artifact of its own. Both scripts must follow the deck's order, mark a
+    `[click]` only where the slide has a build (as many as it has builds; the build fails otherwise), and never repeat
+    four words in a row from a bubble on the slide; their "Writing the lines" section has the rest (no code read out,
+    Odd the technical reviewer, Martin the fan who introduces). The presenter view shows the turns in speaking order,
+    without names: Odd's on the left in blue, Martin's on the right in orange. Every slide's notes must fit it without
+    scrolling: `talk/present.py --check` for each deck.
   - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
 - **After changing the code, the notes or a slide**, run `talk/deck.py`, check it with `talk/render.py
-  --screenshots`, and republish `talk/5.16-deck/project/` to the artifact. **After editing the artifact**, read the
-  changed slides back into `talk/5.16-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
+  --screenshots`, and republish `talk/5.17-deck/project/` and `talk/5.17-deck-merged/project/` to their artifacts. **After editing the artifact**, read the
+  changed slides back into `talk/5.17-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -235,11 +246,13 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/deck.py             # rebuild the deck in talk/5.16-deck/ (code slides, notes, order)
+talk/deck.py             # rebuild the deck in talk/5.17-deck/ (code slides, notes, order) and talk/5.17-deck-merged/
 talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
+talk/present.py talk/5.17-deck-merged --port 8766   # the merged script's deck, side by side
+talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view (also: talk/5.17-deck-merged)
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.

@@ -10,8 +10,8 @@
   and a `List` or `Vector` gives back a `List` or `Vector`. The `String` case works because 2.8's `StringOps` is
   itself a `SeqLike[Char, String]`.
 - **The wrapper carries `Repr` too.** For `xs.palindromize` to return `Repr`, `PalindromeOps` now wraps a
-  `SeqLike[A, Repr]` instead of a `Seq[A]`, and `isPalindrome` passes it on with `xs.toSeq`. Method syntax on a
-  `String` still doesn't work (views don't chain), so strings use the function form: `palindromize("abc")`.
+  `SeqLike[A, Repr]` instead of a `Seq[A]`, and `isPalindrome` passes it on with `xs.toSeq`. This wrapper still
+  can't take a `String` (views don't chain), so strings use the function form: `palindromize("abc")`.
 - **`@tailrec`** (stage 2): the compiler now rejects `loop` if it ever stops being tail-recursive. The generated code
   is unchanged: it was already a loop.
 - **`x.toLower`**: the 2.8 library adds `toLower` to `Char`, replacing `Character.toLowerCase`.

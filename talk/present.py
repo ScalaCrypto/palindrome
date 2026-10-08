@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Presents a deck (the talk's deck, talk/5.16-deck/, unless another is named) from this computer, with a presenter
+"""Presents a deck (the talk's deck, talk/5.17-deck/, unless another is named) from this computer, with a presenter
 view: the slides full screen on the external display, and on the laptop the current slide, what the next click
 shows, the speaker notes and a timer.
 
@@ -7,6 +7,8 @@ Usage: talk/present.py                  serve the talk's deck and open the prese
        talk/present.py talk/tag-cloud   the same for another deck
        talk/present.py --port 8800      another port (default 8765)
        talk/present.py --no-open        don't open a browser
+       talk/present.py --check [deck]   check that every slide's notes fit the presenter view without scrolling,
+                                        in a 1440x820 window (a laptop's browser window); --size WxH for another
 
 Then, in the presenter view, click "Open slides window", move that window to the external display, and press F in
 it for full screen. Drive the talk from the presenter view: → or space for the next click, ← back, a slide number
@@ -19,9 +21,12 @@ does with the Slides format.
 """
 
 import argparse
+import html
 import http.server
 import json
+import re
 import sys
+import tempfile
 import threading
 import webbrowser
 from pathlib import Path
@@ -89,12 +94,16 @@ def main() -> None:
     parser.add_argument("deck", nargs="?", help="a deck's directory (default: the talk's deck)")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-open", action="store_true", help="don't open a browser")
+    parser.add_argument("--check", action="store_true", help="check that the notes fit without scrolling, then exit")
+    parser.add_argument("--size", default="1440x820", help="the presenter window for --check (default 1440x820)")
     args = parser.parse_args()
     deck_dir = (ROOT / args.deck).resolve() / "project" if args.deck else render.DECK
     if not (deck_dir / "deck.json").is_file():
         sys.exit(f"talk/present.py: no deck at {deck_dir}")
     fonts_css(deck_dir)  # fetch the fonts now, while there's a network, rather than on the first page load
 
+    if args.check:
+        sys.exit(check(deck_dir, args.size))
     server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler(deck_dir))
     url = f"http://localhost:{args.port}/"
     print(f"Presenting {deck_dir.parent.relative_to(ROOT)}\n"
@@ -107,6 +116,28 @@ def main() -> None:
         server.serve_forever()
     except KeyboardInterrupt:
         print()
+
+
+def check(deck_dir: Path, size: str) -> int:
+    """Opens the presenter view in headless Chrome at `size` and has it measure every slide's notes at the default
+    notes size (presenter.html's ?fit); prints the slides whose notes need scrolling, and returns 1 if there are any."""
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler(deck_dir))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    w, h = size.split("x")
+    with tempfile.TemporaryDirectory() as profile:
+        dom = render.run_chrome(Path(profile), [f"--window-size={w},{h}", "--dump-dom",
+                                                f"http://localhost:{server.server_port}/presenter?fit"],
+                                lambda out: 'id="fit"' in out)
+    server.shutdown()
+    found = re.search(r'<pre id="fit">(.*?)</pre>', dom, re.S)
+    if not found:
+        sys.exit("talk/present.py: the presenter view didn't report its notes")
+    fit = json.loads(html.unescape(found.group(1)))
+    name = deck_dir.parent.relative_to(ROOT)
+    print(f"{name}: notes {fit['notes']}px high in a {fit['size'][0]}x{fit['size'][1]} window")
+    for sid, by in fit["over"].items():
+        print(f"  {sid}: {by}px too long, needs scrolling")
+    return 1 if fit["over"] else 0
 
 
 if __name__ == "__main__":

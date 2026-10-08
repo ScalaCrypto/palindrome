@@ -3,13 +3,16 @@
 The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
 `../scaladays-2026-talk.md`, and the code it shows comes from `../EVOLUTION.md`.
 
-- `5.16-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
+- `5.17-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
   holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai Slides artifact
   uses; the paths match the artifact's own.
 - `script.md`: the talk as a dialogue between Martin and Odd, slide by slide, with stage directions and timing.
   Its spoken lines are every slide's speaker notes: `deck.py` copies them in, so edit the dialogue there, not in the
   artifact or the slide files.
-- `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
+- `script-merged.md`: `script.md` with the technical points a code review asks for woven in, in the same voices. It
+  makes a second deck, `5.17-deck-merged/project/`: the same slides with its lines as the notes (generated).
+- `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes, and the
+  merged deck; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
 - `render.py`: renders a deck, the talk's deck unless another is named, in headless Chrome and checks the layout.
@@ -18,7 +21,10 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck
 
 The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until shared from its Share menu), and
-`5.16-deck/project/` is its versioned copy. It has two kinds of slide:
+`5.17-deck/project/` is its versioned copy. The same slides with `script-merged.md`'s notes are
+<https://claude.ai/artifact/FWTAhDrUTBxwfC8jeokw3r>, whose copy is `5.17-deck-merged/project/`, so the two scripts can
+be open side by side in two tabs. The build copies the merged deck from the talk's deck, so edit slides only in
+`5.17-deck/`. The deck has two kinds of slide:
 
 - **Code slides** are generated from the version sources by `deck.py`, in three tracks: the palindrome methods
   (`m2-5`, …, `m3-6`), `Eq` (`e2-5`, …, `e3-6`) and Scala 2's method syntax (`o2-5`, …, `o2-13`; Scala 3's extensions
@@ -26,13 +32,13 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   the track's previous one with a magic-move transition, so the code changes in place. The deck goes version by
   version: each Scala version that changes something starts with its slide from the tag-cloud deck (`tc2-8`, …, copied
   from `tag-cloud/project/`), then, for each track that changes, the track's previous state shown again (`…-again`),
-  whose last click fades in the next slide's heading, and its new state, so the change morphs in place. A method slide shows only the methods that
+  under the next slide's heading, and its new state, so the change morphs in place. A method slide shows only the methods that
   change in that step (2.9: `palindromize`; 2.10: `isPalindrome`), and an `Eq` slide only the definitions that change
   (`object Eq`, and `trait Eq` in 2.5 and 3.0). Every slide carries the tag-cloud deck's timeline
   along the bottom, with its version in amber, instead of a version label above the heading. After each tag-cloud
   slide comes a hand-written "New in Scala x" slide (`f2-8`, …): the version's headline changes, with the ones the
-  following slides use in amber. A slide shown again appears without a transition and without a heading; a click brings in the
-  next slide's heading, and the click after that morphs it into the new state, the heading staying in place.
+  following slides use in amber. A slide shown again appears without a transition, under the next slide's heading,
+  and its one click morphs it into the new state, the heading staying in place.
   The code track starts with the opening one-liner (`m0-again`), which morphs into 2.5. From the second state
   of a track on, every change is highlighted and explained in a speech bubble, and the build fails if any code that's
   new in a version lies outside every highlight. Where a step changes both methods (2.5, 2.8, 3.0), it morphs in two clicks:
@@ -56,19 +62,19 @@ slide's file); the build fails if a hand-written slide's file isn't in `SEQUENCE
 After changing the code, the notes or a slide:
 
 ```bash
-talk/deck.py                 # rebuild the code slides and deck.json
+talk/deck.py                 # rebuild the code slides and deck.json, and the merged deck
 talk/render.py --screenshots # check the layout
 ```
 
-then publish `5.16-deck/project/` to the artifact with `5.16-deck/` as the root, so each file keeps its `project/…`
-path. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
-into `5.16-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
+then publish `5.17-deck/project/` to the artifact with `5.17-deck/` as the root, so each file keeps its `project/…`
+path, and `5.17-deck-merged/project/` to its artifact the same way. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
+into `5.17-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
 artifact's changed slides and copy them here.
 
 ## Deck versions
 
 The deck's directory starts with its version: the major number is the kind of deck, the minor its revision. A
-revision that changes the deck's code or look renames the directory (`git mv talk/5.16-deck talk/5.17-deck`, and `DECK`
+revision that changes the deck's code or look renames the directory (`git mv talk/5.17-deck talk/5.18-deck`, and `DECK`
 in `deck.py`); the artifact keeps its link.
 
 5.0 merged the four decks that came before it: the hand-written talk deck (1.x, light, with its own hand-copied code
@@ -107,6 +113,8 @@ click.
 5.16 comments the class's methods out instead of removing them, and then, on that click, the whole class, with a
 bubble: it's obsolete. The `Eq` slides bring in 2.5's "each instance is an anonymous class" first and 3.0's `===`
 second, and 3.0's heading becomes "given, indentation and extensions".
+5.17 shows the next slide's heading on a slide shown again from the start, so the click that leaves it is the morph:
+one click less per step.
 
 ## The tag-cloud deck
 
@@ -131,13 +139,27 @@ Safari and in Chrome alike. So the talk is presented from this computer instead:
 
 ```bash
 talk/present.py                # serve the deck on http://localhost:8765 and open the presenter view
+talk/present.py talk/5.17-deck-merged --port 8766   # the merged script's deck, in another tab
 ```
 
 In the presenter view, click "Open slides window", move that window to the external display and press F in it for
 full screen. Then drive the talk from the presenter view on the laptop: it shows the current slide, what the next
-click shows (the next note, or the next slide), the speaker notes and a timer. → or space for the next click, ← back,
+click shows (the next note, or the next slide), the speaker notes as the speakers' turns, Odd's on the left in blue
+and Martin's on the right in orange, without the names, and a timer. A `click` tag in the notes marks where a click
+brings something onto the slide; the click to the next slide comes after the last line, unmarked. → or space for the next click, ← back,
 a slide number then Enter to jump, B to black out the slides, T to start or pause the timer, + and − for the notes'
 size. The two pages stay in step through the browser (`BroadcastChannel`), so either can be reloaded.
+
+Every slide's notes fit the presenter view without scrolling, at the default notes size in a 1440x820 browser window
+(a laptop's, with room for the tabs and the address bar). Check that after editing a script:
+
+```bash
+talk/present.py --check                        # the talk's deck; exit 1 if a slide's notes need scrolling
+talk/present.py --check talk/5.17-deck-merged  # the merged deck; --size WxH for another window
+```
+
+`deck.py` checks the rest of what the notes promise, for both scripts: a slide has as many `[click]`s as builds, and
+no spoken line repeats four words in a row from a bubble on its slide.
 
 The player, in `present/`, covers what the deck uses of the Slides format's motion: the `fade`, `push`, `none` and
 `magic` transitions, and `fade` builds. Magic move works like the artifact's: children with the same `id` on both
@@ -150,7 +172,7 @@ here as well as in the artifact: the player follows the format, but it isn't the
 
 ```bash
 talk/render.py                 # measure every slide of the talk's deck; exit 1 if anything overflows
-talk/render.py --screenshots   # also write out/talk-render/5.16-deck/shots/*.png and contact sheets sheet*.png
+talk/render.py --screenshots   # also write out/talk-render/5.17-deck/shots/*.png and contact sheets sheet*.png
 talk/render.py --screenshots talk/tag-cloud  # the same for another deck, into out/talk-render/tag-cloud/
 ```
 
