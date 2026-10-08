@@ -39,6 +39,30 @@
   const store = (key, value) => { try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {} };
   const stored = key => { try { return JSON.parse(sessionStorage.getItem(key)); } catch { return null; } };
 
+  // The speaker notes as turns, one element each: "ODD: …" on the left, "MARTIN: …" on the right, "BOTH: …" across
+  // the middle, "NOTE: …" (background, not read out) and the "⏱ …" pace line across both. A turn runs from its marker to the next, so the
+  // notes still split if an editor has joined their lines; text before the first marker is a note. The names aren't
+  // shown, to keep the notes short enough to need no scrolling: the side and the colour say who speaks (the name is
+  // the turn's tooltip).
+  const noteTurns = text => {
+    const parts = text.split(/(?:^|\s+)(⏱|ODD:|MARTIN:|BOTH:|NOTE:)\s*/);
+    const turns = parts[0].trim() ? [["note", parts[0].trim()]] : [];
+    for (let k = 1; k < parts.length; k += 2)
+      turns.push([parts[k] === "⏱" ? "pace" : parts[k].slice(0, -1).toLowerCase(), parts[k + 1].trim()]);
+    return turns.map(([who, said]) => {
+      const turn = Object.assign(document.createElement("div"), {className: `turn ${who}`});
+      const names = {odd: "Odd", martin: "Martin", both: "Both"};
+      if (names[who]) turn.title = names[who];
+      // "(click)", or the original script's lone "*", where a build comes in, as a cue that stands out
+      said.split(/\(click\)|(?<=^|\s)\*(?=\s|$)/).forEach((piece, n) => {
+        if (n) turn.append(Object.assign(document.createElement("span"), {className: "click", textContent: "click"}));
+        turn.append(piece);
+      });
+      if (who === "pace") turn.prepend("⏱ ");
+      return turn;
+    });
+  };
+
   const test = testParams();  // a headless check: ?at=I.S
   let pos = clampPos(deck, test ? test.pos : stored("pos") || {i: 0, step: 0});
   let blanked = false;
@@ -57,7 +81,8 @@
     if (after && after.i !== pos.i && deck.slides[after.i].title)
       $(".after").append(": ", Object.assign(document.createElement("b"), {textContent: deck.slides[after.i].title}));
     const notes = $(".notes");
-    notes.textContent = slide.notes || "No notes for this slide.";
+    notes.replaceChildren(...noteTurns(slide.notes));
+    if (!slide.notes) notes.textContent = "No notes for this slide.";
     notes.classList.toggle("empty", !slide.notes);
     notes.scrollTop = 0;
     document.title = `Presenter · ${pos.i + 1} / ${n}`;
@@ -98,7 +123,7 @@
   };
   setInterval(tick, 500);
 
-  let notesSize = stored("notes") || 26;
+  let notesSize = stored("notes") || 19;
   const setNotes = size => {
     notesSize = Math.max(14, Math.min(60, size));
     document.body.style.setProperty("--notes", notesSize + "px");
@@ -154,6 +179,21 @@
 
   render();
   tick();
+
+  // A headless check (?fit, run by talk/present.py --check): every slide's notes, measured at this window's size; the
+  // slides whose notes would need scrolling, and by how many pixels, end up in #fit as JSON.
+  if (new URLSearchParams(location.search).has("fit")) {
+    await document.fonts.ready;
+    const notes = $(".notes"), over = {};
+    for (let i = 0; i < n; i++) {
+      pos = {i, step: 0};
+      render();
+      const by = notes.scrollHeight - notes.clientHeight;
+      if (by > 0) over[deck.slides[i].id] = by;
+    }
+    document.body.append(Object.assign(document.createElement("pre"), {id: "fit",
+      textContent: JSON.stringify({size: [innerWidth, innerHeight], notes: notes.clientHeight, over})}));
+  }
 })();
 </script>
 </body>

@@ -252,8 +252,8 @@ End on `Seq("a", "b", "a").isPalindrome` — the function has grown from a strin
 one-liner into a generic, fluent method, every feature having earned its place.
 
 Bonus contrast: in Scala 3 `"racecar".isPalindrome` also works, because an extension's
-receiver may be converted (`String` → `Seq[Char]`). The Scala 2 implicit class can't do
-that — implicit views don't chain — so Scala 2 needs `"racecar".toList.isPalindrome`.
+receiver may be converted (`String` → `Seq[Char]`). A Scala 2 implicit class over `Seq` can't do
+that — implicit views don't chain — so up to 2.12 the code needs `"racecar".toList.isPalindrome`.
 
 ---
 

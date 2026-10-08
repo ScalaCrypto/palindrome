@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.16-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.17-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -23,7 +23,9 @@ whose tail crosses no code but its own. The script fails if a note's anchor isn'
 It also fails if a slide in SEQUENCE has no file, or a hand-written slide's file isn't in SEQUENCE.
 
 Every slide's speaker notes, hand-written slides included, are the spoken lines of its section in talk/script.md; the
-build fails if the script doesn't follow the deck's slide order.
+build fails if the script doesn't follow the deck's slide order, if a slide's [click]s don't match its builds, or if a
+spoken line repeats a bubble's words. talk/script-merged.md makes a second deck,
+talk/5.17-deck-merged/: the same slides with its notes (VARIANTS).
 """
 
 import json
@@ -35,7 +37,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.16-deck/project"
+DECK = ROOT / "talk/5.17-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -74,8 +76,8 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 # The slide sequence, one group per Scala version that changes something: ("cloud", v) is that version's slide from
 # the tag-cloud deck (who wrote it), then, for each track whose code changes in v (see morph.py: "eq" for Eq, "ops" for
 # Scala 2's method syntax, "code" for the methods), the track's previous state shown again, with no notes (but the one-liner's)
-# and the next slide's heading fading in on its last click (("eq-again", u), ("ops-again", u), ("again", u)),
-# morphing into its state in v. A code slide shows only the methods
+# and under the next slide's heading (("eq-again", u), ("ops-again", u), ("again", u)), so its one click is the morph
+# into its state in v. A code slide shows only the methods
 # that change in that step. Anything else is a hand-written slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
@@ -415,14 +417,14 @@ def note_html(box, text, order, id_=None):
 
 
 def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t", only=None, shown=(), keep=None,
-               layout=None, upcoming=None, heading_id=False):
+               layout=None, heading_id=False):
     """A code slide. Its panel holds exactly its code: the bubbles go wherever on the slide they fit, clear of the
     heading, the code and the timeline. A step split in two (isPalindrome first, then palindromize) shows the notes
     numbered `only` (1-based, all if None) on its first slide; on its second, those (`shown`) are there from the
     start, at their places on the first (`keep`) where the code leaves them room, and with ids, so they stay put
-    through the morph. `layout`, if given, receives each note's placement. A state shown again has no heading of
-    its own; `upcoming`, the next slide's heading, fades in on its last click, pinned where the next slide has it, and
-    with the id that heading gets with `heading_id`, so the morph leaves it in place."""
+    through the morph. `layout`, if given, receives each note's placement. With `heading_id` the heading gets the id
+    that the next or previous slide's heading has too, so a morph leaves it in place: a state shown again is shown
+    under the next slide's heading."""
     # The panel is pinned, with one id on every code slide, so a morph resizes it instead of fading it.
     height = round(len(state["lines"]) * LH + 2 * PANEL_PAD_Y + 2, 1)
     top = TOP
@@ -433,13 +435,13 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
             f'<div id="code-panel" style="position:absolute; left:128px; top:{PANEL_TOP}px; width:1664px; '
             f'height:{height}px; background:{PANEL}; border:1px solid {PANEL_EDGE}; border-radius:16px"></div>',
 ]
-    if title:  # a state shown again has no heading: the next slide's heading names what changes
+    if title:
         hid = ' id="heading"' if heading_id else ""
         rows.append(f'<h2{hid} style="font-size:64px; font-weight:600; line-height:1.1">{escape(title)}</h2>')
     # Place the notes first: their highlights paint behind the code, their bubbles on top of it.
     blocked = code_rects(runs, top)
-    if title or upcoming:  # keep clear of the heading too (IBM Plex Sans semibold: about 0.6 em per character)
-        blocked.append((128, 128, 128 + len(title or upcoming) * 64 * 0.6, 128 + 71))
+    if title:  # keep clear of the heading too (IBM Plex Sans semibold: about 0.6 em per character)
+        blocked.append((128, 128, 128 + len(title) * 64 * 0.6, 128 + 71))
     bubbles, placed = [], []
     # Notes are placed largest first (they still appear in reading order), and a note with several highlights points
     # its tail at whichever one gives the best spot.
@@ -490,9 +492,6 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     for order, text, span, box, side, base, tip, _ in placed:
         rows.append(bubble_svg(box, side, base, tip, span, click.get(order), nid(order, "b")))
         rows.append(note_html(box, text, click.get(order), nid(order, "t")))
-    if upcoming:
-        rows.append(f'<h2 id="heading" data-build-in="fade {len(click) + 1}" style="position:absolute; left:128px; '
-                    f'top:128px; width:1664px; font-size:64px; font-weight:600; line-height:1.1">{escape(upcoming)}</h2>')
     if aside:
         rows.append(f"<aside>{escape(aside, quote=False)}</aside>")
     rows.append("</section>")
@@ -727,14 +726,16 @@ def first_method(state: dict, notes: list) -> set[int]:
 # The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
 # "## <number> · <slide id> — ..."; its MARTIN:, ODD: and BOTH: lines are what's said, and become the slide's notes,
 # with each [click] as an asterisk and without the other [bracketed] stage directions. Everything else in the file is
-# for the speakers only.
+# for the speakers only. Another script makes a deck of its own: a copy of the talk's slides with its notes (VARIANTS),
+# so scripts can be compared side by side.
 SCRIPT = ROOT / "talk/script.md"
+VARIANTS = {ROOT / "talk/script-merged.md": ROOT / "talk/5.17-deck-merged/project"}
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+)$", re.M)
 
 
-def script_notes() -> list[tuple[int, str, str]]:
+def script_notes(script: Path = SCRIPT) -> list[tuple[int, str, str]]:
     """(number, slide id, notes) for each slide in the script, in its order."""
-    text = SCRIPT.read_text()
+    text = script.read_text()
     heads = list(re.finditer(r"^## (\d+) · ([\w-]+) — ", text, re.M))
     out = []
     for i, h in enumerate(heads):
@@ -830,16 +831,14 @@ def build():
         spec = TRACKS[track]
         k = index[track][v]
         slide = item_id[n]
-        if again:  # the previous state, as the next step shows it, the next step's first heading fading in last;
-            # the one-liner has no slide of its own, so it shows its own heading and notes instead
+        if again:  # the previous state, as the next step shows it, under the next step's first heading, so the
+            # click that leaves it is the morph; the one-liner has no slide of its own, so it shows its own heading
+            # and notes instead
             view, runs = steps[track, k + 1][0], steps[track, k + 1][3]
-            if view["versions"] == ONE_LINER["versions"]:
-                notes, title, upcoming = spec["notes"][v], spec["titles"][v], None
-            else:
-                notes, title, upcoming = [], "", spec["titles"][SEQUENCE[n + 1][1]]
-                upcoming = upcoming[0] if isinstance(upcoming, tuple) else upcoming
-            html = code_slide(slide, view, runs, "magic", notes, "", title, spec["token"],
-                              upcoming=upcoming)
+            own = view["versions"] == ONE_LINER["versions"]
+            notes, title = (spec["notes"][v], spec["titles"][v]) if own else ([], spec["titles"][SEQUENCE[n + 1][1]])
+            title = title[0] if isinstance(title, tuple) else title
+            html = code_slide(slide, view, runs, "magic", notes, "", title, spec["token"], heading_id=not own)
             (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
             continue
         _, between, view, _, between_runs, runs = steps[track, k]
@@ -871,19 +870,7 @@ def build():
                           keep=layout, heading_id=after_again and not between)
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
 
-    script = script_notes()
-    if [(n, sid) for n, sid, _ in script] != list(enumerate(ids, 1)):
-        expected = [f"{n} {sid}" for n, sid in enumerate(ids, 1)]
-        got = [f"{n} {sid}" for n, sid, _ in script]
-        first = next((i for i, (e, g) in enumerate(zip(expected, got)) if e != g), min(len(expected), len(got)))
-        raise SystemExit(f"talk/script.md doesn't follow the deck: slide {first + 1} is "
-                         f"{expected[first] if first < len(expected) else 'missing'}, the script has "
-                         f"{got[first] if first < len(got) else 'nothing'}")
-    for _, sid, notes in script:
-        path = slides / f"{sid}.html"
-        html = path.read_text()
-        if (new := with_notes(html, notes)) != html:
-            path.write_text(new)
+    write_notes(SCRIPT, slides, ids)
 
     path = DECK / "deck.json"
     deck = json.loads(path.read_text()) if path.exists() else \
@@ -892,6 +879,62 @@ def build():
     path.write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
     count = sum(len(n) for spec in TRACKS.values() for n in spec["notes"].values())
     print(f"{DECK.parent.name}: {len(ids)} slides, {count} notes")
+    for script, variant in VARIANTS.items():  # the same slides and deck.json, with another script's notes
+        (variant / "slides").mkdir(parents=True, exist_ok=True)
+        (variant / "deck.json").write_text(path.read_text())
+        for old in {f.stem for f in (variant / "slides").glob("*.html")} - set(ids):
+            (variant / f"slides/{old}.html").unlink()
+        for sid in ids:
+            (variant / f"slides/{sid}.html").write_text((slides / f"{sid}.html").read_text())
+        write_notes(script, variant / "slides", ids)
+        print(f"{variant.parent.name}: the same slides, with {script.relative_to(ROOT)}'s notes")
+
+
+# A bubble's text, and the words a speaker may not repeat from it: this many in a row.
+BUBBLE = re.compile(r"<p[^>]*Fuzzy Bubbles[^>]*>(.*?)</p>", re.S)
+REPEATED = 4
+
+
+def runs_of_words(text: str) -> list[tuple[str, ...]]:
+    """Every REPEATED words in a row in text, in order."""
+    w = re.findall(r"[a-z0-9]+(?:'[a-z]+)?", unescape(text.replace("<br>", " ")).lower())
+    return [tuple(w[i:i + REPEATED]) for i in range(len(w) - REPEATED + 1)]
+
+
+def notes_problems(sid: str, html: str, text: str) -> list[str]:
+    """What's wrong with a slide's notes: a click marked where the slide has none, or none where it has one (the
+    asterisks must match the slide's builds; the click to the next slide isn't marked), or a bubble's words read out."""
+    problems = []
+    steps = max((int(m) for m in re.findall(r'data-build-in="fade (\d+)"', html)), default=0)
+    if (clicks := len(re.findall(r"(?<!\S)\*(?!\S)", text))) != steps:
+        problems.append(f"{sid}: {clicks} [click] for {steps} build{'s' * (steps != 1)}")
+    spoken = set(runs_of_words(text))
+    for bubble in BUBBLE.findall(html):
+        if same := [run for run in runs_of_words(bubble) if run in spoken]:
+            problems.append(f"{sid}: says the bubble's words, \"{' '.join(same[0])}\"")
+    return problems
+
+
+def write_notes(script: Path, slides: Path, ids: list[str]):
+    """A script's spoken lines into the slides' notes. It fails unless the script follows the deck, slide by slide,
+    and each slide's notes pass notes_problems."""
+    notes = script_notes(script)
+    if [(n, sid) for n, sid, _ in notes] != list(enumerate(ids, 1)):
+        expected = [f"{n} {sid}" for n, sid in enumerate(ids, 1)]
+        got = [f"{n} {sid}" for n, sid, _ in notes]
+        first = next((i for i, (e, g) in enumerate(zip(expected, got)) if e != g), min(len(expected), len(got)))
+        raise SystemExit(f"{script.relative_to(ROOT)} doesn't follow the deck: slide {first + 1} is "
+                         f"{expected[first] if first < len(expected) else 'missing'}, the script has "
+                         f"{got[first] if first < len(got) else 'nothing'}")
+    problems = []
+    for _, sid, text in notes:
+        path = slides / f"{sid}.html"
+        html = path.read_text()
+        problems += notes_problems(sid, html, text)
+        if (new := with_notes(html, text)) != html:
+            path.write_text(new)
+    if problems:
+        raise SystemExit(f"{script.relative_to(ROOT)}:\n  " + "\n  ".join(problems))
 
 if __name__ == "__main__":
     import sys

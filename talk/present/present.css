@@ -30,7 +30,7 @@ body { background: #000; overflow: hidden; }
 /* Presenter page */
 .presenter { --fg: #e8e6df; --dim: #9aa3af; --panel: #242a38; --edge: #343b4c; --amber: #f2a65a;
   background: #15181f; color: var(--fg); font: 15px -apple-system, BlinkMacSystemFont, 'IBM Plex Sans', sans-serif;
-  display: grid; grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.8fr); height: 100vh; }
+  display: grid; grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr); height: 100vh; }
 .presenter header { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--edge);
   flex-wrap: wrap; }
 .presenter header .count { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -49,7 +49,22 @@ body { background: #000; overflow: hidden; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .presenter .view .label b { color: var(--fg); text-transform: none; letter-spacing: 0; font-weight: 600; }
 .presenter .view .host { position: relative; flex: 1; min-height: 0; background: #000; border: 1px solid var(--edge); }
-.presenter .notes { margin: 0 16px 12px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--edge);
-  border-radius: 8px; overflow: auto; white-space: pre-wrap; line-height: 1.45; font-size: var(--notes, 26px); }
+.presenter .notes { margin: 0 16px 12px; padding: 10px 14px; background: var(--panel); border: 1px solid var(--edge);
+  border-radius: 8px; overflow: auto; line-height: 1.35; font-size: var(--notes, 19px);
+  display: flex; flex-direction: column; gap: 0.3em; }
 .presenter .notes.empty { color: var(--dim); font-style: italic; }
+/* The two speakers' turns, in the order they speak: Odd's in blue on the left, Martin's in orange on the right, each
+   about two thirds of the width, so a glance tells whose turn it is and when it comes, without a name. Time targets
+   are amber, like the timer. */
+.presenter .turn { padding: 0.15em 0.5em; border-radius: 6px; }
+.presenter .turn.odd { --who: #6cb6ff; color: #dcebff; background: rgba(108, 182, 255, 0.10);
+  border-left: 4px solid var(--who); width: 64%; align-self: flex-start; }
+.presenter .turn.martin { --who: #ff9f5a; color: #ffe6d2; background: rgba(255, 159, 90, 0.10);
+  border-right: 4px solid var(--who); width: 64%; align-self: flex-end; }
+.presenter .turn.both { color: #f3ecff; background: linear-gradient(90deg, rgba(108, 182, 255, 0.10), rgba(255, 159, 90, 0.10));
+  border-left: 4px solid #6cb6ff; border-right: 4px solid #ff9f5a; width: 64%; align-self: center; }
+.presenter .turn.note { color: var(--dim); font-size: 0.75em; font-style: italic; }
+.presenter .turn .click { font-size: 0.6em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--amber); border: 1px solid var(--amber); border-radius: 4px; padding: 0 0.3em; vertical-align: 0.15em; }
+.presenter .turn.pace { color: var(--amber); font-size: 0.65em; font-weight: 600; padding-top: 0; padding-bottom: 0; }
 .presenter .help { color: var(--dim); font-size: 13px; }

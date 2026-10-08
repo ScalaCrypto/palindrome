@@ -128,8 +128,8 @@ object Palindrome {
   and a `List` or `Vector` gives back a `List` or `Vector`. The `String` case works because 2.8's `StringOps` is
   itself a `SeqLike[Char, String]`.
 - **The wrapper carries `Repr` too.** For `xs.palindromize` to return `Repr`, `PalindromeOps` now wraps a
-  `SeqLike[A, Repr]` instead of a `Seq[A]`, and `isPalindrome` passes it on with `xs.toSeq`. Method syntax on a
-  `String` still doesn't work (views don't chain), so strings use the function form: `palindromize("abc")`.
+  `SeqLike[A, Repr]` instead of a `Seq[A]`, and `isPalindrome` passes it on with `xs.toSeq`. This wrapper still
+  can't take a `String` (views don't chain), so strings use the function form: `palindromize("abc")`.
 - **`@tailrec`** (stage 2): the compiler now rejects `loop` if it ever stops being tail-recursive. The generated code
   is unchanged: it was already a loop.
 - **`x.toLower`**: the 2.8 library adds `toLower` to `Char`, replacing `Character.toLowerCase`.
@@ -465,9 +465,11 @@ object Palindrome {
   singleton type `seq.type` keeps `seq.A` known at the call site, so `xs.palindromize` returns `Repr`. Two things are
   lost: it's no longer a value class (it holds `xs` and `seq`), and delegating to the function needs
   `palindromize[Repr, seq.A](xs)(seq: seq.type, eq, bf)` to satisfy the refinement.
-- **Method syntax finally works on a `String` in Scala 2.** The conversion starts from `String` itself rather than
-  from a `Seq`, so there's no chain of views: `"racecar".isPalindrome` and `"abc".palindromize` both compile. The
-  tests switch to them.
+- **Method syntax works on a `String`.** The conversion starts from `String` itself rather than from a `Seq`, so
+  there's no chain of views: `"racecar".isPalindrome` and `"abc".palindromize` both compile. The tests switch to
+  them. Scala 2 could do this before: a wrapper for `String` alone works in any version, and 2.10's
+  `IsTraversableLike` and 2.11's `IsSeqLike` support the same pattern as `IsSeq`. The code waits for 2.13 because
+  those add a third mechanism without a new language feature (see `DESIGN.md`).
 - **`import scala.language.implicitConversions`**: since 2.10, defining an `implicit def` conversion without this
   feature import draws a warning (implicit classes don't). That's part of why implicit classes became the idiom, and the 2.13
   pattern brings the conversion method back.

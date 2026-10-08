@@ -5,6 +5,127 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-08 — Notes that fit, in two clear roles, with clicks that match the slides (deck 5.17)
+
+### What changed
+
+Both scripts are rewritten to a few rules, written down in their "Writing the lines" section:
+
+- **Odd is the technical reviewer.** Martin, the fan who wrote the code, introduces each step and asks what the room
+  would ask; Odd explains how it works underneath and what it costs (what the compiler inserts, where it boxes or
+  copies, why the refinement is needed). Before, Martin explained most of the mechanics and Odd mostly quipped.
+- **No code read aloud.** "x plus-colon middle colon-plus y", "SeqLike of A comma Repr", "Repr, colon IsSeq, as
+  isSeq" and the like become descriptions ("both ends in one case", "the bound gets a name").
+- **No bubble read aloud.** A line says what the bubble on screen says in other words.
+- **A `[click]` only where something comes onto the slide.** The click to the next slide comes after the last line
+  and isn't marked. `m0-again` and `m3-0-is` marked their slide change as a click; every "again" slide marked the
+  click that faded in the next heading, and left the morph's click unmarked.
+- **The reserve slides start with their heading**, said by Martin; Odd answers.
+- **2.13 isn't the first Scala that can call a method on a `String`.** The scripts said `"racecar".isPalindrome`
+  "won't compile until 2.13" ("twelve years"). It doesn't in this code, but the language could: a wrapper for
+  `String` alone in any version, and 2.10's `IsTraversableLike` and 2.11's `IsSeqLike` with the very pattern 2.13's
+  `IsSeq` uses (compiled and run on 2.10.7, 2.11.12 and 2.12.21). The scripts now say "in our code", Odd adds that
+  the library could do it since 2.10, and `v2_13/NOTES.md`, `v2_8/NOTES.md`, `STATE.md`, `scaladays-2026-talk.md` and
+  the 2.13 limitation below say the same.
+
+Deck 5.17: a slide shown again (`…-again`) shows the next slide's heading from the start instead of fading it in on a
+click, so its one click is the morph. That's one click less per step, and no click that only brings in a heading.
+
+`deck.py` checks both scripts on every build: a slide's `[click]`s must match its builds, and no spoken line may
+repeat four words in a row from a bubble on its slide. The presenter view drops the speakers' names (side and colour
+say who speaks; the name is the turn's tooltip), and its notes are denser: 19px instead of 22px, less padding, turns
+two thirds of the width instead of a little over half, and the notes get as much height as the slide previews.
+`talk/present.py --check` opens the presenter view in headless Chrome and fails if any slide's notes need scrolling,
+in a 1440x820 browser window (733px inside).
+
+Every slide's time is re-estimated from its words: 2.3 words a second, a second per turn, 1.5 seconds per click, 3
+for a morph, 2 for the slide change, rounded to 5 seconds. On the old script that model is within 3 seconds of the
+hand-set times per slide on average. `script.md` comes to 21:05, `script-merged.md` to 24:45.
+
+### Alternatives rejected
+
+- **Keeping the heading's click and auto-advancing into the morph**: the artifact's player can't advance by itself,
+  so the deck would behave differently in the two players.
+- **Marking every click, the slide change included**: an asterisk at the end of nearly every slide's notes, and the
+  presenter view already says what the next click shows.
+- **Scrollable notes with a smaller font**: the request was for no scrolling at a readable size; 19px is about the
+  smallest that reads at a glance from a step back.
+- **Notes beside the slide previews** (two columns): the turns' left/right placement already uses the width.
+- **Checking "no code read aloud" in the build**: names (`IsSeq`, `@tailrec`, `java.lang.String`) are fine to say, so
+  a pattern check would need an allow-list longer than the rule. It's a writing rule, checked by reading.
+- **Rewriting `script-merged.md` by hand from its old text**: it's regenerated from the new `script.md` with its own
+  slides replaced, so the two stay in step where they agree.
+
+### Limitations accepted
+
+- The fit check assumes the presenter window is at least 1440x820 and the notes at the default size; a smaller window
+  or a larger font scrolls again.
+- The four-word check can't see a paraphrase that keeps the bubble's meaning too closely; it only stops reading it out.
+- The times are an estimate; rehearse before trusting them.
+
+### Verification
+
+`talk/deck.py` builds both decks with the new checks passing (before the rewrite, the merged script failed both:
+fifteen wrong click counts, twenty bubbles read out). `talk/present.py --check` passes on both decks; a headless
+screenshot of the busiest slide (`m2-10`, merged) shows its eight turns with room to spare. `talk/render.py` passes on
+both decks. `tools/evolution.py --check` passes. A scan of every spoken line for code (brackets, operators, dots
+between identifiers) finds only class and file names and the reserve heading "Knuth–Morris–Pratt in O(n)". A given
+`caseInsensitive` in the companion beating the default for every `Char`, which the merged script now says, was
+checked on Scala 3.9.
+
+---
+
+## 2026-10-08 — A merged script, as a second deck
+
+### What changed
+
+`talk/script-merged.md` is `talk/script.md` with the technical points a code review asks for woven in, in the same
+voices and roles (Martin presents, Odd reviews): why a `String` gets a `Repr` in 2.8 (its `StringOps` is a
+`SeqLike[Char, String]`), why `x +: middle :+ y` parses as it does, the container abstraction the goal slide doesn't
+need, what a value class still boxes, what 2.13's `implicit def` costs, Scala 3's optional braces and the
+`implicit`/`given` overlap, why `caseInsensitive` isn't a given, that Scala 4.0's pattern doesn't compile, and the
+rule stated on the cover and again at 4.0. Its cast, staging and stage directions are `script.md`'s; background for the
+speakers is `> Note:` lines, which stay out of the notes. Its per-slide times come from the same estimate as
+`script.md`'s (see the next entry): about 25 minutes against 21, so its checkpoints move too, and it leaves 5 minutes
+of the 30 for questions.
+
+`talk/deck.py` builds the talk's deck from `script.md` as before, then copies its `deck.json` and slides to
+`talk/5.17-deck-merged/` and writes `script-merged.md`'s lines into them (`VARIANTS`), with the same check that the
+script follows the deck. It's published to an artifact of its own, so the two scripts can be open in two tabs, or
+presented side by side with `talk/present.py` on two ports.
+
+The presenter view shows the notes as the speakers' turns, in speaking order: Odd's in blue on the left, Martin's in
+orange on the right, `BOTH` across the middle, and each `*` (a `[click]`) as a small amber tag. It splits at the
+markers rather than at line ends, so notes whose lines an editor joined still split.
+
+### Alternatives rejected
+
+- **Replacing `script.md`'s lines with the merged ones**: the talk's script is Martin and Odd's; the merge is a
+  proposal to compare with it, not a rewrite of it.
+- **A separate format for the second script** (a plain `--- <slide id>` file per deck, tried first on this branch
+  before `script.md` landed on main): it would lose the cast, staging and stage directions, and need a second parser.
+- **Hand-kept slide files for the second deck**: 63 files to keep in step after every code change; the build copies
+  them instead.
+- **A subagent's first script, with Odd introducing and Martin reviewing**: written from the old single-speaker notes
+  before the speakers' own script existed in the repo. It reversed their roles and lost their voices; its technical
+  points are what the merge takes over.
+
+### Limitations accepted
+
+- The merged times are an estimate on top of `script.md`'s; rehearse before trusting them.
+- `deck.py` strips every `[bracket]` from a spoken line, so a script line can't hold code like `F[_]`; the scripts
+  describe code rather than read it anyway.
+- Notes edited in the merged artifact have to go back into `script-merged.md`; the next build overwrites them.
+
+### Verification
+
+`talk/deck.py` builds both decks; the talk's deck is unchanged by it, and matches its artifact as read on 2026-10-08.
+Every slide's notes in the merged deck are the merged lines (checked line by line), and its slides, without the
+notes, are the talk's deck's. `talk/render.py` passes on the merged deck with the same report as the talk's deck. The
+presenter view, served by `talk/present.py` and rendered headless, shows the coloured turns and click tags.
+
+---
+
 ## 2026-10-04 — The implicit class goes in 3.0 (deck 5.14)
 
 ### What changed
@@ -1270,7 +1391,7 @@ design asked of library authors, and the 2.13 `IsSeq` pattern is what replaced i
 - **In 2.13, the wrapper method written without the explicit `[Repr, seq.A]` and `seq: seq.type`.** It doesn't
   compile: scalac can't unify `seq.A` (with `seq: S`) with the function's `{ type A = A0 }` refinement. The
   alternative, duplicating the five-line body in the wrapper, would let the two copies drift apart.
-- **`IsTraversableLike` in 2.10–2.12**, which would allow `"abc".palindromize` before 2.13. It adds a third mechanism
+- **`IsTraversableLike` in 2.10–2.12 (or `IsSeqLike` from 2.11)**, which would allow `"abc".palindromize` before 2.13. It adds a third mechanism
   without a new language feature, and it doesn't fit the implicit value class.
 
 ### Limitations accepted
@@ -1278,8 +1399,9 @@ design asked of library authors, and the 2.13 `IsSeq` pattern is what replaced i
 - The suffix search is O(n²) on an `IndexedSeq` (up to n suffixes, each checked in O(n)), and O(n³) on a `List`,
   where each check's `:+` recursion is itself O(n²). `palindromicSuffixStart` also copies a `String` once
   (`ops.toSeq` / `xs.toSeq`).
-- 2.5–2.12 still can't use method syntax on a `String` (views don't chain), so their tests use the function form for
-  strings.
+- 2.5–2.12's wrappers can't take a `String` (views don't chain), so their tests use the function form for strings.
+  The language could do it (a `String` wrapper, or `IsTraversableLike`/`IsSeqLike`, both rejected above), so the talk
+  says "in our code", not "in Scala 2".
 - The 2.13 wrapper isn't a value class, reversing the 2.10/2.11 value-class beat. That's the documented 2.13 pattern.
 - 2.5's `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false` (no content-based equality), so the 2.5–2.7
   tests compare with `.toList` and `.mkString`.
@@ -1415,8 +1537,8 @@ versions would mix design changes with language changes and put features in vers
   method is an ordinary method, so `isPalindrome(xs)` already works on the extension. The second definition and the
   JVM-name clash it caused go away.
 - **A `String` overload of `PalindromeOps` for Scala 2**, so that `"racecar".isPalindrome` compiles there too. It would
-  double the enrichment code in every Scala 2 version to hide a real 2→3 difference: Scala 3 extension receivers may
-  be converted, and Scala 2 implicit views don't chain. The Scala 2 tests use `isPalindrome("racecar")` and
+  double the enrichment code in every Scala 2 version to hide a 2→3 difference: Scala 3 extension receivers may be
+  converted, while a Scala 2 conversion from `Seq` can't take a `String`, because implicit views don't chain. The Scala 2 tests use `isPalindrome("racecar")` and
   `"racecar".toList.isPalindrome` instead.
 - **Structural recursion before 2.10** (e.g. `head`/`last`/`slice`). Without `+:`/`:+`, index arithmetic is the
   idiomatic pre-2.10 form, and the switch to extractors then shows up in the 2.10 diff.
