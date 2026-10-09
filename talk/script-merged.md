@@ -76,7 +76,7 @@ relaxed pace and a beat after each joke). That leaves 5 minutes of the 30 for a 
 > Both walk on together. Martin center-left, Odd right, arms crossed.
 
 MARTIN: Hi Berlin! I'm Martin.
-ODD: And I'm Odd...  That's also my name.
+ODD: And I'm odd...  That's also my name.
 MARTIN: We're taking a stroll down memory lane: twenty years of Scala, told through one tiny function, written again in every version from 2.5 to 3.9.
 ODD: And I'm here to make sure nobody gets sentimental about it. Every feature has to justify what it costs.
 MARTIN: And one rule for the whole talk: we only add machinery when the problem asks for it.
@@ -142,7 +142,7 @@ MARTIN: And every later release only makes it cheaper to write.
 > Three clicks, one per bubble.
 
 MARTIN: Here's our Eq in 2.5. [click] Look at those instances.
-ODD: Anonymous classes, braces and all: no lambda can implement a trait yet. The Java 1.4 experience.
+ODD: Anonymous classes, braces and all: no lambda can implement a trait yet. The Java 6 experience.
 MARTIN: [click] And nobody imports the default?
 ODD: It sits in Eq's companion, and the compiler always searches there. Where things are found that nobody can find.
 MARTIN: [click] And case-insensitive is opt-in.
