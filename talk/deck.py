@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.17-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.18-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -24,8 +24,7 @@ It also fails if a slide in SEQUENCE has no file, or a hand-written slide's file
 
 Every slide's speaker notes, hand-written slides included, are the spoken lines of its section in talk/script.md; the
 build fails if the script doesn't follow the deck's slide order, if a slide's [click]s don't match its builds, or if a
-spoken line repeats a bubble's words. talk/script-merged.md makes a second deck,
-talk/5.17-deck-merged/: the same slides with its notes (VARIANTS).
+spoken line repeats a bubble's words.
 """
 
 import json
@@ -37,7 +36,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.17-deck/project"
+DECK = ROOT / "talk/5.18-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -150,7 +149,7 @@ NOTES = {
     ],
     "2.13": [
         (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨isSeq: IsSeq[Repr] { type A = A0 }⟩", "val seq = ⟨isSeq(xs)⟩.toSeq"],
-         "any Repr IsSeq can read, as isSeq(xs);\nA0 and its refinement are the wart"),
+         "any Repr IsSeq can read, as isSeq(xs)"),
         (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(seq.iterator ++⟩ seq"],
          "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
     ],
@@ -167,8 +166,8 @@ NOTES = {
         (["[⟨Repr: IsSeq as isSeq⟩]"], "a context bound with\na name: isSeq.A still works"),
     ],
     "0": [
-        ("s == ⟨s.reverse⟩", "copies the string\njust to compare"),
-        ("s + ⟨s.reverse⟩", "not always\nthe shortest"),
+        ('s == ⟨s.reverse.mkString("")⟩', "copies the string\njust to compare"),
+        ('s + ⟨s.reverse.mkString("")⟩', "not always\nthe shortest"),
         ("palindromize(s: ⟨String⟩", "Only String\nWe want Seq[A]"),
     ],
     "4.0": [
@@ -612,11 +611,13 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
     return "none" if leads_to_again else default
 
 
-# Code states that come from no version directory: the one-liner the talk starts from (slide 2), morphed into 2.5's
+# Code states that come from no version directory: the one-liner the talk starts from (slide 2), as 2007 has to write
+# it (before 2.8 a String's reverse isn't a String, so it's turned back into one with mkString), morphed into 2.5's
 # methods; and an imagined Scala 4.0, the ending joke: 3.6's isPalindrome with a Prolog-style pattern that names x
 # twice, so the two ends must be equal. No real Scala compiles it.
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
-    "def isPalindrome(s: String): Boolean = s == s.reverse", "", "def palindromize(s: String): String = s + s.reverse"]}
+    'def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")', "",
+    'def palindromize(s: String): String = s + s.reverse.mkString("")']}
 # Scala 2's method syntax as 2.13 could write it, an implicit class like 2.11's (v2_13 writes a class and an implicit
 # def), shown next to 2.13's methods before 3.0: its isPalindrome is commented out when isPalindrome becomes an
 # extension, its palindromize when palindromize does, and then the whole class, with a note (OPS_NOTE). It compiles and passes 2.13's tests in place of v2_13's, but isn't in the sources.
@@ -672,13 +673,13 @@ def join(parts: list[list[str]]) -> list[str]:
     return [line for i, part in enumerate(parts) for line in ([""] if i else []) + part]
 
 
-def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | None, dict | None, dict]:
+def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | None, dict | None, dict, dict | None]:
     """What the slides of the step into state k show: the previous state shown again (None for a track's first state),
     a state between them (None unless both methods change: the new isPalindrome next to the old palindromize, so
-    isPalindrome morphs first), state k with what's left of the implicit class it replaces (None but in 3.0), and
-    state k. On the code and Eq tracks only the methods or definitions that change in this step are shown, on every
-    slide."""
-    after, before, between, shell = states[k], states[k - 1] if k else None, None, None
+    isPalindrome morphs first), state k with what's left of the implicit class it replaces (None but in 3.0), state
+    k, and state k without the class, once it's wholly commented out (None but in 3.0). On the code and Eq tracks only
+    the methods or definitions that change in this step are shown, on every slide."""
+    after, before, between, shell, clean = states[k], states[k - 1] if k else None, None, None, None
     if track == "eq" and before:  # only the definitions that change: object Eq, and trait Eq where it changes
         a, b = definitions(after["lines"]), definitions(before["lines"])
         keep = [i for i in range(len(a)) if a[i] != b[i]]
@@ -699,7 +700,8 @@ def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | N
             if between:
                 between = with_ops(between, (1,))
             shell = with_ops(after, (1, 2))
-            after = with_ops(after, range(len(OPS_2_13)))  # then the whole class, on a click
+            # then the whole class, on a click; and on the click to a slide of its own, the class gone
+            after, clean = with_ops(after, range(len(OPS_2_13))), after
 
     def wrapped(st):
         if not st:
@@ -713,7 +715,7 @@ def views(track: str, states: list[dict], k: int) -> tuple[dict | None, dict | N
                     part = part[:indent] + "// " + part[indent:]
                 lines.append(part)
         return {**st, "lines": lines, "struck": struck}
-    return wrapped(before), wrapped(between), wrapped(shell), wrapped(after)
+    return wrapped(before), wrapped(between), wrapped(shell), wrapped(after), wrapped(clean)
 
 
 def first_method(state: dict, notes: list) -> set[int]:
@@ -726,10 +728,8 @@ def first_method(state: dict, notes: list) -> set[int]:
 # The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
 # "## <number> · <slide id> — ..."; its MARTIN:, ODD: and BOTH: lines are what's said, and become the slide's notes,
 # with each [click] as an asterisk and without the other [bracketed] stage directions. Everything else in the file is
-# for the speakers only. Another script makes a deck of its own: a copy of the talk's slides with its notes (VARIANTS),
-# so scripts can be compared side by side.
+# for the speakers only.
 SCRIPT = ROOT / "talk/script.md"
-VARIANTS = {ROOT / "talk/script-merged.md": ROOT / "talk/5.17-deck-merged/project"}
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+(?:\n[ \t]+\S.*)*)", re.M)  # an indented line continues the one above
 
 
@@ -757,6 +757,7 @@ def with_notes(html: str, notes: str) -> str:
 def build():
     steps = {}  # (track, k) -> (before view, between view, after view, before runs, between runs, after runs)
     shells = {}  # (track, k) -> (shell view, shell runs), where the step has one
+    cleans = {}  # (track, k) -> (clean view, clean runs), where the step has one
     index = {}
     for track, spec in TRACKS.items():
         states = code_states() if track == "code" else morph.load_states(track)
@@ -764,14 +765,17 @@ def build():
         assert set(spec["notes"]) == set(index[track]) == set(spec["titles"]), \
             f"{track}: notes for {sorted(spec['notes'])}, states {sorted(index[track])}"
         for k in range(len(states)):
-            before, between, shell, after = views(track, states, k)
-            runs = morph.chain([v for v in (before, between, shell, after) if v])
-            steps[track, k] = (before, between, after, runs[0] if before else None, runs[1] if between else None,
-                               runs[-1])
-            if shell:
-                shells[track, k] = (shell, runs[-2])
+            view = dict(zip(("before", "between", "shell", "after", "clean"), views(track, states, k)))
+            shown = [name for name, v in view.items() if v]
+            runs = dict(zip(shown, morph.chain([view[name] for name in shown])))
+            before, between, after = view["before"], view["between"], view["after"]
+            steps[track, k] = (before, between, after, runs.get("before"), runs.get("between"), runs["after"])
+            if view["shell"]:
+                shells[track, k] = (view["shell"], runs["shell"])
+            if view["clean"]:
+                cleans[track, k] = (view["clean"], runs["clean"])
             notes = spec["notes"][after["versions"][0]]
-            if before and before["versions"] != ONE_LINER["versions"] and (missing := uncovered(after, runs[-1], runs[0], notes)):
+            if before and before["versions"] != ONE_LINER["versions"] and (missing := uncovered(after, runs["after"], runs["before"], notes)):
                 raise SystemExit(f"{track} {after['versions'][0]}: new code without a highlight: " + ", ".join(missing))
 
     ids = []  # every slide's id; a step split in two adds its first slide, <id>-is, before its own
@@ -793,6 +797,8 @@ def build():
             ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + "-ops")
         ids.append(TRACKS[track]["slide"] + v.replace(".", "-") + ("-again" if again else ""))
         item_id.append(ids[-1])
+        if not again and (track, index[track][v]) in cleans:
+            ids.append(ids[-1] + "-clean")
         if again:  # a state shown again leads straight into the track's next state
             nxt = SEQUENCE[n + 1] if n + 1 < len(SEQUENCE) else None
             assert isinstance(nxt, tuple) and track_of(nxt[0]) == (track, False) and \
@@ -866,9 +872,14 @@ def build():
             (slides / f"{slide}-ops.html").write_text(with_footer(html, view["versions"][0]))
             first, layout = ops_only, shell_layout
             only = ops_only | {len(notes)}
-        html = code_slide(slide, view, runs, leaving(n), notes, aside, title, spec["token"], only=only, shown=first,
-                          keep=layout, heading_id=after_again and not between)
+        clean = cleans.get((track, k))  # the class, wholly commented out here, goes on the click to a slide of its own
+        html = code_slide(slide, view, runs, "magic" if clean else leaving(n), notes, aside, title, spec["token"],
+                          only=only, shown=first, keep=layout, heading_id=bool(clean) or (after_again and not between))
         (slides / f"{slide}.html").write_text(with_footer(html, view["versions"][0]))
+        if clean:
+            html = code_slide(f"{slide}-clean", clean[0], clean[1], leaving(n), [], aside, title, spec["token"],
+                              heading_id=True)
+            (slides / f"{slide}-clean.html").write_text(with_footer(html, view["versions"][0]))
 
     write_notes(SCRIPT, slides, ids)
 
@@ -879,15 +890,6 @@ def build():
     path.write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
     count = sum(len(n) for spec in TRACKS.values() for n in spec["notes"].values())
     print(f"{DECK.parent.name}: {len(ids)} slides, {count} notes")
-    for script, variant in VARIANTS.items():  # the same slides and deck.json, with another script's notes
-        (variant / "slides").mkdir(parents=True, exist_ok=True)
-        (variant / "deck.json").write_text(path.read_text())
-        for old in {f.stem for f in (variant / "slides").glob("*.html")} - set(ids):
-            (variant / f"slides/{old}.html").unlink()
-        for sid in ids:
-            (variant / f"slides/{sid}.html").write_text((slides / f"{sid}.html").read_text())
-        write_notes(script, variant / "slides", ids)
-        print(f"{variant.parent.name}: the same slides, with {script.relative_to(ROOT)}'s notes")
 
 
 # A bubble's text, and the words a speaker may not repeat from it: this many in a row.

@@ -5,6 +5,145 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-09 — The commented-out implicit class goes, on a slide of its own (deck 5.18)
+
+### What changed
+
+After the 3.0 step comments out the whole implicit class (`m3-0`, with the bubble that it's obsolete), the click to
+a new slide, `m3-0-clean`, morphs it away: the same heading ("using extensions") over 3.0's two extensions alone.
+Nobody speaks on it; on `m3-0` Martin asks "Shall we delete it?" and Odd says "Of course". `views` in
+`talk/deck.py` returns the step's state without the class as a fifth view (`clean`, only in 3.0); `build` chains it
+after the class's last state, so its tokens keep their ids, gives `m3-0` the `magic` transition and both slides the
+heading id, so the heading stays put and the panel shrinks.
+
+### Why
+
+The class used to stay commented out until 3.6, "for the archaeologists". Deleting it is the point the step makes:
+extensions replace the implicit class, so the code that follows shouldn't carry it.
+
+### Alternatives rejected
+
+- **Removing the class on a click on `m3-0`**: a build can only add elements, and the class's lines are tokens a
+  morph has to move; a slide change is the only way to make them disappear smoothly.
+- **Leaving it commented out**: 3.6's slides would start from code that no longer matches what's shown.
+
+### Verification
+
+`talk/deck.py` builds 64 slides with the script in step; `talk/render.py --screenshots` shows `m3-0-clean` with the
+3.0 extensions only, under the same heading; `talk/present.py --check` passes.
+
+---
+
+## 2026-10-09 — One script: the merged script is dropped
+
+### What changed
+
+`talk/script-merged.md`, its deck `talk/5.18-deck-merged/` and its artifact are deleted, with `VARIANTS` and the
+loop that built the variant deck in `talk/deck.py`. `talk/script.md` is the talk's only script. Before deleting, the
+merged script's lines were compared with `script.md`'s, and three points were brought over in the main script's
+voice: on slide 47, that the library didn't change and the language fixed the wart; on slides 12 and 50, why the
+timeline skips 2.6–2.7 and 3.1–3.5 (they change nothing the code uses); and on slide 13, why a palindrome checker
+cares about a collections rewrite. The talk's rule on slides 1 and 59, the asides for the Q&A and the reviewer-level
+detail (precedence, boxing, a `caseInsensitive` given beating the default) were left out.
+
+The script was then reworked line by line (slides 2 to 60), and the changed slides re-timed with the model of
+2026-10-08's entry: the talk comes to 21:25, and the checkpoints moved to 6:25 (2.8), 10:05 (2.10), 15:15 (3.0) and 19:25 (4.0).
+
+### Why
+
+Two scripts doubled every edit and every check, and the speakers chose `script.md`.
+
+### Alternatives rejected
+
+- **Keeping the merged deck as a reference**: it would go stale with the first edit to `script.md`.
+
+---
+
+## 2026-10-09 — Rejected: a 2.13 `palindromize` without the refinement
+
+### What was tried
+
+2.13's `palindromize` pins the element type with a refinement, `IsSeq[Repr] { type A = A0 }`, because its `Eq[A0]`
+and `BuildFrom[Repr, A0, Repr]` sit in the same implicit parameter list as the `IsSeq`, where Scala 2 can't use the
+`IsSeq`'s member type. The same method works without it, with an implicit view to a sequence in place of `IsSeq`:
+
+```scala
+def palindromize[Repr, A](xs: Repr)(implicit toSeq: Repr => collection.Seq[A], eq: Eq[A],
+    bf: BuildFrom[Repr, A, Repr]): Repr
+```
+
+It compiles on 2.13.18 and passes for `String`, `List`, `Vector`, `Array` and with `caseInsensitive`.
+
+### Why it isn't used
+
+- It's the old view-bound pattern (`Repr <% Seq[A]`), deprecated since 2.11; 2.13's own documentation reads
+  collections generically through `IsSeq`.
+- An implicit function parameter acts as an implicit conversion inside the method body, which hides where
+  conversions happen.
+- Scala 3 would need a `Conversion` instead, so the step to 3.0 would change the mechanism, not just the syntax,
+  and the slides' point (the language fixes the wart, the library stays) would be lost.
+
+The talk calls the refinement "a wart" and "a detour", not a necessity, which this experiment bears out.
+
+---
+
+## 2026-10-09 — The one-liners as 2007 wrote them (deck 5.18)
+
+### What changed
+
+The opening slide and the start of the morph into 2.5 (`m0-again`, `ONE_LINER` in `talk/deck.py`) show the
+one-liners as early Scala 2 has to write them:
+
+```scala
+def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")
+def palindromize(s: String): String = s + s.reverse.mkString("")
+```
+
+Before 2.8 a `String`'s `reverse` isn't a `String`: it's a `List` in 2.5, a view in 2.6 and a `RichString` in 2.7.
+A `String` only equals a `String`, so the familiar `s == s.reverse` is `false` for every string, and `s + s.reverse`
+appends `List(c, b, a)` in 2.5 and `RichStringR(c, b, a)` in 2.6. From 2.8 a `String`'s `reverse` is a `String`,
+which is the same "give back what you were given" that `palindromize` gets from `CanBuildFrom` on slide 18.
+
+On slide 2, Odd says that the plain comparison is what you'd expect, but that in 2007 `reverse` isn't a `String`.
+The "What's wrong?" bubbles now highlight the whole `s.reverse.mkString("")`.
+
+The scripts, `STATE.md`, this log and 2.5's notes used to say the one-liner failed because collection `==` wasn't
+content-based before 2.8. It was, between collections of the same kind: `List == List` compares contents in every
+version. The failure was the type of `reverse`.
+
+### Alternatives rejected
+
+- **The familiar one-liners with a grey "before 2.8" comment under each**: keeps the opening recognisable, but shows
+  code that the talk's own timeline says doesn't work, and puts two spellings on the first code slide.
+- **The familiar one-liners, explained only in the dialogue**: the slide would keep showing code that's wrong for
+  the era it opens.
+- **`s.reverse sameElements s` or `s.toList == s.toList.reverse`**: they work for `isPalindrome`, but not for
+  `palindromize`, and they change the one-liner's shape. `mkString("")` changes it least.
+- **A bare `.mkString`**: doesn't compile on 2.5 (an ambiguous overload).
+
+### Limitations accepted
+
+- The opening is less familiar than `s == s.reverse`; the dialogue says so right away.
+- The `mkString` makes a second copy, which the "copies the string just to compare" bubble understates.
+
+### Verification
+
+On Scala 2.5.1, 2.6.1, 2.7.7 and 2.8.2 (compiled and run with `legacy/test.sh`'s compilers and JDK):
+
+| Expression | 2.5 | 2.6 | 2.7 | 2.8 |
+|---|---|---|---|---|
+| `s == s.reverse` | `false` | `false` | `false` | `true` |
+| `s + s.reverse` (`s` = `"abc"`) | `abcList(c, b, a)` | `abcRichStringR(c, b, a)` | `abccba` | `abccba` |
+| `s == s.reverse.mkString("")` | `true` | `true` | `true` | `true` |
+| `s + s.reverse.mkString("")` | `abccba` | `abccba` | `abccba` | `abccba` |
+
+The same runs confirmed that `List == List` compares contents on every version, and that `++` on a `Seq` gives an
+`ArrayBuffer` in 2.5 and a view in 2.6. `talk/deck.py` builds both decks, `talk/present.py --check` and
+`talk/render.py` pass on both, and screenshots of `oneliner` and `m0-again` show the code and the bubbles' new
+highlights.
+
+---
+
 ## 2026-10-08 — Notes that fit, in two clear roles, with clicks that match the slides (deck 5.17)
 
 ### What changed
@@ -90,7 +229,7 @@ speakers is `> Note:` lines, which stay out of the notes. Its per-slide times co
 of the 30 for questions.
 
 `talk/deck.py` builds the talk's deck from `script.md` as before, then copies its `deck.json` and slides to
-`talk/5.17-deck-merged/` and writes `script-merged.md`'s lines into them (`VARIANTS`), with the same check that the
+`talk/5.18-deck-merged/` and writes `script-merged.md`'s lines into them (`VARIANTS`), with the same check that the
 script follows the deck. It's published to an artifact of its own, so the two scripts can be open in two tabs, or
 presented side by side with `talk/present.py` on two ports.
 
@@ -135,7 +274,8 @@ The step from 2.13 to 3.0 (`m2-13-again`, `m3-0-is`, `m3-0`) shows Scala 2's met
 the whole class when `palindromize` does, so the slides show that extensions replace the implicit class. From deck
 5.15 the emptied class stays on a slide of its own (`m3-0-ops`, where `palindromize`'s notes come in) and goes on the
 next click. From 5.16 nothing is removed: each method is commented out (`//` before each of its lines, in grey: the
-lines in a view's `struck`), and on that click the whole class, with a note (`OPS_NOTE`) that it's obsolete.
+lines in a view's `struck`), and on that click the whole class, with a note (`OPS_NOTE`) that it's obsolete. From
+5.18 the click after that morphs the commented-out class away, onto a slide of its own (`m3-0-clean`).
 
 ### Why the slides' code isn't 2.13's
 
@@ -1403,8 +1543,9 @@ design asked of library authors, and the 2.13 `IsSeq` pattern is what replaced i
   The language could do it (a `String` wrapper, or `IsTraversableLike`/`IsSeqLike`, both rejected above), so the talk
   says "in our code", not "in Scala 2".
 - The 2.13 wrapper isn't a value class, reversing the 2.10/2.11 value-class beat. That's the documented 2.13 pattern.
-- 2.5's `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false` (no content-based equality), so the 2.5–2.7
-  tests compare with `.toList` and `.mkString`.
+- 2.5's `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false`: `++` on a `Seq` gives an `ArrayBuffer` (a view
+  in 2.6), and before 2.8 only collections of the same kind compare by content. So the 2.5–2.7 tests compare with
+  `.toList` and `.mkString`.
 - The talk's §2 budget was already full. Stage 5b adds about two slides, which is recorded as an open item in the
   talk spec.
 
@@ -1521,7 +1662,8 @@ versions would mix design changes with language changes and put features in vers
   superseded by the talk spec, which gets the ADT, type-class and extension beats from `isPalindrome` without
   swapping the example.
 - **One talk stage per version** (e.g. 2.5 = the one-liner, 2.8 = `@tailrec`, …). Rejected for the reason above.
-  Stage 0 (`s == s.reverse`) also can't be written for 2.5–2.7, where collection `==` isn't content-based.
+  Stage 0 also needs a `mkString` on 2.5–2.7, where a `String`'s `reverse` isn't a `String`, so it isn't the familiar
+  `s == s.reverse` there.
 - **Keeping the `ignore: Set[Char]` parameter.** The talk's customization hook is `Eq`. `ignore` would add a second
   hook and bring back the default argument the talk doesn't use. Sentence palindromes ("race car") are the job of the
   talk's reserve "normalized input" stage (opaque types), which isn't in the code.
