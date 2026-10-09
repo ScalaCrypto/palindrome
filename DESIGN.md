@@ -1403,8 +1403,9 @@ design asked of library authors, and the 2.13 `IsSeq` pattern is what replaced i
   The language could do it (a `String` wrapper, or `IsTraversableLike`/`IsSeqLike`, both rejected above), so the talk
   says "in our code", not "in Scala 2".
 - The 2.13 wrapper isn't a value class, reversing the 2.10/2.11 value-class beat. That's the documented 2.13 pattern.
-- 2.5's `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false` (no content-based equality), so the 2.5–2.7
-  tests compare with `.toList` and `.mkString`.
+- 2.5's `palindromize(List(1, 2, 3)) == List(1, 2, 3, 2, 1)` is `false`: `++` on a `Seq` gives an `ArrayBuffer` (a view
+  in 2.6), and before 2.8 only collections of the same kind compare by content. So the 2.5–2.7 tests compare with
+  `.toList` and `.mkString`.
 - The talk's §2 budget was already full. Stage 5b adds about two slides, which is recorded as an open item in the
   talk spec.
 
@@ -1521,7 +1522,8 @@ versions would mix design changes with language changes and put features in vers
   superseded by the talk spec, which gets the ADT, type-class and extension beats from `isPalindrome` without
   swapping the example.
 - **One talk stage per version** (e.g. 2.5 = the one-liner, 2.8 = `@tailrec`, …). Rejected for the reason above.
-  Stage 0 (`s == s.reverse`) also can't be written for 2.5–2.7, where collection `==` isn't content-based.
+  Stage 0 (`s == s.reverse`) also can't be written for 2.5–2.7, where a `String`'s `reverse` isn't a `String`, so the
+  comparison is `false`.
 - **Keeping the `ignore: Set[Char]` parameter.** The talk's customization hook is `Eq`. `ignore` would add a second
   hook and bring back the default argument the talk doesn't use. Sentence palindromes ("race car") are the job of the
   talk's reserve "normalized input" stage (opaque types), which isn't in the code.

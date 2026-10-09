@@ -88,7 +88,7 @@ MARTIN: And one rule for the whole talk: we only add machinery when the problem 
 MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
 ODD: It copies the whole string, just to compare it with itself.
 MARTIN: It's a one liner!
-ODD: One expensive line. And before 2.8 it's wrong: collections didn't compare by content, so "racecar" fails.
+ODD: One expensive line. And before 2.8 it's wrong: reverse doesn't give you back a String, so "racecar" fails.
 MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse.
 ODD: "abc" gets three more letters, when two would do. And String has no reverse of its own: Predef wraps it.
 MARTIN: Are you going to be like this all talk?

@@ -59,8 +59,9 @@ Every idea of the talk is already expressible in 2.5. What's missing is only the
 Things that look odd today, and why:
 - **The wrapper calls `Palindrome.isPalindrome(xs)`**: unqualified, the call would resolve to its own method.
 - **`Character.toLowerCase`**: `Char` has no `toLower` before 2.8.
-- **Elements are compared pairwise, never `xs == xs.reverse`**: before 2.8, `==` on collections isn't content-based,
-  so `"racecar".reverse == "racecar"` is `false`. That's also why the talk's stage 0 one-liner has no version here.
+- **Elements are compared pairwise, never `xs == xs.reverse`**: before 2.8, `==` compares contents only between
+  collections of the same kind, and a `String`'s `reverse` isn't a `String` (here a `List`), so
+  `"racecar".reverse == "racecar"` is `false`. That's also why the talk's stage 0 one-liner has no version here.
 
 2.6 and 2.7 are identical.
 

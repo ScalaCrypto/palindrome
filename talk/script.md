@@ -81,7 +81,7 @@ ODD: And I'm here to make sure nobody gets sentimental about it.
 MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
 ODD: It copies the whole string, just to compare it with itself.
 MARTIN: It's a one liner!
-ODD: One expensive line. And before 2.8 it's wrong: collections didn't compare by content, so "racecar" fails.
+ODD: One expensive line. And before 2.8 it's wrong: reverse doesn't give you back a String, so "racecar" fails.
 MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse.
 ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
