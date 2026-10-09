@@ -730,7 +730,7 @@ def first_method(state: dict, notes: list) -> set[int]:
 # so scripts can be compared side by side.
 SCRIPT = ROOT / "talk/script.md"
 VARIANTS = {ROOT / "talk/script-merged.md": ROOT / "talk/5.17-deck-merged/project"}
-SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+)$", re.M)
+SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+(?:\n[ \t]+\S.*)*)", re.M)  # an indented line continues the one above
 
 
 def script_notes(script: Path = SCRIPT) -> list[tuple[int, str, str]]:

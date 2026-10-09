@@ -5,11 +5,11 @@ Martin Zachrison and Odd Möller.
 
 ## The cast
 
-**MARTIN, the good cop.** The fan, and the one who wrote the code. Warm, nostalgic, sees the best in every release,
+**MARTIN, the enthusiast.** The fan, and the one who wrote the code. Warm, nostalgic, sees the best in every release,
 defends the old code like an old car that still starts. He introduces each step and asks what the room is thinking;
 he doesn't explain the machinery. Never sarcastic; enthusiasm is the joke.
 
-**ODD, the bad cop.** The code reviewer, and the one who knows how it works underneath: what the compiler inserts,
+**ODD, the skeptic.** The code reviewer, and the one who knows how it works underneath: what the compiler inserts,
 what it costs, where it breaks. Dry, deadpan, counts allocations, remembers every migration. Never shouts, never
 sneers: just unimpressed. Over the talk Scala slowly wins Odd over: a first concession at 2.12 ("I concede"), "almost
 moved" at 3.0, and "I'll give you that one" at the end. Play that arc; it's the story under the jokes.
@@ -22,6 +22,7 @@ from recognition: everybody in the room has lived through CanBuildFrom.
 - `MARTIN:`, `ODD:` and `BOTH:` lines are spoken. They, and only they, become the slides' speaker notes:
   `talk/deck.py` copies them into every slide's notes, so edit the dialogue here, not in the artifact. The presenter
   view shows them without the names: Odd's on the left in blue, Martin's on the right in orange.
+  A spoken line may go on over several lines: indent the ones after the first.
 - `[click]` inside a line: click there, mid-sentence if needed. In the speaker notes it's an asterisk, `*`. It marks
   only the clicks that bring something onto the slide (a bubble, a line of code), so a slide has exactly as many as
   it has builds; the build fails otherwise. The click to the next slide always comes after the slide's last line, and
@@ -68,24 +69,22 @@ Checkpoints:
 
 > Both walk on together. Martin center-left, Odd right, arms crossed.
 
-MARTIN: Hi Berlin! I'm Martin, and this is Odd.
-ODD: The odd one.
-MARTIN: We're taking a walk down memory lane: twenty years of Scala, told through one tiny function.
+MARTIN: Hi Berlin! I'm Martin Zachrison.
+ODD: And I'm Odd Möller...  odd one.
+MARTIN: We're taking a stroll down memory lane: twenty years of Scala, told through one tiny function.
 ODD: And I'm here to make sure nobody gets sentimental about it.
-MARTIN: I'm the good cop.
-ODD: I'm the code reviewer.
 
 ## 2 · oneliner — It starts as a one-liner · 45 s · 0:30
 
 > One click: palindromize appears.
 
-MARTIN: Here's the whole problem: a palindrome is its own reverse. Compare, done. Ship it.
+MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
 ODD: It copies the whole string, just to compare it with itself.
-MARTIN: It's one line!
+MARTIN: It's a one liner!
 ODD: One expensive line. And before 2.8 it's wrong: collections didn't compare by content, so "racecar" fails.
-MARTIN: Fine. [click] And to make a palindrome, append the reverse.
+MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse.
 ODD: "abc" gets three more letters, when two would do.
-MARTIN: You're going to be like this all talk, aren't you?
+MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.
 
 ## 3 · goal — Callable as methods · 45 s · 1:15
@@ -94,10 +93,10 @@ ODD: All thirty minutes.
 
 MARTIN: So here's where we want to end up. Any sequence, any element type, called as a method.
 ODD: Including on a String. Which isn't a Seq.
-MARTIN: Including on a String. [click] And palindromize gives back what you gave it, adding only what it has to.
+MARTIN: Including on a String. [click] And palindromize gives back what you gave it, adding only what it needs.
 ODD: Same type out as in. That one sentence will cost us two collection redesigns.
-ODD: [click] And the caller decides what "equal" means.
-MARTIN: Case-insensitive, and Racecar with a capital R still counts.
+ODD: [click] Case-insensitive, and Racecar with a capital R still counts.
+MARTIN: And the caller decides what "equal" means.
 ODD: Hold that thought. That's where it gets interesting.
 
 ## 4 · eq — Seq[A] needs Equality for A · 25 s · 2:00
@@ -113,12 +112,11 @@ MARTIN: Let's go back to 2007 and write it.
 
 MARTIN: Scala 2.5, May 2007. Two hundred and eighty-nine commits, by ten people.
 ODD: Ten. That's not a community, that's a team lunch.
-MARTIN: And yes, that's Martin Odersky. No relation. Sadly.
 
 ## 6 · f2-5 — New in Scala 2.5 · 25 s · 2:45
 
 MARTIN: New in 2.5: type constructor polymorphism, placeholder lambdas, case clauses as functions.
-ODD: And we use none of them. Nothing in amber.
+ODD: And we use none of them.
 MARTIN: That's the point. Scala already had everything this design needs.
 ODD: Generics, implicits, anonymous classes. It just made you type a lot.
 
@@ -137,14 +135,14 @@ ODD: A plain value: hand it over, or make it implicit locally, where it beats th
 
 > Two clicks.
 
-MARTIN: Now method syntax. Seq has no isPalindrome, and we can't change Seq.
-ODD: So we wrap it. [click] A class that only passes the call on.
+MARTIN: Now method syntax. Seq has no isPalindrome function, and we can't change Seq.
+ODD: So we wrap it. [click] A class that only forwards the calls.
 MARTIN: [click] And this?
 ODD: The implicit conversion: call something Seq lacks, and it gets slipped in for you. One allocation per call.
 MARTIN: Does it work on a String?
 ODD: Not with this wrapper. A String needs a conversion to become a Seq first, and conversions don't chain.
 MARTIN: We could write a second wrapper, just for String.
-ODD: Two wrappers for one method? I'll wait.
+ODD: Two wrappers for one method? I'll wait for a new Scala version.
 
 ## 9 · m0-again — What's wrong? · 30 s · 4:50
 
@@ -161,20 +159,21 @@ MARTIN: All right. Scala 2.5, show us a better way.
 > One click.
 
 MARTIN: Generic, with an implicit Eq.
-ODD: [click] And no pattern for the last element yet, so two indices meet in the middle. Index arithmetic, in a functional language.
+ODD: [click] Two indices working their way into the middle. Index arithmetic, in a functional language.
 MARTIN: It's tail-recursive!
-ODD: Says who? Nothing checks that until 2.8.
+ODD: Says who? Nothing checks that that is actually true.
+MARTIN: And palindromize, done properly.
 
 ## 11 · m2-5 — A better way · 45 s · 5:45
 
 > palindromize morphs in. Two clicks.
 
-MARTIN: And palindromize, done properly. [click]
-ODD: Find the longest suffix that already reads the same both ways, and mirror only what's in front of it.
-MARTIN: [click] And it's generic too!
-ODD: So give it a String. You get a Seq of Char back.
-MARTIN: It's still a palindrome.
-ODD: Put that on the tombstone. In 2007 a signature can't say "the type you gave me".
+MARTIN: [click] Find the longest suffix that is a palindrome, and mirror only what's before it.
+ODD: Nice. [click] And if I give it a String, what do I get back?
+MARTIN: A Seq.
+ODD: A Seq of Char. I gave you a String.
+MARTIN: In 2007, that's the best a generic signature can do.
+ODD: Put that on the tombstone.
 MARTIN: Not yet. 2.8 is coming.
 
 ## 12 · tc2-8 — Scala 2.8 · 2010 · 15 s · 6:30
@@ -186,32 +185,31 @@ ODD: Six hundred of them by Paul Phillips. That man was a compiler.
 
 MARTIN: 2.8 was the big one. The new collections, @tailrec, named and default arguments.
 ODD: The release that broke everybody's code, and everybody upgraded anyway.
-MARTIN: In amber, the three we'll use.
+MARTIN: Let's see what we can use.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:05
 
 MARTIN: First, a small one, in Eq.
+ODD: In 2.5 we lowercase through java.lang.Character. Very Java.
 
 ## 15 · e2-8 — Char gets toLower · 20 s · 7:10
 
 > One click.
 
-ODD: In 2.5 we lowercase through java.lang.Character. Very Java.
 MARTIN: [click] And now Char does it itself.
 ODD: The smallest win of the night. I'll allow it.
 
 ## 16 · m2-5-again — @tailrec · 5 s · 7:30
 
-MARTIN: Back to our methods. 2.8 brings two upgrades.
+MARTIN: Back to our methods. 2.8 brings two upgrades. First, @tailrec.
 
 ## 17 · m2-8-is — @tailrec · 25 s · 7:35
 
 > One click.
 
-MARTIN: First, @tailrec. [click]
-ODD: If the recursion ever stops being a tail call, it's a compile error. Same bytecode as before.
+ODD: [click] If the recursion ever stops being a tail call, it's a compile error. Same bytecode as before.
 MARTIN: Same bytecode. But a promise you can't break.
-ODD: A promise I can review. Fine.
+ODD: A promise that the compiler keeps. Fine.
 
 ## 18 · m2-8 — CanBuildFrom keeps the collection type · 45 s · 8:00
 
