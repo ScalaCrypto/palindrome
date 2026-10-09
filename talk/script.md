@@ -119,7 +119,7 @@ ODD: Ten. That's not a community, that's a team lunch.
 MARTIN: New in 2.5: type constructor polymorphism, placeholder lambdas, case clauses as functions.
 ODD: And we use none of them.
 MARTIN: That's the point. Scala already had everything this design needs.
-ODD: Generics, implicits, anonymous classes. It just made you type a lot.
+ODD: True. Generics, implicits, anonymous classes, all there. It just made you type a lot.
 
 ## 7 · e2-5 — Equality is a type class · 40 s · 3:10
 
@@ -130,18 +130,18 @@ ODD: Anonymous classes, braces and all. The Java 6 experience.
 MARTIN: [click] And nobody imports the default?
 ODD: It sits in Eq's companion, where the compiler always knows to look. Readers, not so much.
 MARTIN: [click] And case-insensitive is opt-in.
-ODD: A plain value. Nothing happens unless you ask for it. That I can review.
+ODD: A plain value. Nothing happens unless you ask for it. That I can live with.
 
 ## 8 · o2-5 — Method syntax through an implicit conversion · 55 s · 3:50
 
 > Two clicks.
 
-MARTIN: Now method syntax. Seq has no isPalindrome function, and we can't change Seq.
+MARTIN: Now method syntax. Seq has no isPalindrome method, and we can't change Seq.
 ODD: So we wrap it. [click] A class that only forwards the calls.
 MARTIN: [click] And this?
-ODD: The implicit conversion: call something Seq lacks, and it gets slipped in for you. One allocation per call.
+ODD: Call a method Seq doesn't have, and the compiler wraps it for you. A new object on every call.
 MARTIN: Does it work on a String?
-ODD: Not with this wrapper. A String needs a conversion to become a Seq first, and conversions don't chain.
+ODD: Not this one. A String would need two conversions, and the compiler only does one.
 MARTIN: We could write a second wrapper, just for String.
 ODD: Two wrappers for one method? I'll wait for a new Scala version.
 
