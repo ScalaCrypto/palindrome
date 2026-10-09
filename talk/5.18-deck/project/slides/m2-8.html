@@ -71,7 +71,7 @@
 <aside>MARTIN: And the big one: CanBuildFrom. *
 ODD: Repr is whatever type the caller passed in, and CanBuildFrom supplies a builder for exactly that type.
 MARTIN: * So a String comes back as a String!
-ODD: Because in 2.8 a String's StringOps is a collection itself, with String as its Repr.
+ODD: Because 2.8 wraps a String in StringOps, and its Repr is String.
 MARTIN: So reverse gives you back a String too. No more mkString!
 ODD: It works. And it scared a generation of Scala developers away from the Scaladoc.
 MARTIN: You got your String back.
