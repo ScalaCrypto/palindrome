@@ -69,8 +69,8 @@ Checkpoints:
 
 > Both walk on together. Martin center-left, Odd right, arms crossed.
 
-MARTIN: Hi Berlin! I'm Martin Zachrison.
-ODD: And I'm Odd Möller...  odd one.
+MARTIN: Hi Berlin! I'm Martin.
+ODD: And I'm Odd...  That's also my name.
 MARTIN: We're taking a stroll down memory lane: twenty years of Scala, told through one tiny function.
 ODD: And I'm here to make sure nobody gets sentimental about it.
 

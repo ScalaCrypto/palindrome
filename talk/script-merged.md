@@ -75,8 +75,8 @@ relaxed pace and a beat after each joke). That leaves 5 minutes of the 30 for a 
 
 > Both walk on together. Martin center-left, Odd right, arms crossed.
 
-MARTIN: Hi Berlin! I'm Martin Zachrison.
-ODD: And I'm Odd Möller...  odd one.
+MARTIN: Hi Berlin! I'm Martin.
+ODD: And I'm Odd...  That's also my name.
 MARTIN: We're taking a stroll down memory lane: twenty years of Scala, told through one tiny function, written again in every version from 2.5 to 3.9.
 ODD: And I'm here to make sure nobody gets sentimental about it. Every feature has to justify what it costs.
 MARTIN: And one rule for the whole talk: we only add machinery when the problem asks for it.
