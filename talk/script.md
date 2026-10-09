@@ -515,31 +515,31 @@ BOTH: Thank you! Questions?
 
 # Reserve: only if the Q&A asks
 
-Jump to these from the presenter view (type the number, then Enter), and back to 61 when done. Martin says the
-heading out loud; Odd answers.
+Jump to these from the presenter view (type the number, then Enter), and back to 61 when done. Martin opens with
+the heading's idea; Odd answers.
 
-## 62 · r-indexedseq — On an IndexedSeq, index like it's 2007
+## 62 · r-indexedseq — Index like it's 2007
 
 > For "isn't the extractor slow?"
 
-MARTIN: On an IndexedSeq, index like it's 2007.
-ODD: On a String, our pattern copies at every step: forty thousand characters take over half a second. The 2007 index loop, as an extension for IndexedSeq: six hundredths of a millisecond.
+MARTIN: Index like it's 2007.
+ODD: Half a second on a long String with our pattern. The 2007 loop is ten thousand times faster.
 MARTIN: Sometimes the old ways win.
 
-## 63 · r-stringslice — Or make slicing free, like Java 6 did
+## 63 · r-stringslice — Slice it like Java 6
 
 > For "can't the slices share?"
 
 MARTIN: Or make slicing free, like Java 6 did.
-ODD: A window onto the same sequence, the way java.lang.String worked before Java 7u6. Dropping an end stops copying, and the pattern is linear again.
+ODD: Every slice points into the original, so nothing is copied. The pattern is linear again.
 MARTIN: Under a tenth of a millisecond!
-ODD: Until a three-character slice keeps a hundred-megabyte string alive. That's why Java dropped it.
+ODD: Until a tiny slice keeps a huge string alive. That's why Java dropped it.
 
-## 64 · r-linear — Knuth–Morris–Pratt in O(n)
+## 64 · r-linear — Knuth–Morris–Pratt saves the day
 
 > For "can palindromize be linear?"
 
-MARTIN: Knuth–Morris–Pratt in O(n).
-ODD: The longest palindromic suffix is the longest suffix that's also a prefix of the reverse: string matching. One pass, still through Eq.
-MARTIN: Nineteen milliseconds instead of seven seconds, on forty thousand characters.
-ODD: And fifteen lines of index tables. That's an algorithms talk, not a Scala one.
+MARTIN: Or go linear, with Knuth–Morris–Pratt.
+ODD: Finding the palindromic tail is just string matching against the reverse. One pass.
+MARTIN: Nineteen milliseconds instead of seven seconds!
+ODD: And fifteen lines of index tables. That's an algorithms talk.
