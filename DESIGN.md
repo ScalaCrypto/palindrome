@@ -47,7 +47,7 @@ cares about a collections rewrite. The talk's rule on slides 1 and 59, the aside
 detail (precedence, boxing, a `caseInsensitive` given beating the default) were left out.
 
 The script was then reworked line by line (slides 2 to 60), and the changed slides re-timed with the model of
-2026-10-08's entry: the talk comes to 21:35, and the checkpoints moved to 10:15 (2.10), 15:25 (3.0) and 19:35 (4.0).
+2026-10-08's entry: the talk comes to 21:25, and the checkpoints moved to 6:25 (2.8), 10:05 (2.10), 15:15 (3.0) and 19:25 (4.0).
 
 ### Why
 
