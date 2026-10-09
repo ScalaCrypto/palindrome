@@ -35,12 +35,12 @@
 <p data-bleed="" style="position:absolute; left:1558px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.8</p>
 <p data-bleed="" style="position:absolute; left:1639px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.9</p>
 <p data-bleed="" style="position:absolute; left:1720px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">4.0</p>
-<aside>MARTIN: Now method syntax. Seq has no isPalindrome function, and we can't change Seq.
+<aside>MARTIN: Now method syntax. Seq has no isPalindrome method, and we can't change Seq.
 ODD: So we wrap it. * A class that only forwards the calls.
 MARTIN: * And this?
-ODD: The implicit conversion: call something Seq lacks, and it gets slipped in for you. One allocation per call.
+ODD: Call a method Seq doesn't have, and the compiler wraps it for you. A new object on every call.
 MARTIN: Does it work on a String?
-ODD: Not with this wrapper. A String needs a conversion to become a Seq first, and conversions don't chain.
+ODD: Not this one. A String would need two conversions, and the compiler only does one.
 MARTIN: We could write a second wrapper, just for String.
 ODD: Two wrappers for one method? I'll wait for a new Scala version.</aside>
 </section>
