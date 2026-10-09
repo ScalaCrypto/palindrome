@@ -59,9 +59,9 @@ Checkpoints:
 | At slide | Clock | If you're later than this |
 |---|---|---|
 | 12 · Scala 2.8 | 6:30 | Shorten the tag-cloud jokes to the version and the year |
-| 23 · Scala 2.10 | 9:55 | From here, cut the last exchange on any slide that runs long |
-| 41 · Scala 3.0 | 15:00 | Say only the first line of each "New in" slide |
-| 55 · Scala 4.0 | 19:05 | Go straight from 4.0 to the takeaways |
+| 23 · Scala 2.10 | 10:00 | From here, cut the last exchange on any slide that runs long |
+| 41 · Scala 3.0 | 15:05 | Say only the first line of each "New in" slide |
+| 55 · Scala 4.0 | 19:10 | Go straight from 4.0 to the takeaways |
 
 ---
 
@@ -211,32 +211,34 @@ ODD: [click] If the recursion ever stops being a tail call, it's a compile error
 MARTIN: Same bytecode. But a promise you can't break.
 ODD: A promise that the compiler keeps. Fine.
 
-## 18 · m2-8 — CanBuildFrom keeps the collection type · 45 s · 8:00
+## 18 · m2-8 — CanBuildFrom keeps the collection type · 50 s · 8:00
 
 > palindromize morphs in. Two clicks. Odd points at the signature and counts its type parameters on his fingers.
 
 MARTIN: And the big one: CanBuildFrom. [click]
 ODD: Repr is whatever type the caller passed in, and CanBuildFrom supplies a builder for exactly that type.
 MARTIN: [click] So a String comes back as a String!
-ODD: Because in 2.8 a String's StringOps is a collection itself, with String as its Repr. It works. And it scared a generation of Scala developers away from the Scaladoc.
+ODD: Because in 2.8 a String's StringOps is a collection itself, with String as its Repr.
+MARTIN: So reverse gives you back a String too. No more mkString!
+ODD: It works. And it scared a generation of Scala developers away from the Scaladoc.
 MARTIN: You got your String back.
 ODD: I got my String back. And a therapist.
 
-## 19 · tc2-9 — Scala 2.9 · 2011 · 15 s · 8:45
+## 19 · tc2-9 — Scala 2.9 · 2011 · 15 s · 8:50
 
 MARTIN: 2.9, 2011.
 ODD: Paul Phillips: a thousand and twenty-three commits. I take it back. He wasn't a compiler. He was the compiler.
 
-## 20 · f2-9 — New in Scala 2.9 · 15 s · 9:00
+## 20 · f2-9 — New in Scala 2.9 · 15 s · 9:05
 
 MARTIN: Parallel collections, the App trait, and the one we need: tails.
 ODD: The release where one library method gets its own slide. Low bar.
 
-## 21 · m2-8-again — tails finds the palindromic suffix · 10 s · 9:15
+## 21 · m2-8-again — tails finds the palindromic suffix · 10 s · 9:20
 
 MARTIN: Remember that suffix search? A range of indices, and an unchecked get.
 
-## 22 · m2-9 — tails finds the palindromic suffix · 30 s · 9:25
+## 22 · m2-9 — tails finds the palindromic suffix · 30 s · 9:30
 
 > One click.
 
@@ -245,23 +247,23 @@ ODD: All the suffixes, longest first, down to the empty one. The position of the
 MARTIN: No indices. No get.
 ODD: Same algorithm, same cost. But fewer ways to be wrong: the only metric I trust.
 
-## 23 · tc2-10 — Scala 2.10 · 2013 · 15 s · 9:55
+## 23 · tc2-10 — Scala 2.10 · 2013 · 15 s · 10:00
 
 MARTIN: 2.10, January 2013. So many contributors, we can only show sixty.
 ODD: And Eugene Burmako arrives, with macros. I have feelings about that.
 MARTIN: Not today.
 
-## 24 · f2-10 — New in Scala 2.10 · 20 s · 10:10
+## 24 · f2-10 — New in Scala 2.10 · 20 s · 10:15
 
 MARTIN: 2.10 gives us three things at once: implicit classes, value classes, and extractors for both ends of a sequence.
 ODD: And string interpolation. The one feature everybody actually uses.
 MARTIN: Not in this talk.
 
-## 25 · o2-8-again — Implicit value classes · 5 s · 10:30
+## 25 · o2-8-again — Implicit value classes · 5 s · 10:35
 
 MARTIN: Remember our wrapper, and its conversion?
 
-## 26 · o2-10 — Implicit value classes · 30 s · 10:35
+## 26 · o2-10 — Implicit value classes · 30 s · 10:40
 
 > One click.
 
@@ -271,11 +273,11 @@ MARTIN: Usually beats always.
 ODD: And a value class's field has to be public, so every Seq grows a public member.
 MARTIN: That's 2.11's problem.
 
-## 27 · m2-9-again — +: and :+ extractors · 5 s · 11:05
+## 27 · m2-9-again — +: and :+ extractors · 5 s · 11:10
 
 MARTIN: And now, the index loop. Odd's favourite.
 
-## 28 · m2-10 — +: and :+ extractors · 40 s · 11:10
+## 28 · m2-10 — +: and :+ extractors · 40 s · 11:15
 
 > Two clicks.
 
@@ -286,21 +288,21 @@ ODD: But on a List the last element costs a walk, and on a String every step cop
 MARTIN: On a Vector it's fine!
 ODD: Ask me about it in the Q&A.
 
-## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 11:50
+## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 11:55
 
 MARTIN: 2.11, 2014. Jason Zaugg takes the lead in commits.
 ODD: The calm after the storm.
 
-## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:00
+## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:05
 
 MARTIN: A consolidation release: a modular library, case classes beyond twenty-two fields.
 ODD: And the one we need: value classes can keep their field to themselves. My complaint from two slides ago.
 
-## 31 · o2-10-again — Value classes may hide their field · 5 s · 12:15
+## 31 · o2-10-again — Value classes may hide their field · 5 s · 12:20
 
 MARTIN: So: that public field.
 
-## 32 · o2-11 — Value classes may hide their field · 20 s · 12:20
+## 32 · o2-11 — Value classes may hide their field · 20 s · 12:25
 
 > One click.
 
@@ -309,21 +311,21 @@ ODD: That's it? A whole release, for one word?
 MARTIN: You asked for it.
 ODD: I did. Thank you, 2.11.
 
-## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 12:40
+## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 12:45
 
 MARTIN: 2.12, 2016. Built on Java 8.
 ODD: Scala finally gets the JVM's lambdas. After Java. Let that sink in.
 
-## 34 · f2-12 — New in Scala 2.12 · 15 s · 12:50
+## 34 · f2-12 — New in Scala 2.12 · 15 s · 12:55
 
 MARTIN: SAM conversion, traits as interfaces, a right-biased Either.
 ODD: SAM conversion: any trait with one abstract method can take a lambda. Our anonymous classes are about to go.
 
-## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:05
+## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:10
 
 MARTIN: Eq, with its anonymous classes.
 
-## 36 · e2-12 — SAM conversion: lambdas implement traits · 20 s · 13:10
+## 36 · e2-12 — SAM conversion: lambdas implement traits · 20 s · 13:15
 
 > One click. Odd's first concession: take a breath before it.
 
@@ -332,7 +334,7 @@ ODD: Two anonymous classes, two lines. ... All right. I concede. That's just bet
 MARTIN: Can I get that in writing?
 ODD: No.
 
-## 37 · tc2-13 — Scala 2.13 · 2019 · 15 s · 13:30
+## 37 · tc2-13 — Scala 2.13 · 2019 · 15 s · 13:35
 
 > Martin finds Odd's name in the cloud and points at it.
 
@@ -341,17 +343,17 @@ ODD: Allegedly.
 MARTIN: So you're partly responsible for what comes next.
 ODD: No comment.
 
-## 38 · f2-13 — New in Scala 2.13 · 15 s · 13:45
+## 38 · f2-13 — New in Scala 2.13 · 15 s · 13:50
 
 MARTIN: The second collections rewrite. CanBuildFrom is gone.
 ODD: Rest in peace. Nobody cried.
 MARTIN: In come IsSeq and BuildFrom. And LazyList, and literal types.
 
-## 39 · m2-10-again — IsSeq and BuildFrom · 10 s · 14:00
+## 39 · m2-10-again — IsSeq and BuildFrom · 10 s · 14:05
 
 ODD: And our 2.12 palindromize now hands a String back wrapped, not as a String.
 
-## 40 · m2-13 — IsSeq and BuildFrom · 50 s · 14:10
+## 40 · m2-13 — IsSeq and BuildFrom · 50 s · 14:15
 
 > Two clicks.
 
@@ -363,24 +365,24 @@ MARTIN: [click] But the result comes out of a single call. And method syntax on 
 ODD: In our code. The library could do it since 2.10. Nobody read that Scaladoc.
 MARTIN: Including you.
 
-## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:00
+## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:05
 
 MARTIN: And then Scala 3, 2021. Dotty, since 2012: twenty-one thousand commits, three hundred and twenty-one authors.
 ODD: A whole new compiler. What could possibly go wrong.
 MARTIN: Surprisingly little.
 
-## 42 · f3-0 — New in Scala 3.0 · 15 s · 15:15
+## 42 · f3-0 — New in Scala 3.0 · 15 s · 15:20
 
 MARTIN: given and using, extension methods, optional braces, top-level definitions.
 ODD: Four of them in amber. This is where the ceremony collapses.
 MARTIN: Are you... excited?
 ODD: Cautiously.
 
-## 43 · e2-12-again — given indentation and extensions · 5 s · 15:30
+## 43 · e2-12-again — given indentation and extensions · 5 s · 15:35
 
 MARTIN: Our Eq, Scala 2 style. Watch.
 
-## 44 · e3-0 — given indentation and extensions · 40 s · 15:35
+## 44 · e3-0 — given indentation and extensions · 40 s · 15:40
 
 > Four clicks, one per bubble.
 
@@ -391,11 +393,11 @@ ODD: An extension method, there as soon as a given Eq for that type is around. [
 MARTIN: [click] And the lambdas shrink to underscores.
 ODD: Very readable. If you already know what they mean.
 
-## 45 · m2-13-again — using extensions · 10 s · 16:15
+## 45 · m2-13-again — using extensions · 10 s · 16:20
 
 MARTIN: Now the methods. And the wrapper class we've carried around since 2.10.
 
-## 46 · m3-0-is — using extensions · 25 s · 16:25
+## 46 · m3-0-is — using extensions · 25 s · 16:30
 
 > One click; the next click morphs palindromize.
 
@@ -403,7 +405,7 @@ MARTIN: isPalindrome becomes an extension. [click]
 ODD: With the Eq as a context bound. The object, the wrapper and the conversion all go. And down there, the class's isPalindrome is commented out.
 MARTIN: Nobody calls it anymore.
 
-## 47 · m3-0-ops — using extensions · 35 s · 16:50
+## 47 · m3-0-ops — using extensions · 35 s · 16:55
 
 > Two clicks.
 
@@ -412,7 +414,7 @@ ODD: Because they are: extensions, the operator included. [click] And IsSeq beco
 MARTIN: No extra type parameter. No refinement.
 ODD: The wart is gone. I'm... almost moved.
 
-## 48 · m3-0 — using extensions · 20 s · 17:25
+## 48 · m3-0 — using extensions · 20 s · 17:30
 
 > The click commented the whole class out; one more click brings its bubble.
 
@@ -421,33 +423,33 @@ ODD: [click] Nothing left for it to do.
 MARTIN: Shall we delete it?
 ODD: Leave it commented out. For the archaeologists.
 
-## 49 · tc3-6 — Scala 3.6 · 2024 · 10 s · 17:45
+## 49 · tc3-6 — Scala 3.6 · 2024 · 10 s · 17:50
 
 MARTIN: Scala 3.6, 2024.
 ODD: Technically 3.6.2. 3.6.0 was published by accident.
 MARTIN: We don't talk about 3.6.0.
 
-## 50 · f3-6 — New in Scala 3.6 · 15 s · 17:55
+## 50 · f3-6 — New in Scala 3.6 · 15 s · 18:00
 
 MARTIN: The type class story gets finished: named context bounds, and a new given syntax.
 ODD: SIP-64. Somebody really cared about this.
 
-## 51 · e3-0-again — The new given syntax · 5 s · 18:10
+## 51 · e3-0-again — The new given syntax · 5 s · 18:15
 
 MARTIN: Our given, one more time.
 
-## 52 · e3-6 — The new given syntax · 15 s · 18:15
+## 52 · e3-6 — The new given syntax · 15 s · 18:20
 
 > One click.
 
 MARTIN: [click] Now read that out loud.
 ODD: "Any type gets an equality." It reads like the sentence you'd say anyway. That's new.
 
-## 53 · m3-0-again — Context bounds get names · 5 s · 18:30
+## 53 · m3-0-again — Context bounds get names · 5 s · 18:35
 
 MARTIN: And the methods.
 
-## 54 · m3-6 — Context bounds get names · 30 s · 18:35
+## 54 · m3-6 — Context bounds get names · 30 s · 18:40
 
 > One click.
 
@@ -456,7 +458,7 @@ ODD: Folded into the type parameter. The bound gets a name, and through it we st
 MARTIN: isPalindrome doesn't change at all. And 3.7, 3.8, 3.9 change nothing we use. Which means: we're done.
 ODD: Are we, though?
 
-## 55 · cloud4-0 — Scala 4.0 · 15 s · 19:05
+## 55 · cloud4-0 — Scala 4.0 · 15 s · 19:10
 
 > Deadpan. Let the two names sit there.
 
@@ -465,17 +467,17 @@ ODD: Scala 4.0. Two authors.
 MARTIN: A very exclusive community.
 ODD: Fastest code review in Scala history.
 
-## 56 · f4-0 — New in Scala 4.0 · 20 s · 19:20
+## 56 · f4-0 — New in Scala 4.0 · 20 s · 19:25
 
 MARTIN: One feature. Prolog extractors.
 ODD: Use one name twice in a pattern, and both places have to match the same value.
 MARTIN: If you remember Prolog from university: you're welcome. If you don't: also welcome.
 
-## 57 · m3-6-again — Prolog extractors · 5 s · 19:40
+## 57 · m3-6-again — Prolog extractors · 5 s · 19:45
 
 MARTIN: Here's 3.6's isPalindrome. Watch the match.
 
-## 58 · m4-0 — Prolog extractors · 25 s · 19:45
+## 58 · m4-0 — Prolog extractors · 25 s · 19:50
 
 > One click.
 
@@ -485,7 +487,7 @@ MARTIN: Yet.
 ODD: And which equality would it use? Ours is the caller's choice.
 MARTIN: That's a 4.1 problem.
 
-## 59 · takeaways — What the palindrome taught us · 40 s · 20:10
+## 59 · takeaways — What the palindrome taught us · 40 s · 20:15
 
 > Drop the comedy a notch. Slower, to the room.
 
@@ -496,7 +498,7 @@ ODD: Not every step was a win. CanBuildFrom did its job and frightened everyone.
 MARTIN: And Scala 3 lets you just say it, where Scala 2 made you spell it out.
 ODD: ... I'll give you that one.
 
-## 60 · thanks — Thank you · 15 s · 20:50
+## 60 · thanks — Thank you · 15 s · 20:55
 
 > Stand together. Leave the QR code up for the questions.
 

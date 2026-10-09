@@ -72,7 +72,8 @@
 ODD: Repr is whatever type the caller passed in, and CanBuildFrom supplies a builder for exactly that type.
 MARTIN: * Fill it with the input and the mirrored front, and a String comes back as a String!
 ODD: Because in 2.8 a String's StringOps is a collection itself, with String as its Repr.
-ODD: It works. And it scared a generation away from the Scaladoc: you never write CanBuildFrom, but you read it in every signature and every type error.
+MARTIN: So reverse gives you back a String too. No more mkString!
+ODD: It works, and it scared a generation away from the Scaladoc: you read it in every type error.
 MARTIN: You got your String back.
 ODD: I got my String back. And a therapist.</aside>
 </section>
