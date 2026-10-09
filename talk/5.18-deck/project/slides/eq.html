@@ -7,7 +7,7 @@
 <p style="font-size:25px; line-height:1.4; white-space:nowrap">&#160;&#160;<span style="color:#9AA3AF">//&#160;Eq[Char]&#160;=&#160;???</span></p>
 <p style="font-size:25px; line-height:1.4; white-space:nowrap">}</p>
 </div>
-<aside>ODD: Generic elements need generic equality, and double-equals can't be swapped out per call.
+<aside>ODD: The catch: double-equals belongs to the element type, not to the caller. A capital R never equals a small r.
 MARTIN: So equality becomes a type class. One trait, one method.
 ODD: And a case-insensitive instance for Char that nobody has written yet.
 MARTIN: Let's go back to 2007 and write it.</aside>

@@ -83,7 +83,7 @@ MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Com
 ODD: You'd expect the plain comparison to work. But in 2007, reverse isn't a String: "racecar" would fail.
 MARTIN: It's still a one-liner!
 ODD: One expensive line. It copies the whole string twice, just to compare it with itself.
-MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse. With the same mkString.
+MARTIN: Fine. [click] Then palindromize: append the reverse. Same trick.
 ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.
@@ -102,7 +102,7 @@ ODD: Hold that thought. That's where it gets interesting.
 
 ## 4 · eq — Seq[A] needs Equality for A · 25 s · 2:00
 
-ODD: Generic elements need generic equality, and double-equals can't be swapped out per call.
+ODD: The catch: double-equals belongs to the element type, not to the caller. A capital R never equals a small r.
 MARTIN: So equality becomes a type class. One trait, one method.
 ODD: And a case-insensitive instance for Char that nobody has written yet.
 MARTIN: Let's go back to 2007 and write it.
@@ -162,7 +162,7 @@ MARTIN: All right. Scala 2.5, show us a better way.
 MARTIN: Generic, with an implicit Eq.
 ODD: [click] Two indices working their way into the middle. Index arithmetic, in a functional language.
 MARTIN: It's tail-recursive!
-ODD: Says who? Nothing checks that that is actually true.
+ODD: Says who? Nothing checks it.
 MARTIN: And palindromize, done properly.
 
 ## 11 · m2-5 — A better way · 45 s · 5:40
@@ -187,7 +187,7 @@ ODD: Six hundred of them by Paul Phillips. That man was a compiler.
 MARTIN: 2.8 was the big one. The new collections, @tailrec, named and default arguments.
 ODD: The release that broke everybody's code, and everybody upgraded anyway.
 MARTIN: Why would a palindrome checker care about a collections rewrite?
-ODD: Because palindromize builds one. And 2.8 finally gives back what you gave it.
+ODD: Because palindromize builds a collection. And from 2.8, it can build the kind you gave it.
 MARTIN: Let's see what we can use.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
@@ -221,7 +221,7 @@ ODD: A promise that the compiler keeps. Fine.
 MARTIN: And the big one: CanBuildFrom. [click]
 ODD: Repr is whatever type the caller passed in, and CanBuildFrom supplies a builder for exactly that type.
 MARTIN: [click] So a String comes back as a String!
-ODD: Because in 2.8 a String's StringOps is a collection itself, with String as its Repr.
+ODD: Because 2.8 wraps a String in StringOps, and its Repr is String.
 MARTIN: So reverse gives you back a String too. No more mkString!
 ODD: It works. And it scared a generation of Scala developers away from the Scaladoc.
 MARTIN: You got your String back.
@@ -246,7 +246,7 @@ MARTIN: Remember that suffix search? A range of indices, and an unchecked get.
 > One click.
 
 MARTIN: [click] tails!
-ODD: All the suffixes, longest first, down to the empty one. The position of the first that reads the same both ways tells us how much to mirror.
+ODD: Every suffix, longest first. The first palindrome among them says how much to mirror.
 MARTIN: No indices. No get.
 ODD: Same algorithm, same cost. But fewer ways to be wrong: the only metric I trust.
 
@@ -302,7 +302,7 @@ ODD: The calm after the storm.
 ## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:20
 
 MARTIN: A consolidation release: a modular library, case classes beyond twenty-two fields.
-ODD: And the one we need: value classes can keep their field to themselves. My complaint from two slides ago.
+ODD: And the one we need: value classes can keep their field to themselves. My complaint from 2.10.
 
 ## 31 · o2-10-again — Value classes may hide their field · 5 s · 12:35
 
@@ -320,7 +320,7 @@ ODD: I did. Thank you, 2.11.
 ## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 13:00
 
 MARTIN: 2.12, 2016. Built on Java 8.
-ODD: Scala finally gets the JVM's lambdas. After Java. Let that sink in.
+ODD: Scala's lambdas now compile to Java's. Scala, catching up with Java.
 
 ## 34 · f2-12 — New in Scala 2.12 · 10 s · 13:10
 
@@ -416,7 +416,7 @@ MARTIN: Nobody calls it anymore.
 > Two clicks.
 
 MARTIN: Now palindromize. [click] Everything reads like a method call.
-ODD: The beauty of extensions. [click] And IsSeq gets a clause of its own, so the next clause can use its element type.
+ODD: [click] And IsSeq gets a clause of its own, so the next clause can use its element type.
 MARTIN: No extra type parameter. No refinement.
 ODD: Same IsSeq, same BuildFrom: the library didn't change, the language fixed the wart. I'm... almost moved.
 
@@ -503,7 +503,7 @@ MARTIN: So what did one tiny function teach us?
 ODD: That the ideas were all there in 2007. Generics, type classes, implicit conversions.
 MARTIN: And every release made them cheaper to write.
 ODD: Not every step was a pure win, though. CanBuildFrom did its job but frightened everyone. 2.13's refinement was a detour.
-MARTIN: And Scala 3 lets you just say it, where Scala 2 made you spell it out.
+MARTIN: And in Scala 3, the code finally reads the way we'd explain it.
 ODD: ... I'll give you that one.
 
 ## 61 · thanks — Thank you · 15 s · 21:10
