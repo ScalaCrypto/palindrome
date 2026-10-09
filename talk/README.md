@@ -9,10 +9,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 - `script.md`: the talk as a dialogue between Martin and Odd, slide by slide, with stage directions and timing.
   Its spoken lines are every slide's speaker notes: `deck.py` copies them in, so edit the dialogue there, not in the
   artifact or the slide files.
-- `script-merged.md`: `script.md` with the technical points a code review asks for woven in, in the same voices. It
-  makes a second deck, `5.18-deck-merged/project/`: the same slides with its lines as the notes (generated).
-- `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes, and the
-  merged deck; below.
+- `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
 - `render.py`: renders a deck, the talk's deck unless another is named, in headless Chrome and checks the layout.
@@ -21,10 +18,7 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 ## The deck
 
 The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until shared from its Share menu), and
-`5.18-deck/project/` is its versioned copy. The same slides with `script-merged.md`'s notes are
-<https://claude.ai/artifact/FWTAhDrUTBxwfC8jeokw3r>, whose copy is `5.18-deck-merged/project/`, so the two scripts can
-be open side by side in two tabs. The build copies the merged deck from the talk's deck, so edit slides only in
-`5.18-deck/`. The deck has two kinds of slide:
+`5.18-deck/project/` is its versioned copy. The deck has two kinds of slide:
 
 - **Code slides** are generated from the version sources by `deck.py`, in three tracks: the palindrome methods
   (`m2-5`, …, `m3-6`), `Eq` (`e2-5`, …, `e3-6`) and Scala 2's method syntax (`o2-5`, …, `o2-13`; Scala 3's extensions
@@ -62,12 +56,12 @@ slide's file); the build fails if a hand-written slide's file isn't in `SEQUENCE
 After changing the code, the notes or a slide:
 
 ```bash
-talk/deck.py                 # rebuild the code slides and deck.json, and the merged deck
+talk/deck.py                 # rebuild the code slides and deck.json
 talk/render.py --screenshots # check the layout
 ```
 
 then publish `5.18-deck/project/` to the artifact with `5.18-deck/` as the root, so each file keeps its `project/…`
-path, and `5.18-deck-merged/project/` to its artifact the same way. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
+path. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
 into `5.18-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
 artifact's changed slides and copy them here.
 
@@ -117,6 +111,7 @@ second, and 3.0's heading becomes "given, indentation and extensions".
 one click less per step.
 5.18 writes the one-liners as 2007 has to: `s == s.reverse.mkString("")` and `s + s.reverse.mkString("")`, on the
 opening slide and at the start of the morph into 2.5, since before 2.8 a `String`'s `reverse` isn't a `String`.
+The commented-out implicit class is then deleted, on the click to a slide of its own (`m3-0-clean`).
 
 ## The tag-cloud deck
 
@@ -141,7 +136,6 @@ Safari and in Chrome alike. So the talk is presented from this computer instead:
 
 ```bash
 talk/present.py                # serve the deck on http://localhost:8765 and open the presenter view
-talk/present.py talk/5.18-deck-merged --port 8766   # the merged script's deck, in another tab
 ```
 
 In the presenter view, click "Open slides window", move that window to the external display and press F in it for
@@ -156,8 +150,7 @@ Every slide's notes fit the presenter view without scrolling, at the default not
 (a laptop's, with room for the tabs and the address bar). Check that after editing a script:
 
 ```bash
-talk/present.py --check                        # the talk's deck; exit 1 if a slide's notes need scrolling
-talk/present.py --check talk/5.18-deck-merged  # the merged deck; --size WxH for another window
+talk/present.py --check   # exit 1 if a slide's notes need scrolling; --size WxH for another window
 ```
 
 `deck.py` checks the rest of what the notes promise, for both scripts: a slide has as many `[click]`s as builds, and

@@ -82,8 +82,6 @@ palindrome/
 │   ├── 5.18-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
 │   ├── script.md                   # The talk as a dialogue, slide by slide: every slide's speaker notes come from it
-│   ├── script-merged.md            # script.md with a code review's technical points: the merged deck's notes
-│   ├── 5.18-deck-merged/project/    # GENERATED: the talk's slides with script-merged.md's notes
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
@@ -206,7 +204,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     introduced by its slide from the tag-cloud deck (`tc*.html`, copied in by the build), followed by a hand-written "New in" slide (`f*.html`), and every slide gets the
     tag-cloud deck's timeline footer, which replaces the version label above the heading. The code track starts from the opening one-liner. The step from 2.13 to 3.0
     also shows 2.13's method syntax as an implicit class (`OPS_2_13`, not in the sources; `DESIGN.md`), commented
-    out method by method, and then as a whole on a click of its own (`m3-0-ops`), with a note that it's obsolete. Where a
+    out method by method, and then as a whole on a click of its own (`m3-0-ops`), with a note that it's obsolete; the
+    click after that deletes it, onto a slide of its own (`m3-0-clean`). Where a
     step changes both methods, `isPalindrome` morphs first, with its bubbles (`m*-is.html`), and `palindromize` on the
     next click. The tour ends with a made-up Scala 4.0 (`cloud4-0`, `f4-0`,
     `m4-0`: Prolog extractors, a match that names `x` twice). The bubbles go anywhere on the slide outside the code,
@@ -218,19 +217,16 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `*`),
     hand-written slides included, on every build, so edit the dialogue there; the build fails if the script's slides
     don't follow the deck's order. Adding, removing or reordering a slide means editing the script too.
-    `talk/script-merged.md`, the same dialogue with the technical points a code review asks for woven in, makes a
-    second deck the same way, `talk/5.18-deck-merged/` (a generated copy of the talk's slides, so edit slides only in
-    `talk/5.18-deck/`), published to an artifact of its own. Both scripts must follow the deck's order, mark a
-    `[click]` only where the slide has a build (as many as it has builds; the build fails otherwise), and never repeat
-    four words in a row from a bubble on the slide; their "Writing the lines" section has the rest (no code read out,
-    Odd the technical reviewer, Martin the fan who introduces). The presenter view shows the turns in speaking order,
-    without names: Odd's on the left in blue, Martin's on the right in orange. Every slide's notes must fit it without
-    scrolling: `talk/present.py --check` for each deck.
+    The script must mark a `[click]` only where the slide has a build (as many as it has builds; the build fails
+    otherwise), and never repeat four words in a row from a bubble on the slide; its "Writing the lines" section has
+    the rest (no code read out, Odd the technical reviewer, Martin the fan who introduces). The presenter view shows
+    the turns in speaking order, without names: Odd's on the left in blue, Martin's on the right in orange. Every
+    slide's notes must fit it without scrolling: `talk/present.py --check`.
   - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
 - **After changing the code, the notes or a slide**, run `talk/deck.py`, check it with `talk/render.py
-  --screenshots`, and republish `talk/5.18-deck/project/` and `talk/5.18-deck-merged/project/` to their artifacts. **After editing the artifact**, read the
+  --screenshots`, and republish `talk/5.18-deck/project/` to its artifact. **After editing the artifact**, read the
   changed slides back into `talk/5.18-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
@@ -246,13 +242,12 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/deck.py             # rebuild the deck in talk/5.18-deck/ (code slides, notes, order) and talk/5.18-deck-merged/
+talk/deck.py             # rebuild the deck in talk/5.18-deck/ (code slides, notes, order)
 talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
-talk/present.py talk/5.18-deck-merged --port 8766   # the merged script's deck, side by side
-talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view (also: talk/5.18-deck-merged)
+talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
