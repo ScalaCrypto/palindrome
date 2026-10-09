@@ -77,11 +77,15 @@ makes it credible rather than nostalgic.
 ### Stage 0 — the one-liner (early Scala 2)
 
 ```scala
-def isPalindrome(s: String): Boolean = s == s.reverse
+def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")
 ```
 
+That's the one-liner as early Scala 2 has to write it: before 2.8, a `String`'s `reverse` isn't a `String` (a `List`
+in 2.5, a `RichString` in 2.7), so the familiar `s == s.reverse` compiles but is `false` for every string. From 2.8
+the `mkString` can go.
+
 Hook: this *already* contains an implicit — `s.reverse` only works because `String` is
-enriched to `StringOps` via `augmentString`. Implicits were in the room from line one;
+enriched by an implicit conversion to a wrapper (`StringOps` via `augmentString` from 2.8). Implicits were in the room from line one;
 the talk just makes them visible.
 
 Caveat: `s.reverse` allocates a full reversed copy — the "elegant" version is also the

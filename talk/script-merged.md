@@ -86,15 +86,18 @@ MARTIN: And one rule for the whole talk: we only add machinery when the problem 
 > One click: palindromize appears.
 
 MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
-ODD: It copies the whole string, just to compare it with itself.
-MARTIN: It's a one liner!
-ODD: One expensive line. And before 2.8 it's wrong: reverse doesn't give you back a String, so "racecar" fails.
-MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse.
-ODD: "abc" gets three more letters, when two would do. And String has no reverse of its own: Predef wraps it.
+ODD: You'd expect a plain compare. But in 2007, reverse isn't a String: "racecar" would fail.
+MARTIN: It's still a one liner!
+ODD: One expensive line: two full copies. String has no reverse of its own; Predef's wrapper comes back.
+MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse. With the same mkString.
+ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.
 
-> Note: That's why no version compares whole collections with ==: every one compares elements pairwise through Eq.
+> Note: From 2.8 the plain s == s.reverse and s + s.reverse work: reverse on a String returns a String. Before, the
+> comparison is false, and s + s.reverse appends "List(c, b, a)" in 2.5 and "RichStringR(c, b, a)" in 2.6 (2.7's
+> RichString prints as the string). A bare mkString, without the "", doesn't compile on 2.5. That's also why no version
+> compares whole collections with ==: every one compares elements pairwise through Eq.
 
 ## 3 · goal — Callable as methods · 55 s · 1:30
 

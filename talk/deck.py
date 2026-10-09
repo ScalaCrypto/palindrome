@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.17-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.18-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py
@@ -25,7 +25,7 @@ It also fails if a slide in SEQUENCE has no file, or a hand-written slide's file
 Every slide's speaker notes, hand-written slides included, are the spoken lines of its section in talk/script.md; the
 build fails if the script doesn't follow the deck's slide order, if a slide's [click]s don't match its builds, or if a
 spoken line repeats a bubble's words. talk/script-merged.md makes a second deck,
-talk/5.17-deck-merged/: the same slides with its notes (VARIANTS).
+talk/5.18-deck-merged/: the same slides with its notes (VARIANTS).
 """
 
 import json
@@ -37,7 +37,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.17-deck/project"
+DECK = ROOT / "talk/5.18-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -167,8 +167,8 @@ NOTES = {
         (["[⟨Repr: IsSeq as isSeq⟩]"], "a context bound with\na name: isSeq.A still works"),
     ],
     "0": [
-        ("s == ⟨s.reverse⟩", "copies the string\njust to compare"),
-        ("s + ⟨s.reverse⟩", "not always\nthe shortest"),
+        ('s == ⟨s.reverse.mkString("")⟩', "copies the string\njust to compare"),
+        ('s + ⟨s.reverse.mkString("")⟩', "not always\nthe shortest"),
         ("palindromize(s: ⟨String⟩", "Only String\nWe want Seq[A]"),
     ],
     "4.0": [
@@ -612,11 +612,13 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
     return "none" if leads_to_again else default
 
 
-# Code states that come from no version directory: the one-liner the talk starts from (slide 2), morphed into 2.5's
+# Code states that come from no version directory: the one-liner the talk starts from (slide 2), as 2007 has to write
+# it (before 2.8 a String's reverse isn't a String, so it's turned back into one with mkString), morphed into 2.5's
 # methods; and an imagined Scala 4.0, the ending joke: 3.6's isPalindrome with a Prolog-style pattern that names x
 # twice, so the two ends must be equal. No real Scala compiles it.
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
-    "def isPalindrome(s: String): Boolean = s == s.reverse", "", "def palindromize(s: String): String = s + s.reverse"]}
+    'def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")', "",
+    'def palindromize(s: String): String = s + s.reverse.mkString("")']}
 # Scala 2's method syntax as 2.13 could write it, an implicit class like 2.11's (v2_13 writes a class and an implicit
 # def), shown next to 2.13's methods before 3.0: its isPalindrome is commented out when isPalindrome becomes an
 # extension, its palindromize when palindromize does, and then the whole class, with a note (OPS_NOTE). It compiles and passes 2.13's tests in place of v2_13's, but isn't in the sources.
@@ -729,7 +731,7 @@ def first_method(state: dict, notes: list) -> set[int]:
 # for the speakers only. Another script makes a deck of its own: a copy of the talk's slides with its notes (VARIANTS),
 # so scripts can be compared side by side.
 SCRIPT = ROOT / "talk/script.md"
-VARIANTS = {ROOT / "talk/script-merged.md": ROOT / "talk/5.17-deck-merged/project"}
+VARIANTS = {ROOT / "talk/script-merged.md": ROOT / "talk/5.18-deck-merged/project"}
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+(?:\n[ \t]+\S.*)*)", re.M)  # an indented line continues the one above
 
 

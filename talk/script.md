@@ -79,10 +79,10 @@ ODD: And I'm here to make sure nobody gets sentimental about it.
 > One click: palindromize appears.
 
 MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
-ODD: It copies the whole string, just to compare it with itself.
-MARTIN: It's a one liner!
-ODD: One expensive line. And before 2.8 it's wrong: reverse doesn't give you back a String, so "racecar" fails.
-MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse.
+ODD: You'd expect a plain compare. But in 2007, reverse isn't a String: "racecar" would fail.
+MARTIN: It's still a one liner!
+ODD: One expensive line. It copies the whole string twice, just to compare it with itself.
+MARTIN: Fine. [click] We need a second function; palindromize, just append the reverse. With the same mkString.
 ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.

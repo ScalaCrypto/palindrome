@@ -5,6 +5,63 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-09 — The one-liners as 2007 wrote them (deck 5.18)
+
+### What changed
+
+The opening slide and the start of the morph into 2.5 (`m0-again`, `ONE_LINER` in `talk/deck.py`) show the
+one-liners as early Scala 2 has to write them:
+
+```scala
+def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")
+def palindromize(s: String): String = s + s.reverse.mkString("")
+```
+
+Before 2.8 a `String`'s `reverse` isn't a `String`: it's a `List` in 2.5, a view in 2.6 and a `RichString` in 2.7.
+A `String` only equals a `String`, so the familiar `s == s.reverse` is `false` for every string, and `s + s.reverse`
+appends `List(c, b, a)` in 2.5 and `RichStringR(c, b, a)` in 2.6. From 2.8 a `String`'s `reverse` is a `String`,
+which is the same "give back what you were given" that `palindromize` gets from `CanBuildFrom` on slide 18.
+
+On slide 2, Odd says that the plain comparison is what you'd expect, but that in 2007 `reverse` isn't a `String`.
+The "What's wrong?" bubbles now highlight the whole `s.reverse.mkString("")`.
+
+The scripts, `STATE.md`, this log and 2.5's notes used to say the one-liner failed because collection `==` wasn't
+content-based before 2.8. It was, between collections of the same kind: `List == List` compares contents in every
+version. The failure was the type of `reverse`.
+
+### Alternatives rejected
+
+- **The familiar one-liners with a grey "before 2.8" comment under each**: keeps the opening recognisable, but shows
+  code that the talk's own timeline says doesn't work, and puts two spellings on the first code slide.
+- **The familiar one-liners, explained only in the dialogue**: the slide would keep showing code that's wrong for
+  the era it opens.
+- **`s.reverse sameElements s` or `s.toList == s.toList.reverse`**: they work for `isPalindrome`, but not for
+  `palindromize`, and they change the one-liner's shape. `mkString("")` changes it least.
+- **A bare `.mkString`**: doesn't compile on 2.5 (an ambiguous overload).
+
+### Limitations accepted
+
+- The opening is less familiar than `s == s.reverse`; the dialogue says so right away.
+- The `mkString` makes a second copy, which the "copies the string just to compare" bubble understates.
+
+### Verification
+
+On Scala 2.5.1, 2.6.1, 2.7.7 and 2.8.2 (compiled and run with `legacy/test.sh`'s compilers and JDK):
+
+| Expression | 2.5 | 2.6 | 2.7 | 2.8 |
+|---|---|---|---|---|
+| `s == s.reverse` | `false` | `false` | `false` | `true` |
+| `s + s.reverse` (`s` = `"abc"`) | `abcList(c, b, a)` | `abcRichStringR(c, b, a)` | `abccba` | `abccba` |
+| `s == s.reverse.mkString("")` | `true` | `true` | `true` | `true` |
+| `s + s.reverse.mkString("")` | `abccba` | `abccba` | `abccba` | `abccba` |
+
+The same runs confirmed that `List == List` compares contents on every version, and that `++` on a `Seq` gives an
+`ArrayBuffer` in 2.5 and a view in 2.6. `talk/deck.py` builds both decks, `talk/present.py --check` and
+`talk/render.py` pass on both, and screenshots of `oneliner` and `m0-again` show the code and the bubbles' new
+highlights.
+
+---
+
 ## 2026-10-08 — Notes that fit, in two clear roles, with clicks that match the slides (deck 5.17)
 
 ### What changed
@@ -90,7 +147,7 @@ speakers is `> Note:` lines, which stay out of the notes. Its per-slide times co
 of the 30 for questions.
 
 `talk/deck.py` builds the talk's deck from `script.md` as before, then copies its `deck.json` and slides to
-`talk/5.17-deck-merged/` and writes `script-merged.md`'s lines into them (`VARIANTS`), with the same check that the
+`talk/5.18-deck-merged/` and writes `script-merged.md`'s lines into them (`VARIANTS`), with the same check that the
 script follows the deck. It's published to an artifact of its own, so the two scripts can be open in two tabs, or
 presented side by side with `talk/present.py` on two ports.
 
@@ -1522,8 +1579,8 @@ versions would mix design changes with language changes and put features in vers
   superseded by the talk spec, which gets the ADT, type-class and extension beats from `isPalindrome` without
   swapping the example.
 - **One talk stage per version** (e.g. 2.5 = the one-liner, 2.8 = `@tailrec`, …). Rejected for the reason above.
-  Stage 0 (`s == s.reverse`) also can't be written for 2.5–2.7, where a `String`'s `reverse` isn't a `String`, so the
-  comparison is `false`.
+  Stage 0 also needs a `mkString` on 2.5–2.7, where a `String`'s `reverse` isn't a `String`, so it isn't the familiar
+  `s == s.reverse` there.
 - **Keeping the `ignore: Set[Char]` parameter.** The talk's customization hook is `Eq`. `ignore` would add a second
   hook and bring back the default argument the talk doesn't use. Sentence palindromes ("race car") are the job of the
   talk's reserve "normalized input" stage (opaque types), which isn't in the code.

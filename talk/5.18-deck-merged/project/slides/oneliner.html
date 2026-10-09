@@ -1,20 +1,20 @@
 <section id="oneliner" data-transition="fade" style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">It starts as a one-liner</h2>
 <div style="background:#242A38; border:1px solid #343B4C; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px">
-<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;isPalindrome(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">Boolean</span>&#160;=&#160;s&#160;==&#160;s.reverse</p>
+<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;isPalindrome(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">Boolean</span>&#160;=&#160;s&#160;==&#160;s.reverse.mkString(<span style="color:#A8D08D">&quot;&quot;</span>)</p>
 </div>
 <div data-build-in="fade 1" style="position:absolute; left:128px; top:376.6px; width:1664px; display:flex; flex-direction:column; gap:36px">
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">… or two</h2>
 <div style="background:#242A38; border:1px solid #343B4C; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px">
-<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;palindromize(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">String</span>&#160;=&#160;s&#160;+&#160;s.reverse</p>
+<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;palindromize(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">String</span>&#160;=&#160;s&#160;+&#160;s.reverse.mkString(<span style="color:#A8D08D">&quot;&quot;</span>)</p>
 </div>
 </div>
 <aside>MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
-ODD: It copies the whole string, just to compare it with itself.
-MARTIN: It's a one liner!
-ODD: One expensive line. And before 2.8 it's wrong: reverse doesn't give you back a String, so "racecar" fails.
-MARTIN: Fine. * We need a second function; palindromize, just append the reverse.
-ODD: "abc" gets three more letters, when two would do. And String has no reverse of its own: Predef wraps it.
+ODD: You'd expect a plain compare. But in 2007, reverse isn't a String: "racecar" would fail.
+MARTIN: It's still a one liner!
+ODD: One expensive line: two full copies. String has no reverse of its own; Predef's wrapper comes back.
+MARTIN: Fine. * We need a second function; palindromize, just append the reverse. With the same mkString.
+ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.</aside>
 <svg data-bleed="" aria-label="Timeline of Scala releases from 2.5 to 4.0" width="1920" height="44" viewBox="0 0 1920 44" style="position:absolute; left:0px; top:978px; width:1920px; height:44px"><defs><linearGradient id="fade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="224" y2="0"><stop offset="0" stop-color="#9AA3AF" stop-opacity="0"/><stop offset="1" stop-color="#9AA3AF" stop-opacity="0.55"/></linearGradient></defs><rect x="0" y="21" width="224" height="2" fill="url(#fade)"/><rect x="224" y="21" width="1536" height="2" fill="#9AA3AF" fill-opacity="0.55"/><rect x="142.2" y="16" width="2" height="12" fill="#9AA3AF" fill-opacity="0.5"/><rect x="61.3" y="16" width="2" height="12" fill="#9AA3AF" fill-opacity="0.25"/><rect x="223.0" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="303.8" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="384.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="465.5" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="546.4" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="627.2" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="708.1" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="788.9" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="869.7" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="950.6" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1031.4" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1112.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1193.1" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1273.9" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1354.8" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1435.6" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1516.5" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1597.3" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1678.2" y="16" width="2" height="12" fill="#9AA3AF"/><rect x="1759.0" y="16" width="2" height="12" fill="#9AA3AF"/></svg>

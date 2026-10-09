@@ -1,19 +1,19 @@
 <section id="oneliner" data-transition="fade" style="background:#1B1F2A; color:#E8E6DF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">It starts as a one-liner</h2>
 <div style="background:#242A38; border:1px solid #343B4C; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px">
-<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;isPalindrome(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">Boolean</span>&#160;=&#160;s&#160;==&#160;s.reverse</p>
+<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;isPalindrome(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">Boolean</span>&#160;=&#160;s&#160;==&#160;s.reverse.mkString(<span style="color:#A8D08D">&quot;&quot;</span>)</p>
 </div>
 <div data-build-in="fade 1" style="position:absolute; left:128px; top:376.6px; width:1664px; display:flex; flex-direction:column; gap:36px">
 <h2 style="font-size:64px; font-weight:600; line-height:1.1">… or two</h2>
 <div style="background:#242A38; border:1px solid #343B4C; color:#E8E6DF; font-family:'IBM Plex Mono', 'Courier New', monospace; border-radius:16px; padding:36px 44px">
-<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;palindromize(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">String</span>&#160;=&#160;s&#160;+&#160;s.reverse</p>
+<p style="font-size:25px; line-height:1.4; white-space:nowrap"><span style="color:#F2A65A">def</span>&#160;palindromize(s:&#160;<span style="color:#8FB8E8">String</span>):&#160;<span style="color:#8FB8E8">String</span>&#160;=&#160;s&#160;+&#160;s.reverse.mkString(<span style="color:#A8D08D">&quot;&quot;</span>)</p>
 </div>
 </div>
 <aside>MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
-ODD: It copies the whole string, just to compare it with itself.
-MARTIN: It's a one liner!
-ODD: One expensive line. And before 2.8 it's wrong: reverse doesn't give you back a String, so "racecar" fails.
-MARTIN: Fine. * We need a second function; palindromize, just append the reverse.
+ODD: You'd expect a plain compare. But in 2007, reverse isn't a String: "racecar" would fail.
+MARTIN: It's still a one liner!
+ODD: One expensive line. It copies the whole string twice, just to compare it with itself.
+MARTIN: Fine. * We need a second function; palindromize, just append the reverse. With the same mkString.
 ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.</aside>
