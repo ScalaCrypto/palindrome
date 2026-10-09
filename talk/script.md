@@ -127,9 +127,9 @@ ODD: Generics, implicits, anonymous classes. It just made you type a lot.
 MARTIN: Here's our Eq in 2.5. [click] Look at those instances.
 ODD: Anonymous classes, braces and all. The Java 6 experience.
 MARTIN: [click] And nobody imports the default?
-ODD: It sits in Eq's companion, and the compiler always searches there. Where things are found that nobody can find.
+ODD: It sits in Eq's companion, where the compiler always knows to look. Readers, not so much...
 MARTIN: [click] And case-insensitive is opt-in.
-ODD: A plain value: hand it over, or make it implicit locally, where it beats the companion. Opt-in I can review.
+ODD: A plain value. Nothing happens unless you ask for it. That I can review.
 
 ## 8 · o2-5 — Method syntax through an implicit conversion · 55 s · 3:55
 
