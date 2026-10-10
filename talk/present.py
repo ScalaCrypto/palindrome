@@ -5,6 +5,8 @@ shows, the speaker notes and a timer.
 
 Usage: talk/present.py                  serve the talk's deck and open the presenter view in the default browser
        talk/present.py talk/tag-cloud   the same for another deck
+       talk/present.py --notes talk/bullets.md
+                                        the talk's deck with another script's speaker notes, in place of its own
        talk/present.py --port 8800      another port (default 8765)
        talk/present.py --no-open        don't open a browser
        talk/present.py --check [deck]   check that every slide's notes fit the presenter view without scrolling,
@@ -33,6 +35,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import render  # noqa: E402  (talk/render.py: the talk's deck, and the deck's fonts cached for offline use)
+import deck as build  # noqa: E402  (talk/deck.py: a script's speaker notes, for --notes)
 
 ROOT = render.ROOT
 PAGES = ROOT / "talk/present"
@@ -40,9 +43,13 @@ TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=u
          ".css": "text/css; charset=utf-8", ".woff2": "font/woff2", ".json": "application/json"}
 
 
-def deck_payload(deck_dir: Path) -> bytes:
+def deck_payload(deck_dir: Path, script: Path | None = None) -> bytes:
+    """The deck as the player loads it; with a `script`, its speaker notes in place of the slides' own."""
     deck = json.loads((deck_dir / "deck.json").read_text())
     slides = [{"id": sid, "html": (deck_dir / f"slides/{sid}.html").read_text()} for sid in deck["order"]]
+    if script:
+        notes = {sid: text for _, sid, text in build.script_notes(script)}
+        slides = [{"id": s["id"], "html": build.with_notes(s["html"], notes.get(s["id"], ""))} for s in slides]
     return json.dumps({"title": deck.get("title", ""), "slides": slides}).encode()
 
 
@@ -53,7 +60,7 @@ def fonts_css(deck_dir: Path) -> bytes:
     return css.replace(render.FONTS.as_uri() + "/", "fonts/").encode()
 
 
-def handler(deck_dir: Path):
+def handler(deck_dir: Path, script: Path | None = None):
     class Handler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             path = self.path.split("?")[0]
@@ -64,7 +71,7 @@ def handler(deck_dir: Path):
             if path in ("/player.js", "/present.css"):
                 return self.send(PAGES / path[1:])
             if path == "/deck.json":
-                return self.reply(deck_payload(deck_dir), TYPES[".json"])
+                return self.reply(deck_payload(deck_dir, script), TYPES[".json"])
             if path == "/fonts.css":
                 return self.reply(fonts_css(deck_dir), TYPES[".css"])
             name = path.removeprefix("/fonts/")
@@ -96,17 +103,22 @@ def main() -> None:
     parser.add_argument("--no-open", action="store_true", help="don't open a browser")
     parser.add_argument("--check", action="store_true", help="check that the notes fit without scrolling, then exit")
     parser.add_argument("--size", default="1440x820", help="the presenter window for --check (default 1440x820)")
+    parser.add_argument("--notes", metavar="SCRIPT", help="take the speaker notes from this script (talk/bullets.md)")
     args = parser.parse_args()
     deck_dir = (ROOT / args.deck).resolve() / "project" if args.deck else render.DECK
     if not (deck_dir / "deck.json").is_file():
         sys.exit(f"talk/present.py: no deck at {deck_dir}")
+    script = (ROOT / args.notes).resolve() if args.notes else None
+    if script and not script.is_file():
+        sys.exit(f"talk/present.py: no script at {script}")
     fonts_css(deck_dir)  # fetch the fonts now, while there's a network, rather than on the first page load
 
     if args.check:
-        sys.exit(check(deck_dir, args.size))
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler(deck_dir))
+        sys.exit(check(deck_dir, args.size, script))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler(deck_dir, script))
     url = f"http://localhost:{args.port}/"
-    print(f"Presenting {deck_dir.parent.relative_to(ROOT)}\n"
+    print(f"Presenting {deck_dir.parent.relative_to(ROOT)}"
+          + (f", notes from {script.relative_to(ROOT)}" if script else "") + "\n"
           f"  presenter view: {url}presenter\n"
           f"  slides:         {url}  (or the presenter view's \"Open slides window\")\n"
           f"Ctrl-C to stop.")
@@ -118,10 +130,10 @@ def main() -> None:
         print()
 
 
-def check(deck_dir: Path, size: str) -> int:
+def check(deck_dir: Path, size: str, script: Path | None = None) -> int:
     """Opens the presenter view in headless Chrome at `size` and has it measure every slide's notes at the default
     notes size (presenter.html's ?fit); prints the slides whose notes need scrolling, and returns 1 if there are any."""
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler(deck_dir))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler(deck_dir, script))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     w, h = size.split("x")
     with tempfile.TemporaryDirectory() as profile:

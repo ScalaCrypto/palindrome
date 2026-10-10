@@ -5,6 +5,45 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-10 — Talking points as an alternative to the dialogue: `talk/bullets.md`
+
+### What changed
+
+`talk/bullets.md` is the talk again, slide by slide, as talking points instead of lines: each `MARTIN:` or `ODD:`
+line is one point to make in your own words, with the dialogue's punchlines in quotes, to say as written or skip.
+It keeps the script's slides, clicks, timings, roles (Martin introduces and clicks, Odd explains and comes round) and
+who says what; the points were condensed from `script.md`'s lines, merging the exchanges that only set up the next
+line. `talk/present.py --notes talk/bullets.md` serves the deck with its notes in place of the slides' own, so the
+speakers switch by restarting the presenter, and `talk/deck.py --notes talk/bullets.md` writes them into the slides
+for the artifact. `talk/deck.py` checks both files on every build.
+
+### Why
+
+Two days before the talk, the speakers doubted the back-and-forth would survive the stage: with a dialogue, the
+exact lines carry the talk, and a missed line leaves the other speaker without a cue. Points let each speaker
+recover in their own words, and still show whose turn it is by side and colour.
+
+### Alternatives rejected
+
+- **A second deck, as with the merged script** (2026-10-09): it doubled every slide edit. Only the notes differ, so
+  they're swapped where they're read: at serve time, or at build time for the artifact.
+- **Replacing `script.md`**: the speakers want to try both first.
+- **A different notes format** (nested lists, headings per speaker): the presenter view already lays out
+  `MARTIN:`/`ODD:` turns by side and colour, so one point per turn needs no change there.
+
+### Limitations accepted
+
+- Until one is chosen, a slide change means editing both files; the build fails until both follow the deck.
+- `talk/prep.py`'s practice PDFs are built from `script.md` only.
+
+### Verified
+
+`talk/deck.py` passes with both files checked (64 slides, click counts and bubble words), leaving the slides
+unchanged; `talk/present.py --check`, with and without `--notes talk/bullets.md`, fits every slide's notes; and the
+served `m2-8` carries the bullets' notes with `--notes` and the dialogue's without.
+
+---
+
 ## 2026-10-10 — Practice PDFs for the speakers: `talk/prep.py`
 
 ### What changed

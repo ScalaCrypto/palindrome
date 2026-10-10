@@ -82,6 +82,7 @@ palindrome/
 │   ├── 5.18-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
 │   ├── script.md                   # The talk as a dialogue, slide by slide: every slide's speaker notes come from it
+│   ├── bullets.md                  # The alternative: the same talk as talking points (present.py --notes shows it)
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
@@ -223,6 +224,11 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     the rest (no code read out, Odd the technical reviewer, Martin the fan who introduces). The presenter view shows
     the turns in speaking order, without names: Odd's on the left in blue, Martin's on the right in orange. Every
     slide's notes must fit it without scrolling: `talk/present.py --check`.
+  - **The alternative is `talk/bullets.md`**, while the speakers choose: the same slides and clicks as talking points
+    (`MARTIN:`/`ODD:`, one point a line) instead of lines to learn. `talk/deck.py` checks it like the script on every
+    build without writing it into the slides; `talk/present.py --notes talk/bullets.md` presents with it, and
+    `talk/deck.py --notes talk/bullets.md` writes it into the slides, for the artifact. Edit both files when a slide
+    is added, removed or gets another build.
   - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
@@ -249,6 +255,7 @@ talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
 talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view
+talk/present.py --notes talk/bullets.md  # present with the talking points instead of the dialogue
 talk/prep.py             # practice PDFs for offline reading, into out/talk-prep/ (after render.py --screenshots)
 ```
 

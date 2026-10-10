@@ -2,7 +2,8 @@
 """Builds the talk's deck in talk/5.18-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
-Usage: talk/deck.py
+Usage: talk/deck.py                          speaker notes from talk/script.md
+       talk/deck.py --notes talk/bullets.md   speaker notes from the alternative, the talking points
 
 The deck holds two kinds of slide. The code slides (ids starting with "m") are generated from the version sources
 through talk/morph.py and rewritten on every run; never edit them by hand. Every other slide is hand-written and
@@ -24,7 +25,8 @@ It also fails if a slide in SEQUENCE has no file, or a hand-written slide's file
 
 Every slide's speaker notes, hand-written slides included, are the spoken lines of its section in talk/script.md; the
 build fails if the script doesn't follow the deck's slide order, if a slide's [click]s don't match its builds, or if a
-spoken line repeats a bubble's words.
+spoken line repeats a bubble's words. It checks the other of the two scripts the same way, without writing it, so both
+stay in step with the deck while the speakers choose between them (talk/present.py --notes shows either).
 """
 
 import json
@@ -730,6 +732,7 @@ def first_method(state: dict, notes: list) -> set[int]:
 # with each [click] as an asterisk and without the other [bracketed] stage directions. Everything else in the file is
 # for the speakers only.
 SCRIPT = ROOT / "talk/script.md"
+BULLETS = ROOT / "talk/bullets.md"  # the same talk as talking points, in the same format; checked, not written
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+(?:\n[ \t]+\S.*)*)", re.M)  # an indented line continues the one above
 
 
@@ -754,7 +757,7 @@ def with_notes(html: str, notes: str) -> str:
     return html.replace("</section>", (aside + "\n" if aside else "") + "</section>", 1)
 
 
-def build():
+def build(notes_from: Path = SCRIPT):
     steps = {}  # (track, k) -> (before view, between view, after view, before runs, between runs, after runs)
     shells = {}  # (track, k) -> (shell view, shell runs), where the step has one
     cleans = {}  # (track, k) -> (clean view, clean runs), where the step has one
@@ -881,7 +884,8 @@ def build():
                               heading_id=True)
             (slides / f"{slide}-clean.html").write_text(with_footer(html, view["versions"][0]))
 
-    write_notes(SCRIPT, slides, ids)
+    for script in (SCRIPT, BULLETS):
+        write_notes(script, slides, ids, write=script == notes_from)
 
     path = DECK / "deck.json"
     deck = json.loads(path.read_text()) if path.exists() else \
@@ -917,9 +921,9 @@ def notes_problems(sid: str, html: str, text: str) -> list[str]:
     return problems
 
 
-def write_notes(script: Path, slides: Path, ids: list[str]):
-    """A script's spoken lines into the slides' notes. It fails unless the script follows the deck, slide by slide,
-    and each slide's notes pass notes_problems."""
+def write_notes(script: Path, slides: Path, ids: list[str], write: bool = True):
+    """A script's spoken lines into the slides' notes (only checked, unless `write`). It fails unless the script follows
+    the deck, slide by slide, and each slide's notes pass notes_problems."""
     notes = script_notes(script)
     if [(n, sid) for n, sid, _ in notes] != list(enumerate(ids, 1)):
         expected = [f"{n} {sid}" for n, sid in enumerate(ids, 1)]
@@ -933,13 +937,14 @@ def write_notes(script: Path, slides: Path, ids: list[str]):
         path = slides / f"{sid}.html"
         html = path.read_text()
         problems += notes_problems(sid, html, text)
-        if (new := with_notes(html, text)) != html:
+        if write and (new := with_notes(html, text)) != html:
             path.write_text(new)
     if problems:
         raise SystemExit(f"{script.relative_to(ROOT)}:\n  " + "\n  ".join(problems))
 
 if __name__ == "__main__":
     import sys
-    if sys.argv[1:]:
+    args = sys.argv[1:]
+    if args not in ([], ["--notes", str(SCRIPT.relative_to(ROOT))], ["--notes", str(BULLETS.relative_to(ROOT))]):
         sys.exit(__doc__)
-    build()
+    build(ROOT / args[1] if args else SCRIPT)

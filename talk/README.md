@@ -9,6 +9,10 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 - `script.md`: the talk as a dialogue between Martin and Odd, slide by slide, with stage directions and timing.
   Its spoken lines are every slide's speaker notes: `deck.py` copies them in, so edit the dialogue there, not in the
   artifact or the slide files.
+- `bullets.md`: the alternative to `script.md`, while the speakers try both: the same talk as talking points, one per
+  line, each marked for Martin or Odd, to say in their own words. `deck.py` checks it like the script without
+  writing it; `present.py --notes talk/bullets.md` presents with it, and `deck.py --notes talk/bullets.md` writes it
+  into the slides' notes instead of the script, for the artifact.
 - `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
@@ -152,6 +156,7 @@ Every slide's notes fit the presenter view without scrolling, at the default not
 
 ```bash
 talk/present.py --check   # exit 1 if a slide's notes need scrolling; --size WxH for another window
+talk/present.py --check --notes talk/bullets.md   # the same for the talking points
 ```
 
 `deck.py` checks the rest of what the notes promise, for both scripts: a slide has as many `[click]`s as builds, and
