@@ -924,8 +924,9 @@ def notes_problems(sid: str, html: str, text: str) -> list[str]:
     steps = max((int(m) for m in re.findall(r'data-build-in="fade (\d+)"', html)), default=0)
     if (clicks := text.count(CLICK)) != steps:
         problems.append(f"{sid}: {clicks} [click] for {steps} build{'s' * (steps != 1)}")
-    if text.count("**") % 2:
-        problems.append(f"{sid}: a ** without its pair")
+    for line in text.split("\n"):  # per turn, as with_notes makes the <b>s: two unpaired ones mustn't cancel out
+        if line.count("**") % 2:
+            problems.append(f"{sid}: a ** without its pair in \"{line}\"")
     spoken = set(runs_of_words(text))
     for bubble in BUBBLE.findall(html):
         if same := [run for run in runs_of_words(bubble) if run in spoken]:

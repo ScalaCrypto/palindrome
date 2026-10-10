@@ -140,7 +140,9 @@
   const setBold = on => {
     bold = on;
     $(".notes").classList.toggle("bold", on);
-    $('[data-act="bold"]').classList.toggle("on", on);
+    const button = $('[data-act="bold"]');
+    button.classList.toggle("on", on);
+    button.setAttribute("aria-pressed", String(on));
     store("bold", on);
   };
   setBold(bold);
