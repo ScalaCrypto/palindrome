@@ -259,7 +259,7 @@ ODD: "No."
 
 MARTIN: 2.13, 2019. Wait, Odd, is that your name in there?
 ODD: "I was young and needed the commits."
-MARTIN: In 2019? So you're partly responsible for what comes next
+MARTIN: In 2019? "You weren't that young." So you're partly responsible for what comes next
 ODD: "No comment."
 
 ## 38 · f2-13 — New in Scala 2.13 · 15 s · 14:05
@@ -363,7 +363,7 @@ MARTIN: And the methods
 ## 55 · m3-6 — Context bounds get names · 30 s · 18:55
 
 MARTIN: [click] The using clause is gone!
-ODD: Moved into the type parameter, and kept its name. Running out of complaints
+ODD: Moved into the type parameter, and kept its name. "I'm running out of things to complain about."
 MARTIN: isPalindrome doesn't change, nor do 3.7 to 3.9 for us: we're done
 ODD: "Are we, though?"
 

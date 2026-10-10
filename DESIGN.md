@@ -15,7 +15,10 @@ It keeps the script's slides, clicks, timings, roles (Martin introduces and clic
 who says what; the points were condensed from `script.md`'s lines, merging the exchanges that only set up the next
 line. `talk/present.py --notes talk/bullets.md` serves the deck with its notes in place of the slides' own, so the
 speakers switch by restarting the presenter, and `talk/deck.py --notes talk/bullets.md` writes them into the slides
-for the artifact. `talk/deck.py` checks both files on every build.
+for the artifact. `talk/deck.py` checks both files on every build. `talk/prep.py` builds the practice PDFs from both,
+the bullets' named `-bullets`: their plans practise points instead of lines, and a recall drill (each slide beside
+the speaker's points, to cover and say in their own words) replaces the first-letters cue drill, which would only
+train them to memorize the points as lines.
 
 ### Why
 
@@ -34,13 +37,15 @@ recover in their own words, and still show whose turn it is by side and colour.
 ### Limitations accepted
 
 - Until one is chosen, a slide change means editing both files; the build fails until both follow the deck.
-- `talk/prep.py`'s practice PDFs are built from `script.md` only.
+- The hand-written parts of the PDFs (signature moments, hot spots) quote punchlines that both scripts keep; a
+  punchline cut from one script would leave them quoting it.
 
 ### Verified
 
 `talk/deck.py` passes with both files checked (64 slides, click counts and bubble words), leaving the slides
 unchanged; `talk/present.py --check`, with and without `--notes talk/bullets.md`, fits every slide's notes; and the
-served `m2-8` carries the bullets' notes with `--notes` and the dialogue's without.
+served `m2-8` carries the bullets' notes with `--notes` and the dialogue's without. `talk/prep.py` builds all six
+PDFs; the bullets' recall drill was rendered and checked by eye.
 
 ---
 

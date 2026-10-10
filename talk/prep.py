@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Builds the speakers' practice documents from talk/script.md and the deck's screenshots, as PDFs for offline
-reading on a phone or tablet.
+"""Builds the speakers' practice documents from talk/script.md and talk/bullets.md and the deck's screenshots, as
+PDFs for offline reading on a phone or tablet.
 
-Usage: talk/prep.py      write out/talk-prep/{odd,martin,together}.pdf
+Usage: talk/prep.py      write out/talk-prep/{odd,martin,together}.pdf from the dialogue, script.md, and
+                         out/talk-prep/{odd,martin,together}-bullets.pdf from the talking points, bullets.md
 
 - odd.pdf and martin.pdf: one speaker's practice script. Their part at a glance, a plan for practising alone, the
   timing checkpoints, the whole script slide by slide with their own lines highlighted, a cue drill (the line before
-  each of theirs, and theirs as first letters only), and the Q&A.
+  each of theirs, and theirs as first letters only), and the Q&A. From the talking points, a recall drill replaces
+  the cue drill: each slide's title, and the speaker's points beside it, to cover and say in their own words.
 - together.pdf: the rehearsal plan for both, the click map, the hot spots, a timing sheet to fill in, the day-of
   checklist, the whole script, and the Q&A.
 
@@ -30,9 +32,58 @@ import render  # noqa: E402  (talk/render.py: Chrome, and where the screenshots 
 
 ROOT = render.ROOT
 SCRIPT = ROOT / "talk/script.md"
+BULLETS = ROOT / "talk/bullets.md"
 SHOTS = render.OUT / "5.18-deck/shots"
 OUT = ROOT / "out/talk-prep"
 IMAGES = OUT / "img"
+
+
+
+@dataclass
+class Variant:
+    """One of the two ways to give the talk, and the words its documents use for it."""
+    script: Path
+    suffix: str  # added to each PDF's name
+    lines: str  # what a speaker's turns are
+    learn: str  # the goal of practising alone
+    read: str  # the read-through step, with {partner}
+    drill: str  # the drill step
+    drill_again: str  # the drill, on the way to Berlin
+    drill_name: str  # the drill section's heading
+    run: str  # what the full run says aloud, with {partner}
+    speed: str  # the speed run, in the rehearsal
+    legend: str  # how a turn reads
+
+
+DIALOGUE = Variant(
+    SCRIPT, "", "lines",
+    "know your lines and their cues well enough that the rehearsal with {partner} is about timing and play, not about "
+    "remembering",
+    "<b>Read-through, 20 min.</b> Go through <i>The script</i> once with the slides. Read {partner}'s lines too: "
+    "they're your cues. Note where a line feels unnatural in your mouth.",
+    "<b>Cue drill, 3 × 10 min.</b> In <i>Cue drill</i>, read the cue, then say your line aloud from its first letters "
+    "only. Check it against <i>The script</i> when unsure. Repeat the slides you stumbled on until they're smooth.",
+    "<b>Cue drill</b>, one pass on first letters only, mouthing the lines; check only the ones you miss.",
+    "Cue drill",
+    "Your lines in full voice, {partner}'s in a flat voice.",
+    "Lines only, as fast as you can, no acting, no slides. It finds the gaps in memory, and the cues you don't know yet.",
+    "Each turn is a line, said as written.")
+
+POINTS = Variant(
+    BULLETS, "-bullets", "points",
+    "know what each slide is for, and your points on it in order, well enough to say them your own way; only the "
+    "punchlines in quotes are worth learning word for word",
+    "<b>Read-through, 20 min.</b> Go through <i>The script</i> once with the slides. Read {partner}'s points too: "
+    "they're your cues. For each slide, say in one sentence what it's there to show.",
+    "<b>Recall drill, 3 × 10 min.</b> In <i>Recall drill</i>, cover the right-hand column, and for each slide say your "
+    "points aloud in your own words; then check. Different words every time is fine: the order and the punchlines "
+    "matter. Repeat the slides where you blanked.",
+    "<b>Recall drill</b>, one pass with the right-hand column covered, mouthing your points; check only the ones you miss.",
+    "Recall drill",
+    "Your points in full voice, in your own words; {partner}'s as a quick summary.",
+    "Points only, as fast as you can, no acting, no slides: each of you says your points in a few words. It finds the "
+    "slides where you don't know what comes next.",
+    "Each turn is a point to make in your own words; words in “quotes” are punchlines, said as written or skipped.")
 
 HEADING = re.compile(r"^## (\d+) · (\S+) — (.+?)(?: · (\d+) s · (\d+:\d\d))?$")
 NAMES = {"ODD": "Odd", "MARTIN": "Martin", "BOTH": "Both"}
@@ -60,12 +111,12 @@ class Slide:
         return sum(line.text.count("[click]") for line in self.lines)
 
 
-def parse() -> tuple[list[Slide], list[tuple[str, str, str]]]:
-    """The script's slides, and its timing checkpoints (slide, clock, what to do if later)."""
+def parse(script: Path) -> tuple[list[Slide], list[tuple[str, str, str]]]:
+    """A script's slides, and its timing checkpoints (slide, clock, what to do if later)."""
     slides: list[Slide] = []
     checkpoints = []
     reserve = False
-    for raw in SCRIPT.read_text().splitlines():
+    for raw in script.read_text().splitlines():
         if raw.startswith("# Reserve"):
             reserve = True
         elif m := HEADING.match(raw):
@@ -158,6 +209,18 @@ def drill_html(slides: list[Slide], me: str) -> str:
                             f'{"<br>".join(cue)}</div><div class="initials {me.lower()}">{esc(initials(line.text))}</div></div>')
             previous, new_slide = line, False
     return "".join(rows)
+
+
+def recall_html(slides: list[Slide], me: str) -> str:
+    """Each slide, and who opens it, beside my points on it, to cover and say in my own words."""
+    rows = []
+    for slide in (s for s in slides if not s.reserve and s.lines):
+        points = [l for l in slide.lines if l.who in (me, "BOTH")]
+        opener = "you open" if slide.lines[0].who in (me, "BOTH") else f"{NAMES[slide.lines[0].who]} opens"
+        mine = "".join(f"<li>{spoken(l.text, l.who, me)}</li>" for l in points) or '<li class="none">nothing: listen</li>'
+        rows.append(f'<tr><td><b>{slide.n}</b> {esc(slide.title)}<br><span class="meta">{opener}</span></td>'
+                    f'<td><ul class="{me.lower()}-p">{mine}</ul></td></tr>')
+    return f'<table class="grid recall"><tr><th>Slide</th><th>Your points</th></tr>{"".join(rows)}</table>'
 
 
 def checkpoints_html(checkpoints) -> str:
@@ -264,6 +327,9 @@ li { margin-bottom: 1.2mm; }
 .initials.odd { color: #1f6fd1; } .initials.martin { color: #d4660f; }
 .cols { columns: 2; column-gap: 5mm; }
 .small { font-size: 9pt; }
+.recall td:first-child { white-space: normal; width: 38%; }
+.recall ul { margin: 0; padding-left: 4mm; } .recall li { margin-bottom: 0.6mm; }
+.recall .odd-p { color: #174f96; } .recall .martin-p { color: #9a4708; } .recall .none { color: #9aa0aa; list-style: none; }
 .check li { list-style: none; margin-left: -4mm; }
 .check li::before { content: "☐  "; }
 """
@@ -280,8 +346,8 @@ def cover(who_html: str, subtitle: str, extra: str) -> str:
             f'<div><p class="who">{who_html}</p><p class="big">{subtitle}</p></div><div>{extra}</div></div>')
 
 
-LEGEND = """<div class="box small"><b>How the script reads.</b> As in the presenter view: Odd's turns on the left in blue,
-Martin's on the right in orange; <b>{mine}</b>. <span class="click">{badge}</span> marks a click in the middle of a line.
+LEGEND = """<div class="box small"><b>How the script reads.</b> {legend} As in the presenter view: Odd's turns on the left
+in blue, Martin's on the right in orange; <b>{mine}</b>. <span class="click">{badge}</span> marks a click in the middle of a line.
 The slide image shows each slide's final build, every bubble included. Italic lines are stage directions; never
 spoken.</div>"""
 
@@ -321,11 +387,9 @@ generic and array contexts (slide 26); opaque types keep the promise.</td></tr>
 
 
 ODD_PLAN = """<div class="box"><b>Saturday, at home (out loud)</b>
-<ol><li><b>Read-through, 20 min.</b> Go through <i>The script</i> once with the slides. Read {partner}'s lines too:
-they're your cues. Note where a line feels unnatural in your mouth.</li>
-<li><b>Cue drill, 3 × 10 min.</b> In <i>Cue drill</i>, read the cue, then say your line aloud from its first letters
-only. Check it against <i>The script</i> when unsure. Repeat the slides you stumbled on until they're smooth.</li>
-<li><b>Full run, standing, 25 min.</b> Your lines in full voice, {partner}'s in a flat voice. Start a timer and
+<ol><li>{read}</li>
+<li>{drill}</li>
+<li><b>Full run, standing, 25 min.</b> {run} Start a timer and
 check yourself against the checkpoints below.</li>
 <li><b>The signature moments</b> on the previous page, each three times. Practise the pauses: count “one, two”
 silently after a joke, and before Odd's concessions.</li>
@@ -333,7 +397,7 @@ silently after a joke, and before Odd's concessions.</li>
 <div class="box"><b>Sunday, on the way to Berlin (offline, quietly)</b>
 <ol><li><b>The skeleton, 5 min.</b> From memory, list the versions in order (2.5, 2.8, 2.9, 2.10, 2.11, 2.12, 2.13,
 3.0, 3.6, 4.0) and what each brings. If you know the order, you'll never be lost.</li>
-<li><b>Cue drill</b>, one pass on first letters only, mouthing the lines; check only the ones you miss.</li>
+<li>{drill_again}</li>
 <li>Read <i>Q&amp;A</i>: the reserve slides and the questions to expect.</li>
 <li>Then rest. Lunch, and meet {partner} after it with your voice fresh.</li></ol></div>
 <div class="box warn"><b>Packing list</b><ul class="check">
@@ -345,15 +409,13 @@ silently after a joke, and before Odd's concessions.</li>
 """
 
 MARTIN_PLAN = """<div class="box"><b>Saturday, whenever you find an hour (out loud)</b>
-<ol><li><b>Read-through, 20 min.</b> Go through <i>The script</i> once with the slides. Read Odd's lines too: they're
-your cues, and your clicks. Note where a line feels unnatural in your mouth.</li>
-<li><b>Cue drill, 3 × 10 min.</b> In <i>Cue drill</i>, read the cue, then say your line aloud from its first letters
-only. Check it against <i>The script</i> when unsure. Repeat the slides you stumbled on until they're smooth.</li>
+<ol><li>{read}</li>
+<li>{drill}</li>
 <li><b>The skeleton, 5 min.</b> From memory, list the versions in order (2.5, 2.8, 2.9, 2.10, 2.11, 2.12, 2.13,
 3.0, 3.6, 4.0) and what each brings. You introduce every one of them.</li></ol>
-<p class="small">Short on time? Do the cue drill and skip the rest: ten minutes on a bench works too.</p></div>
+<p class="small">Short on time? Do the {drill_name_lower} and skip the rest: ten minutes on a bench works too.</p></div>
 <div class="box"><b>Sunday morning, before Odd arrives (about 11:00)</b>
-<ol><li><b>Full run, standing, 25 min.</b> Your lines in full voice, Odd's in a flat voice. Start a timer and check
+<ol><li><b>Full run, standing, 25 min.</b> {run} Start a timer and check
 yourself against the checkpoints below. Click on your thumb, or on a pen, at every <span class="click">▶ CLICK</span>:
 the clicks are half your part.</li>
 <li><b>The signature moments</b> on the previous page, each three times. Practise the pauses: count “one, two”
@@ -367,11 +429,18 @@ silently after a joke, and let Odd's concessions land before you answer.</li>
 """
 
 
+def plan_words(variant: Variant, partner: str) -> dict[str, str]:
+    """The words a practice plan fills in for its variant."""
+    return {"partner": partner, "read": variant.read.format(partner=partner), "drill": variant.drill,
+            "drill_again": variant.drill_again, "drill_name_lower": variant.drill_name.lower(),
+            "run": variant.run.format(partner=partner)}
+
+
 def reserve_html(slides: list[Slide], me: str | None) -> str:
     return script_html([s for s in slides if s.reserve], me)
 
 
-def personal(slides, checkpoints, me: str) -> str:
+def personal(slides, checkpoints, me: str, variant: Variant) -> str:
     talk = [s for s in slides if not s.reserve]
     st = stats(slides)
     mine, theirs = st[me], st["MARTIN" if me == "ODD" else "ODD"]
@@ -426,40 +495,40 @@ one” at the end (60). Your enthusiasm is what Odd gives in to: keep it warm, n
     schedule = ODD_PLAN if me == "ODD" else MARTIN_PLAN
     plan = f"""
 <h2 class="part">How to practise before Sunday afternoon</h2>
-<p>You have {mine[0]} turns ({mine[1]} words); {partner} has {theirs[0]} ({theirs[1]} words). The dialogue runs about
-21½ minutes. The goal for Sunday afternoon is to know your lines and their cues well enough that the rehearsal with
-{partner} is about timing and play, not about remembering. The presenter notes will be there on Monday: glance, don't
-read.</p>
-{schedule.format(partner=partner)}
-<div class="box"><b>Monday morning</b><p>One cue-drill pass over breakfast, then leave it. The notes will catch you.</p></div>
+<p>You have {mine[0]} {variant.lines} ({mine[1]} words); {partner} has {theirs[0]} ({theirs[1]} words). The talk runs about
+21½ minutes. The goal for Sunday afternoon is to {variant.learn.format(partner=partner)}. The presenter notes will be
+there on Monday: glance, don't read.</p>
+{schedule.format(**plan_words(variant, partner))}
+<div class="box"><b>Monday morning</b><p>One {variant.drill_name.lower()} pass over breakfast, then leave it. The notes will catch you.</p></div>
 <h4>Timing checkpoints</h4>
 {checkpoints_html(checkpoints)}
 <p class="small">The times assume a relaxed pace and a beat after each joke. Later than a checkpoint: do what the last
 column says.</p>
 """
     body = (cover(f'<span class="{color}">{name}</span>\'s practice script',
-                  f"Your lines in {'blue' if me == 'ODD' else 'orange'}, with {partner}'s as cues",
-                  f'<p class="small">Generated from talk/script.md by talk/prep.py. Slides are the deck 5.18 build.</p>')
+                  f"Your {variant.lines} in {'blue' if me == 'ODD' else 'orange'}, with {partner}'s as cues",
+                  f'<p class="small">Generated from {variant.script.relative_to(ROOT)} by talk/prep.py. Slides are the deck 5.18 build.</p>')
             + f'<h2>Your part at a glance</h2>{role}'
             + plan
             + f'<h2 class="part">The script</h2>'
-            + LEGEND.format(mine=f"your lines are in colour, {partner}'s greyed as cues",
+            + LEGEND.format(legend=variant.legend, mine=f"your {variant.lines} are in colour, {partner}'s greyed as cues",
                             badge="▶ CLICK" if me == "MARTIN" else "◆ nod: Martin clicks")
             + script_html(talk, me)
-            + f'<h2 class="part">Cue drill</h2><p>The line before each of yours, in grey, then yours as first letters only '
-              f'(◆ is a click). Say your line in full before you look it up in <i>The script</i>. Slide numbers are on the '
-              f'left.</p>'
-            + drill_html(slides, me)
+            + (f'<h2 class="part">Cue drill</h2><p>The line before each of yours, in grey, then yours as first letters '
+               f'only (◆ is a click). Say your line in full before you look it up in <i>The script</i>. Slide numbers are '
+               f'on the left.</p>' + drill_html(slides, me) if variant is DIALOGUE else
+               f'<h2 class="part">Recall drill</h2><p>Every slide, and who opens it, beside your points on it. Cover the '
+               f'right-hand column, say your points in your own words, then check.</p>' + recall_html(slides, me))
             + QA.format(reserve=reserve_html(slides, me)))
     return page(f"{name}'s practice script", body)
 
 
-def together(slides, checkpoints) -> str:
+def together(slides, checkpoints, variant: Variant) -> str:
     talk = [s for s in slides if not s.reserve]
     clicks = sum(s.clicks for s in talk)
     odd_click_slides = [s for s in talk if any("[click]" in l.text for l in s.lines if l.who == "ODD")]
     st = stats(slides)
-    plan = """
+    plan = f"""
 <h2>Sunday afternoon: the rehearsal</h2>
 <p>About two and a half hours, in a hotel room or a quiet corner. Bring the laptop, its charger, the clicker, and this
 document. Without a projector, put the slides window on the laptop and the presenter view on a phone or iPad
@@ -468,8 +537,7 @@ browser, or both on the laptop side by side.</p>
 <tr><th>Time</th><th>Step</th><th>What it's for</th></tr>
 <tr><td>15 min</td><td><b>Set up</b></td><td><code>talk/present.py</code>: presenter view, slides window, clicker paired.
 Check that it runs with Wi-Fi off. Agree on the cut rules (below) before anything else.</td></tr>
-<tr><td>15 min</td><td><b>Speed run</b></td><td>Lines only, as fast as you can, no acting, no slides. It finds the gaps
-in memory, and the cues you don't know yet.</td></tr>
+<tr><td>15 min</td><td><b>Speed run</b></td><td>{variant.speed}</td></tr>
 <tr><td>45 min</td><td><b>Blocking run</b></td><td>With slides and clicker, standing as on stage (Martin left with the
 clicker, Odd right). Stop anywhere: fix clicks, morph waits, who looks where.</td></tr>
 <tr><td>20 min</td><td><b>Hot spots</b></td><td>Each spot on the list below, three times in a row.</td></tr>
@@ -489,7 +557,7 @@ in, slide 1 up, timer reset. Water within reach.</li>
 <h4>The rules we agree on</h4>
 <ul><li><b>Running late</b>: follow the checkpoint table; the one behind the clock decides nothing alone, so agree
 now that Martin calls it (a look and “let's move on”).</li>
-<li><b>A forgotten line</b>: the other says the gist of it, or the next line. Never correct each other on stage.</li>
+<li><b>A forgotten {variant.lines[:-1]}</b>: the other says the gist of it, or the next one. Never correct each other on stage.</li>
 <li><b>A long laugh</b>: wait it out. Never talk over a laugh or a morph.</li>
 <li><b>A missed click</b>: Odd says “click” with a look, as if it's the running gag.</li>
 <li><b>Laptop or projector fails</b>: the deck's artifact on another machine
@@ -500,7 +568,8 @@ T: start or pause the timer · + and −: notes size · F in the slides window: 
 """
     hot = ["<li><b>1 · cover</b>: the walk-on, and “And I'm Odd.” said like Martin's name, a deadpan beat while "
            "Martin glances over, then “That's <i>also</i> my name.” The first ten seconds set the tone.</li>",
-           "<li><b>3 · goal</b>: Odd has two turns in a row, with a click at the start of the second.</li>",
+           *(["<li><b>3 · goal</b>: Odd has two turns in a row, with a click at the start of the second.</li>"]
+             if variant is DIALOGUE else []),
            f"<li><b>Clicks on Odd's lines</b> (Martin clicks when Odd nods): slides "
            f"{', '.join(str(s.n) for s in odd_click_slides)}. Run each one until the nod and the click are one move.</li>",
            "<li><b>The “again” slides</b> (14, 16, 21, 25, 27, 31, 35, 39, 43, 45, 52, 54, 58): one line, click, and "
@@ -517,7 +586,8 @@ T: start or pause the timer · + and −: notes size · F in the slides window: 
     body = (cover('<span class="martin-c">Martin</span> &amp; <span class="odd-c">Odd</span>: rehearsing together',
                   "Sunday afternoon in Berlin, and Monday morning",
                   f'<p class="small">{len(talk)} slides, {clicks} mid-slide clicks, about 21½ minutes of dialogue: Martin '
-                  f'{st["MARTIN"][0]} turns, Odd {st["ODD"][0]}. Generated from talk/script.md by talk/prep.py.</p>')
+                  f'{st["MARTIN"][0]} {variant.lines}, Odd {st["ODD"][0]}. Generated from {variant.script.relative_to(ROOT)} by '
+                  f'talk/prep.py.</p>')
             + plan
             + f'<h2 class="part">Hot spots</h2><ul>{"".join(hot)}</ul>'
             + '<h4>Staging</h4><ul><li>Martin stands left of the screen and holds the clicker; Odd stands right.</li>'
@@ -530,7 +600,7 @@ T: start or pause the timer · + and −: notes size · F in the slides window: 
             + f'<h2 class="part">Click map</h2><p>Every mid-slide click, and the words it follows. The click to the next '
               f'slide always comes after a slide\'s last line, and isn\'t listed.</p>{click_map_html(slides)}'
             + '<h2 class="part">The script</h2>'
-            + LEGEND.format(mine="both in colour", badge="▶ click")
+            + LEGEND.format(legend=variant.legend, mine="both in colour", badge="▶ click")
             + script_html(talk, None)
             + QA.format(reserve=reserve_html(slides, None)))
     return page("Rehearsing together", body)
@@ -558,15 +628,17 @@ def pdf(name: str, document: str, profile: Path) -> Path:
 
 
 def main() -> None:
-    slides, checkpoints = parse()
+    slides, checkpoints = parse(SCRIPT)  # the checkpoints are the dialogue's, for both
     OUT.mkdir(parents=True, exist_ok=True)
     shrink_images(slides)
     with tempfile.TemporaryDirectory() as tmp:
         profile = Path(tmp) / "profile"
-        for name, document in (("odd", personal(slides, checkpoints, "ODD")),
-                               ("martin", personal(slides, checkpoints, "MARTIN")),
-                               ("together", together(slides, checkpoints))):
-            print(pdf(name, document, profile).relative_to(ROOT))
+        for variant in (DIALOGUE, POINTS):
+            slides = parse(variant.script)[0]
+            for name, document in (("odd", personal(slides, checkpoints, "ODD", variant)),
+                                   ("martin", personal(slides, checkpoints, "MARTIN", variant)),
+                                   ("together", together(slides, checkpoints, variant))):
+                print(pdf(name + variant.suffix, document, profile).relative_to(ROOT))
 
 
 if __name__ == "__main__":

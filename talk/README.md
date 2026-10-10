@@ -173,18 +173,20 @@ here as well as in the artifact: the player follows the format, but it isn't the
 
 ```bash
 talk/render.py --screenshots   # the slide images the documents use
-talk/prep.py                   # out/talk-prep/odd.pdf, martin.pdf and together.pdf
+talk/prep.py                   # out/talk-prep/odd.pdf, martin.pdf, together.pdf, and the same with -bullets
 ```
 
-`prep.py` turns `script.md` into three A5 PDFs, sized to read on a phone or tablet without a network:
+`prep.py` turns `script.md` into three A5 PDFs, sized to read on a phone or tablet without a network, and
+`bullets.md` into three more, named with `-bullets` (`odd-bullets.pdf`, …):
 
 - `odd.pdf` and `martin.pdf`: one speaker's part. Their role and moments, a practice schedule, the timing checkpoints,
   the whole script with every slide's image (their own turns in colour, the other's greyed as cues, laid out as in the
-  presenter view), a cue drill (the line before each of theirs, then theirs as first letters only), and the Q&A.
+  presenter view), a cue drill (the line before each of theirs, then theirs as first letters only), and the Q&A. From `bullets.md`, a recall drill replaces the cue drill: each slide's
+  title and who opens it, beside the speaker's points on it, to cover and say in their own words.
 - `together.pdf`: the rehearsal plan, the day-of checklist and the rules for trouble on stage, the hot spots, a timing
   sheet to fill in, a click map (every mid-slide click and the words it follows), the whole script, and the Q&A.
 
-The script, the clicks, the timings and the checkpoints come from `script.md`; the rest (the roles' moments, the
+The turns, the clicks and the timings come from the script each PDF is built from, the checkpoints from `script.md`; the rest (the roles' moments, the
 schedules, the hot spots, the expected questions) is written in `prep.py` for ScalaDays 2026, so change it there when
 the talk or the plans change. The slide images show each slide's final build.
 
