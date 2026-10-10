@@ -5,6 +5,84 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-10 — Speaker notes that read in the artifact: a turn per paragraph, coloured marks, `(click)`
+
+### What changed
+
+The notes in the slide files now put each turn in a paragraph of its own, separated by `<br><br>`, start each with
+the speaker's colour (🔵 Odd, 🟠 Martin, 🟣 both) and mark a click as `(click)` instead of `*`. `talk/deck.py` writes
+them so (`with_notes`, `MARKS`, `CLICK`), the presenter view drops the colour marks, and the click check counts
+`(click)`. `script.md` and `bullets.md` are unchanged: they still mark clicks `[click]`.
+
+### Why
+
+The notes looked fine in the local presenter view and like one run-on paragraph in the artifact. The Slides page reads
+`<aside>` as HTML text: its normalizer (`fn0` in the type's `app.js`) collapses every run of whitespace, newlines
+included, to one space, and only a `<br>` becomes a line break. It then shows the result as plain text in a small
+textarea. So the newline between turns, which the local player splits on, vanished there, and every slide read
+"MARTIN: … * ODD: … MARTIN: …". The format allows nothing but plain text in notes (no colours, no layout), so the
+presenter view's sides and colours can't be reproduced; a coloured mark per turn is the closest plain text gets.
+
+### Alternatives rejected
+
+- **Styled notes** (spans, colours, indentation): the format drops all markup in `<aside>` but `<br>`, and leading
+  spaces collapse, so there's no way to put Martin's turns on the right.
+- **Names alone, without the marks**: readable, but the colour is what the presenter view taught the eye to look for.
+- **Only `<br>` between turns, no newline**: the local player reads the notes as `textContent`, which drops the
+  `<br>`s, and its split needs whitespace before a name; the newline kept beside them serves it.
+
+### Verified
+
+The type's own `fn0`, run with node on a rebuilt slide, gives one paragraph per turn (the old slide: one paragraph in
+all); the presenter view's split of the same slide finds its eight turns with the marks dropped. `talk/deck.py` with
+either script, `talk/present.py --check` with either, and `talk/render.py` pass.
+
+---
+
+## 2026-10-10 — Talking points as an alternative to the dialogue: `talk/bullets.md`
+
+### What changed
+
+`talk/bullets.md` is the talk again, slide by slide, as talking points instead of lines: each `MARTIN:` or `ODD:`
+line is one point to make in your own words, with the dialogue's punchlines in quotes, to say as written or skip.
+It keeps the script's slides, clicks, timings, roles (Martin introduces and clicks, Odd explains and comes round) and
+who says what; the points were condensed from `script.md`'s lines, merging the exchanges that only set up the next
+line. `talk/present.py --notes talk/bullets.md` serves the deck with its notes in place of the slides' own, so the
+speakers switch by restarting the presenter, and `talk/deck.py --notes talk/bullets.md` writes them into the slides
+for the artifact. `talk/deck.py` checks both files on every build. `talk/prep.py` builds the practice PDFs from both,
+the bullets' named `-bullets`: their plans practise points instead of lines, and a recall drill (each slide beside
+the speaker's points, to cover and say in their own words) replaces the first-letters cue drill, which would only
+train them to memorize the points as lines.
+
+### Why
+
+Two days before the talk, the speakers doubted the back-and-forth would survive the stage: with a dialogue, the
+exact lines carry the talk, and a missed line leaves the other speaker without a cue. Points let each speaker
+recover in their own words, and still show whose turn it is by side and colour.
+
+### Alternatives rejected
+
+- **A second deck, as with the merged script** (2026-10-09): it doubled every slide edit. Only the notes differ, so
+  they're swapped where they're read: at serve time, or at build time for the artifact.
+- **Replacing `script.md`**: the speakers want to try both first.
+- **A different notes format** (nested lists, headings per speaker): the presenter view already lays out
+  `MARTIN:`/`ODD:` turns by side and colour, so one point per turn needs no change there.
+
+### Limitations accepted
+
+- Until one is chosen, a slide change means editing both files; the build fails until both follow the deck.
+- The hand-written parts of the PDFs (signature moments, hot spots) quote punchlines that both scripts keep; a
+  punchline cut from one script would leave them quoting it.
+
+### Verified
+
+`talk/deck.py` passes with both files checked (64 slides, click counts and bubble words), leaving the slides
+unchanged; `talk/present.py --check`, with and without `--notes talk/bullets.md`, fits every slide's notes; and the
+served `m2-8` carries the bullets' notes with `--notes` and the dialogue's without. `talk/prep.py` builds all six
+PDFs; the bullets' recall drill was rendered and checked by eye.
+
+---
+
 ## 2026-10-10 — Practice PDFs for the speakers: `talk/prep.py`
 
 ### What changed

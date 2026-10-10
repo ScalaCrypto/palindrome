@@ -9,6 +9,12 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 - `script.md`: the talk as a dialogue between Martin and Odd, slide by slide, with stage directions and timing.
   Its spoken lines are every slide's speaker notes: `deck.py` copies them in, so edit the dialogue there, not in the
   artifact or the slide files.
+- `bullets.md`: the alternative to `script.md`, while the speakers try both: the same talk as talking points, one per
+  line, each marked for Martin or Odd, to say in their own words. `deck.py` checks it like the script without
+  writing it; `present.py --notes talk/bullets.md` presents with it, and `deck.py --notes talk/bullets.md` writes it
+  into the slides' notes instead of the script, for the artifact. The deck with the bullets as its notes is a
+  second artifact, <https://claude.ai/artifact/MNEpuzNizekFbUBie6rJUx>, published from a copy built that way, so the
+  deck's own artifact and `5.18-deck/` keep the dialogue.
 - `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
@@ -152,6 +158,7 @@ Every slide's notes fit the presenter view without scrolling, at the default not
 
 ```bash
 talk/present.py --check   # exit 1 if a slide's notes need scrolling; --size WxH for another window
+talk/present.py --check --notes talk/bullets.md   # the same for the talking points
 ```
 
 `deck.py` checks the rest of what the notes promise, for both scripts: a slide has as many `[click]`s as builds, and
@@ -168,18 +175,20 @@ here as well as in the artifact: the player follows the format, but it isn't the
 
 ```bash
 talk/render.py --screenshots   # the slide images the documents use
-talk/prep.py                   # out/talk-prep/odd.pdf, martin.pdf and together.pdf
+talk/prep.py                   # out/talk-prep/odd.pdf, martin.pdf, together.pdf, and the same with -bullets
 ```
 
-`prep.py` turns `script.md` into three A5 PDFs, sized to read on a phone or tablet without a network:
+`prep.py` turns `script.md` into three A5 PDFs, sized to read on a phone or tablet without a network, and
+`bullets.md` into three more, named with `-bullets` (`odd-bullets.pdf`, …):
 
 - `odd.pdf` and `martin.pdf`: one speaker's part. Their role and moments, a practice schedule, the timing checkpoints,
   the whole script with every slide's image (their own turns in colour, the other's greyed as cues, laid out as in the
-  presenter view), a cue drill (the line before each of theirs, then theirs as first letters only), and the Q&A.
+  presenter view), a cue drill (the line before each of theirs, then theirs as first letters only), and the Q&A. From `bullets.md`, a recall drill replaces the cue drill: each slide's
+  title and who opens it, beside the speaker's points on it, to cover and say in their own words.
 - `together.pdf`: the rehearsal plan, the day-of checklist and the rules for trouble on stage, the hot spots, a timing
   sheet to fill in, a click map (every mid-slide click and the words it follows), the whole script, and the Q&A.
 
-The script, the clicks, the timings and the checkpoints come from `script.md`; the rest (the roles' moments, the
+The turns, the clicks and the timings come from the script each PDF is built from, the checkpoints from `script.md`; the rest (the roles' moments, the
 schedules, the hot spots, the expected questions) is written in `prep.py` for ScalaDays 2026, so change it there when
 the talk or the plans change. The slide images show each slide's final build.
 

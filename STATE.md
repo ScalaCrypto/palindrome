@@ -82,12 +82,13 @@ palindrome/
 │   ├── 5.18-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
 │   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html
 │   ├── script.md                   # The talk as a dialogue, slide by slide: every slide's speaker notes come from it
+│   ├── bullets.md                  # The alternative: the same talk as talking points (present.py --notes shows it)
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
 │   ├── morph.py                    # The code morph deck.py uses: tokens with ids that move between versions
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
 │   ├── present.py                  # Presents the deck from this computer: slides window + presenter view (README)
 │   ├── present/                    # The player: index.html (slides), presenter.html, player.js, present.css
-│   ├── prep.py                     # Builds the speakers' practice PDFs (Odd, Martin, together) from script.md
+│   ├── prep.py                     # Builds the speakers' practice PDFs (Odd, Martin, together) from each script
 │   ├── tag-cloud.py                # Generates the tag-cloud deck from tag-cloud/authors.json
 │   └── tag-cloud/                  # Who wrote each Scala release: authors.json + GENERATED project/
 ├── .github/workflows/
@@ -215,7 +216,7 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     their code panels, which it normalizes (size, padding, colouring), so write that code as plain text. Their code
     is copied from the sources and isn't checked against them: after a code change, compare them with `EVOLUTION.md`.
   - **The speaker notes are `talk/script.md`**: the talk as a dialogue between Martin and Odd (enthusiast, skeptic),
-    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `*`),
+    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `(click)`, each turn on its own line and marked 🔵 Odd, 🟠 Martin, since the artifact shows notes as plain text),
     hand-written slides included, on every build, so edit the dialogue there; the build fails if the script's slides
     don't follow the deck's order. Adding, removing or reordering a slide means editing the script too.
     The script must mark a `[click]` only where the slide has a build (as many as it has builds; the build fails
@@ -223,6 +224,11 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     the rest (no code read out, Odd the technical reviewer, Martin the fan who introduces). The presenter view shows
     the turns in speaking order, without names: Odd's on the left in blue, Martin's on the right in orange. Every
     slide's notes must fit it without scrolling: `talk/present.py --check`.
+  - **The alternative is `talk/bullets.md`**, while the speakers choose: the same slides and clicks as talking points
+    (`MARTIN:`/`ODD:`, one point a line) instead of lines to learn. `talk/deck.py` checks it like the script on every
+    build without writing it into the slides; `talk/present.py --notes talk/bullets.md` presents with it, and
+    `talk/deck.py --notes talk/bullets.md` writes it into the slides, for the artifact. Edit both files when a slide
+    is added, removed or gets another build.
   - **The slide order is `SEQUENCE` in `talk/deck.py`**: the build rewrites `deck.json`'s `order`, `sections` and
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
@@ -249,7 +255,8 @@ talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
 talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view
-talk/prep.py             # practice PDFs for offline reading, into out/talk-prep/ (after render.py --screenshots)
+talk/present.py --notes talk/bullets.md  # present with the talking points instead of the dialogue
+talk/prep.py             # practice PDFs for offline reading, both scripts, into out/talk-prep/ (after render.py --screenshots)
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
