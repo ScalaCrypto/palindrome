@@ -150,8 +150,8 @@ full screen. Then drive the talk from the presenter view on the laptop: it shows
 click shows (the next note, or the next slide), the speaker notes as the speakers' turns, Odd's on the left in blue
 and Martin's on the right in orange, without the names, and a timer. A `click` tag in the notes marks where a click
 brings something onto the slide; the click to the next slide comes after the last line, unmarked. → or space for the next click, ← back,
-a slide number then Enter to jump, B to black out the slides, T to start or pause the timer, + and − for the notes'
-size. The two pages stay in step through the browser (`BroadcastChannel`), so either can be reloaded.
+a slide number then Enter to jump, B to black out the slides, T to start or pause the timer, E (or the Bold button)
+to show each line's key words in bold, the rest dimmer, or the notes plain, + and − for the notes' size. The two pages stay in step through the browser (`BroadcastChannel`), so either can be reloaded.
 
 Every slide's notes fit the presenter view without scrolling, at the default notes size in a 1440x820 browser window
 (a laptop's, with room for the tabs and the address bar). Check that after editing a script:

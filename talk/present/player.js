@@ -27,6 +27,8 @@ async function loadDeck() {
     const section = t.content.querySelector("section");
     if (section === null || section.hasAttribute("hidden")) continue;  // hidden = skipped
     const aside = section.querySelector(":scope > aside");
+    // the notes as text, with each <b> (a line's key words) back as **…**, for the presenter view to show bold
+    if (aside) for (const b of aside.querySelectorAll("b")) b.replaceWith(`**${b.textContent}**`);
     const notes = aside ? aside.textContent.trim() : "";
     if (aside) aside.remove();
     const builds = [...section.querySelectorAll("[data-build-in]")].map(buildOrder);

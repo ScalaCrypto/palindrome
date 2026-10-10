@@ -216,7 +216,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     their code panels, which it normalizes (size, padding, colouring), so write that code as plain text. Their code
     is copied from the sources and isn't checked against them: after a code change, compare them with `EVOLUTION.md`.
   - **The speaker notes are `talk/script.md`**: the talk as a dialogue between Martin and Odd (enthusiast, skeptic),
-    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `(click)`, each turn on its own line and marked 🔵 Odd, 🟠 Martin, since the artifact shows notes as plain text),
+    slide by slide, with stage directions and timing. Its `MARTIN:`/`ODD:`/`BOTH:` lines become every slide's notes (a `[click]` as `(click)`, each turn on its own line and marked 🔵 Odd, 🟠 Martin, since the artifact shows notes as plain text; a line's key
+    words in `**bold**`, which the presenter view and the practice PDFs show bold and the artifact as plain text),
     hand-written slides included, on every build, so edit the dialogue there; the build fails if the script's slides
     don't follow the deck's order. Adding, removing or reordering a slide means editing the script too.
     The script must mark a `[click]` only where the slide has a build (as many as it has builds; the build fails

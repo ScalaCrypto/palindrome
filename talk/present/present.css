@@ -63,6 +63,13 @@ body { background: #000; overflow: hidden; }
   border-right: 4px solid var(--who); width: 64%; align-self: flex-end; }
 .presenter .turn.both { color: #f3ecff; background: linear-gradient(90deg, rgba(108, 182, 255, 0.10), rgba(255, 159, 90, 0.10));
   border-left: 4px solid #6cb6ff; border-right: 4px solid #ff9f5a; width: 64%; align-self: center; }
+/* Bold on: the key words in full weight and brightness, the rest of the line dimmer, so a glance gets the gist. Off:
+   the <b>s are plain text. */
+.presenter .notes .turn b { font-weight: inherit; }
+.presenter .notes.bold .turn b { font-weight: 600; letter-spacing: -0.02em; }
+.presenter .notes.bold .turn.odd { color: #9fb6d1; } .presenter .notes.bold .turn.odd b { color: #f2f8ff; }
+.presenter .notes.bold .turn.martin { color: #cdb29c; } .presenter .notes.bold .turn.martin b { color: #fff6ee; }
+.presenter .notes.bold .turn.both { color: #c4bcd4; } .presenter .notes.bold .turn.both b { color: #fbf8ff; }
 .presenter .turn.note { color: var(--dim); font-size: 0.75em; font-style: italic; }
 .presenter .turn .click { font-size: 0.6em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--amber); border: 1px solid var(--amber); border-radius: 4px; padding: 0 0.3em; vertical-align: 0.15em; }

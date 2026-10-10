@@ -67,7 +67,7 @@ DIALOGUE = Variant(
     "Cue drill",
     "Your lines in full voice, {partner}'s in a flat voice.",
     "Lines only, as fast as you can, no acting, no slides. It finds the gaps in memory, and the cues you don't know yet.",
-    "Each turn is a line, said as written.")
+    "Each turn is a line, said as written; its key words are in bold.")
 
 POINTS = Variant(
     BULLETS, "-bullets", "points",
@@ -83,7 +83,8 @@ POINTS = Variant(
     "Your points in full voice, in your own words; {partner}'s as a quick summary.",
     "Points only, as fast as you can, no acting, no slides: each of you says your points in a few words. It finds the "
     "slides where you don't know what comes next.",
-    "Each turn is a point to make in your own words; words in “quotes” are punchlines, said as written or skipped.")
+    "Each turn is a point to make in your own words, its key words in bold; words in “quotes” are punchlines, said as "
+    "written or skipped.")
 
 HEADING = re.compile(r"^## (\d+) · (\S+) — (.+?)(?: · (\d+) s · (\d+:\d\d))?$")
 NAMES = {"ODD": "Odd", "MARTIN": "Martin", "BOTH": "Both"}
@@ -135,10 +136,15 @@ def parse(script: Path) -> tuple[list[Slide], list[tuple[str, str, str]]]:
     return slides, checkpoints
 
 
+def plain(text: str) -> str:
+    """A line without its **key word** marks."""
+    return text.replace("**", "")
+
+
 def initials(text: str) -> str:
     """A line as the first letter of each word, keeping punctuation: the first-letter memory method."""
     words = []
-    for token in text.split():
+    for token in plain(text).split():
         if token == "[click]":
             words.append("◆")
         else:
@@ -147,7 +153,7 @@ def initials(text: str) -> str:
 
 
 def without_clicks(text: str) -> str:
-    return re.sub(r"\s*\[click\]\s*", " ", text).strip()
+    return re.sub(r"\s*\[click\]\s*", " ", plain(text)).strip()
 
 
 def esc(text: str) -> str:
@@ -162,7 +168,7 @@ def spoken(text: str, who: str, me: str | None) -> str:
         badge = '<span class="click">◆ nod: Martin clicks</span>' if who == "ODD" else '<span class="click dim">◆ click</span>'
     else:
         badge = '<span class="click">▶ click</span>' if who != "ODD" else '<span class="click">▶ click (Odd nods)</span>'
-    return esc(text).replace("[click]", badge)
+    return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", esc(text)).replace("[click]", badge)
 
 
 def image(slide: Slide) -> Path:
@@ -246,7 +252,7 @@ def click_map_html(slides: list[Slide]) -> str:
             continue
         cues = []
         for line in s.lines:
-            parts = line.text.split("[click]")
+            parts = plain(line.text).split("[click]")
             owner = f'<span class="{line.who.lower()}-t">{"Odd nods" if line.who == "ODD" else NAMES[line.who]}</span>'
             for i, before in enumerate(parts[:-1]):
                 words = before.split()
@@ -263,7 +269,7 @@ def stats(slides: list[Slide]) -> dict[str, tuple[int, int]]:
     out = {}
     for who in ("ODD", "MARTIN"):
         lines = [l for s in slides if not s.reserve for l in s.lines if l.who in (who, "BOTH")]
-        out[who] = (len(lines), sum(len(l.text.replace("[click]", "").split()) for l in lines))
+        out[who] = (len(lines), sum(len(plain(l.text).replace("[click]", "").split()) for l in lines))
     return out
 
 
@@ -305,6 +311,8 @@ li { margin-bottom: 1.2mm; }
 .dir { font-style: italic; color: #4b5563; font-size: 9pt; margin-bottom: 1mm; }
 .turns { display: flex; flex-direction: column; gap: 1.3mm; }
 .turn { max-width: 86%; padding: 1.4mm 2.4mm; border-radius: 2mm; font-size: 10.5pt; }
+.turn strong { font-weight: 700; color: #000; }
+.turn.other strong { color: #4b5563; }
 .turn b { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 1mm; }
 .turn.odd { align-self: flex-start; background: #e7f1ff; border-left: 3px solid #1f6fd1; }
 .turn.odd b { color: #1f6fd1; }
