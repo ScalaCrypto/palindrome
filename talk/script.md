@@ -370,7 +370,7 @@ ODD: IsSeq reads anything as a sequence, String included. But the element type c
 MARTIN: Hence the extra type parameter?
 ODD: Pinned to it with a refinement. That's a wart.
 MARTIN: [click] But the result comes out of a single call. And method syntax on a String, at last!
-ODD: In our code. The library could do it since 2.10. Nobody read that Scaladoc.
+ODD: At least in our code. The library had support for it since 2.10. Nobody read that ScalaDoc.
 MARTIN: Including you.
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:15
