@@ -77,13 +77,13 @@ ODD: And I'm here to make sure nobody gets sentimental about it.
 
 ## 2 · oneliner — It starts as a one-liner · 45 s · 0:30
 
-> One click: palindromize appears.
+> Two clicks: .mkString("") appears, then palindromize.
 
 MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
-ODD: You'd expect the plain comparison to work. But in 2007, reverse isn't a String: "racecar" would fail.
-MARTIN: It's still a one-liner!
+ODD: You'd expect the plain comparison to work. But in 2007, reverse isn't a String, so it always fails.
+MARTIN: I can fix that [click] and it's still a one-liner!
 ODD: One expensive line. It copies the whole string twice, just to compare it with itself.
-MARTIN: Fine. [click] Then palindromize: append the reverse. Same trick.
+MARTIN: Fine. [click] Then palindromize: make a palindrome by appending the reverse.
 ODD: "abc" gets three more letters, when two would do.
 MARTIN: Are you going to be like this all talk?
 ODD: All thirty minutes.
