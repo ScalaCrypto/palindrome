@@ -5,6 +5,47 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-10 — Practice PDFs for the speakers: `talk/prep.py`
+
+### What changed
+
+`talk/prep.py` builds three PDFs from `talk/script.md` and the slide screenshots of `talk/render.py --screenshots`,
+for practising the talk away from the laptop: one per speaker (`odd.pdf`, `martin.pdf`) and one for rehearsing
+together (`together.pdf`). Each speaker's has their part at a glance, a practice schedule, the script slide by slide
+with their turns highlighted, a cue drill, and the Q&A with the reserve slides and the questions to expect; the joint
+one has the rehearsal plan, the hot spots, a timing sheet, a click map and the script. `talk/README.md` describes them.
+
+### Why
+
+The speakers travel separately and practise apart until the day before the talk, with a phone or an iPad and no
+reliable network. The presenter view needs the laptop, and `script.md` alone has no slides and doesn't single out one
+speaker's lines or cues.
+
+### Alternatives rejected
+
+- **An artifact page per speaker.** Shareable by link, but only online, and the artifact frame blocks downloads, so it
+  can't hand over an offline copy.
+- **An HTML file with tap-to-reveal lines.** Opened from Files on iOS it's shown by Quick Look, which doesn't run
+  scripts reliably. The cue drill gets self-testing on paper instead, with each line as its words' first letters.
+- **A4 pages.** Too small to read on a phone; A5 reads without zooming, and the slide images, at full width, keep their
+  code legible.
+- **Slide images beside the turns.** At half width the code on them can't be read.
+- **Deriving everything from `script.md`.** The schedules, the hot spots and the expected questions aren't in the
+  script, and adding them there would put practice material into the speaker notes.
+
+### Limitations accepted
+
+- The hand-written parts (moments, schedules, hot spots, questions) don't follow script changes on their own.
+- The images show each slide's final build, not the state after each click.
+- Generated output isn't versioned: the PDFs land in `out/talk-prep/`.
+
+### Verification
+
+`talk/render.py --screenshots`, then `talk/prep.py`: three PDFs (77, 80 and 73 pages). Sample pages of each, from the
+cover, the plans, the script, the cue drill, the click map and the Q&A, were rasterized and checked by eye.
+
+---
+
 ## 2026-10-09 — The commented-out implicit class goes, on a slide of its own (deck 5.18)
 
 ### What changed
