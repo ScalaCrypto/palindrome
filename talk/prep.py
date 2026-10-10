@@ -498,8 +498,8 @@ now that Martin calls it (a look and “let's move on”).</li>
 <p class="small">→ or space: next click · ←: back · a number, then Enter: jump to that slide · B: black out the slides ·
 T: start or pause the timer · + and −: notes size · F in the slides window: full screen.</p>
 """
-    hot = ["<li><b>1 · cover</b>: the walk-on, and “And I'm Odd.” said like Martin's name, a deadpan beat while Martin glances over, then
-“That's <i>also</i> my name.” The first ten seconds set the tone.</li>",
+    hot = ["<li><b>1 · cover</b>: the walk-on, and “And I'm Odd.” said like Martin's name, a deadpan beat while "
+           "Martin glances over, then “That's <i>also</i> my name.” The first ten seconds set the tone.</li>",
            "<li><b>3 · goal</b>: Odd has two turns in a row, with a click at the start of the second.</li>",
            f"<li><b>Clicks on Odd's lines</b> (Martin clicks when Odd nods): slides "
            f"{', '.join(str(s.n) for s in odd_click_slides)}. Run each one until the nod and the click are one move.</li>",
