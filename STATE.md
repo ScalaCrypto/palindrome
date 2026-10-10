@@ -87,6 +87,7 @@ palindrome/
 │   ├── render.py                   # Renders a deck (default: the talk's deck) in headless Chrome; exit 1 on overflow
 │   ├── present.py                  # Presents the deck from this computer: slides window + presenter view (README)
 │   ├── present/                    # The player: index.html (slides), presenter.html, player.js, present.css
+│   ├── prep.py                     # Builds the speakers' practice PDFs (Odd, Martin, together) from script.md
 │   ├── tag-cloud.py                # Generates the tag-cloud deck from tag-cloud/authors.json
 │   └── tag-cloud/                  # Who wrote each Scala release: authors.json + GENERATED project/
 ├── .github/workflows/
@@ -248,6 +249,7 @@ talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
 talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view
+talk/prep.py             # practice PDFs for offline reading, into out/talk-prep/ (after render.py --screenshots)
 ```
 
 All 19 versions pass: 14 through `./mill __.test` and 5 through `legacy/test.sh`.
