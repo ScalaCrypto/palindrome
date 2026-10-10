@@ -729,10 +729,16 @@ def first_method(state: dict, notes: list) -> set[int]:
 
 # The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
 # "## <number> · <slide id> — ..."; its MARTIN:, ODD: and BOTH: lines are what's said, and become the slide's notes,
-# with each [click] as an asterisk and without the other [bracketed] stage directions. Everything else in the file is
+# with each [click] as "(click)" and without the other [bracketed] stage directions. Everything else in the file is
 # for the speakers only.
 SCRIPT = ROOT / "talk/script.md"
 BULLETS = ROOT / "talk/bullets.md"  # the same talk as talking points, in the same format; checked, not written
+CLICK = "(click)"  # a [click], in the notes
+# In the slide files, each turn of the notes starts with its speaker's colour, as in the presenter view (Odd blue,
+# Martin orange), and turns are separated by <br><br>: the Slides artifact shows the notes as plain text with HTML's
+# whitespace collapsed, so a newline alone would run every turn into one paragraph there. The newline kept beside the
+# <br>s is what the local player (talk/present/player.js, which reads the text) splits on.
+MARKS = {"ODD": "🔵", "MARTIN": "🟠", "BOTH": "🟣"}
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+(?:\n[ \t]+\S.*)*)", re.M)  # an indented line continues the one above
 
 
@@ -743,7 +749,7 @@ def script_notes(script: Path = SCRIPT) -> list[tuple[int, str, str]]:
     out = []
     for i, h in enumerate(heads):
         body = text[h.end():heads[i + 1].start() if i + 1 < len(heads) else len(text)]
-        lines = [f"{who}: " + re.sub(r"\s+", " ", re.sub(r"\[[^\]]*\]", "", said.replace("[click]", "*"))).strip()
+        lines = [f"{who}: " + re.sub(r"\s+", " ", re.sub(r"\[[^\]]*\]", "", said.replace("[click]", CLICK))).strip()
                  for who, said in SPEECH.findall(body)]
         out.append((int(h.group(1)), h.group(2), "\n".join(lines)))
     return out
@@ -751,7 +757,8 @@ def script_notes(script: Path = SCRIPT) -> list[tuple[int, str, str]]:
 
 def with_notes(html: str, notes: str) -> str:
     """A slide with `notes` as its speaker notes, in place of any it had."""
-    aside = f"<aside>{escape(notes, quote=False)}</aside>" if notes else ""
+    turns = [f"{MARKS[who]} {line}" if (who := line.split(":")[0]) in MARKS else line for line in notes.split("\n")]
+    aside = f"<aside>{'<br><br>\n'.join(escape(t, quote=False) for t in turns)}</aside>" if notes else ""
     if re.search(r"<aside>.*?</aside>", html, re.S):
         return re.sub(r"\n?<aside>.*?</aside>", lambda _: ("\n" + aside) if aside else "", html, count=1, flags=re.S)
     return html.replace("</section>", (aside + "\n" if aside else "") + "</section>", 1)
@@ -909,10 +916,10 @@ def runs_of_words(text: str) -> list[tuple[str, ...]]:
 
 def notes_problems(sid: str, html: str, text: str) -> list[str]:
     """What's wrong with a slide's notes: a click marked where the slide has none, or none where it has one (the
-    asterisks must match the slide's builds; the click to the next slide isn't marked), or a bubble's words read out."""
+    (click)s must match the slide's builds; the click to the next slide isn't marked), or a bubble's words read out."""
     problems = []
     steps = max((int(m) for m in re.findall(r'data-build-in="fade (\d+)"', html)), default=0)
-    if (clicks := len(re.findall(r"(?<!\S)\*(?!\S)", text))) != steps:
+    if (clicks := text.count(CLICK)) != steps:
         problems.append(f"{sid}: {clicks} [click] for {steps} build{'s' * (steps != 1)}")
     spoken = set(runs_of_words(text))
     for bubble in BUBBLE.findall(html):

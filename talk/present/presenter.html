@@ -41,11 +41,12 @@
 
   // The speaker notes as turns, one element each: "ODD: …" on the left, "MARTIN: …" on the right, "BOTH: …" across
   // the middle, "NOTE: …" (background, not read out) and the "⏱ …" pace line across both. A turn runs from its marker to the next, so the
-  // notes still split if an editor has joined their lines; text before the first marker is a note. The names aren't
+  // notes still split if an editor has joined their lines; the speaker's colour mark before a name (🔵, 🟠, 🟣: for the
+  // artifact, which shows the notes as plain text) is dropped; text before the first marker is a note. The names aren't
   // shown, to keep the notes short enough to need no scrolling: the side and the colour say who speaks (the name is
   // the turn's tooltip).
   const noteTurns = text => {
-    const parts = text.split(/(?:^|\s+)(⏱|ODD:|MARTIN:|BOTH:|NOTE:)\s*/);
+    const parts = text.split(/(?:^|\s+)(?:(?:🔵|🟠|🟣)\s*)?(⏱|ODD:|MARTIN:|BOTH:|NOTE:)\s*/);
     const turns = parts[0].trim() ? [["note", parts[0].trim()]] : [];
     for (let k = 1; k < parts.length; k += 2)
       turns.push([parts[k] === "⏱" ? "pace" : parts[k].slice(0, -1).toLowerCase(), parts[k + 1].trim()]);

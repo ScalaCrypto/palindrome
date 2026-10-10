@@ -23,7 +23,7 @@ from recognition: everybody in the room has lived through CanBuildFrom.
   `talk/deck.py` copies them into every slide's notes, so edit the dialogue here, not in the artifact. The presenter
   view shows them without the names: Odd's on the left in blue, Martin's on the right in orange.
   A spoken line may go on over several lines: indent the ones after the first.
-- `[click]` inside a line: click there, mid-sentence if needed. In the speaker notes it's an asterisk, `*`. It marks
+- `[click]` inside a line: click there, mid-sentence if needed. In the speaker notes it's `(click)`. It marks
   only the clicks that bring something onto the slide (a bubble, a line of code), so a slide has exactly as many as
   it has builds; the build fails otherwise. The click to the next slide always comes after the slide's last line, and
   isn't marked. Other `[brackets]` are never spoken, and stay out of the notes.

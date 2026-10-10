@@ -5,6 +5,40 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-10 — Speaker notes that read in the artifact: a turn per paragraph, coloured marks, `(click)`
+
+### What changed
+
+The notes in the slide files now put each turn in a paragraph of its own, separated by `<br><br>`, start each with
+the speaker's colour (🔵 Odd, 🟠 Martin, 🟣 both) and mark a click as `(click)` instead of `*`. `talk/deck.py` writes
+them so (`with_notes`, `MARKS`, `CLICK`), the presenter view drops the colour marks, and the click check counts
+`(click)`. `script.md` and `bullets.md` are unchanged: they still mark clicks `[click]`.
+
+### Why
+
+The notes looked fine in the local presenter view and like one run-on paragraph in the artifact. The Slides page reads
+`<aside>` as HTML text: its normalizer (`fn0` in the type's `app.js`) collapses every run of whitespace, newlines
+included, to one space, and only a `<br>` becomes a line break. It then shows the result as plain text in a small
+textarea. So the newline between turns, which the local player splits on, vanished there, and every slide read
+"MARTIN: … * ODD: … MARTIN: …". The format allows nothing but plain text in notes (no colours, no layout), so the
+presenter view's sides and colours can't be reproduced; a coloured mark per turn is the closest plain text gets.
+
+### Alternatives rejected
+
+- **Styled notes** (spans, colours, indentation): the format drops all markup in `<aside>` but `<br>`, and leading
+  spaces collapse, so there's no way to put Martin's turns on the right.
+- **Names alone, without the marks**: readable, but the colour is what the presenter view taught the eye to look for.
+- **Only `<br>` between turns, no newline**: the local player reads the notes as `textContent`, which drops the
+  `<br>`s, and its split needs whitespace before a name; the newline kept beside them serves it.
+
+### Verified
+
+The type's own `fn0`, run with node on a rebuilt slide, gives one paragraph per turn (the old slide: one paragraph in
+all); the presenter view's split of the same slide finds its eight turns with the marks dropped. `talk/deck.py` with
+either script, `talk/present.py --check` with either, and `talk/render.py` pass.
+
+---
+
 ## 2026-10-10 — Talking points as an alternative to the dialogue: `talk/bullets.md`
 
 ### What changed
