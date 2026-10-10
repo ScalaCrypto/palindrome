@@ -390,7 +390,9 @@ shouts, never sneers: just unimpressed.</p>
 <li><b>Slide 55 · 3.6</b>: “I'm running out of things to complain about.”</li>
 <li><b>Slide 60 · takeaways</b>: “… I'll give you that one.” The last line before the thank-you; slow, to the room.</li></ol></div>
 <h4>Your signature moments</h4>
-<ul><li><b>1 · cover</b>: “And I'm… odd.” as a confession, with a shrug. A beat, then “That's also my name.”</li>
+<ul><li><b>1 · cover</b>: “And I'm Odd.” exactly as Martin said his name: same rhythm, a nod, no pause before
+“Odd”. A beat, deadpan, then “That's <i>also</i> my name.”, stressing “also”, so the room hears “I'm odd”. Don't wait
+for the laugh.</li>
 <li><b>23 · 2.10</b>: a beat before “Alphabetically, that is.”: the room needs a second to see 2.10 sort before 2.9.</li>
 <li><b>18 · CanBuildFrom</b>: point at the signature and count its type parameters on your fingers.</li>
 <li><b>37 · 2.13</b>: Martin finds your name in the cloud. “I was young and needed the commits.” Then “No comment.”</li>
@@ -408,7 +410,9 @@ the click to each next slide. {odd_clicks} of them fall inside Odd's lines, mark
 cue</span>: watch for Odd's nod or look. Let each morph finish (about 2½ s) before anyone talks over it: the code moving
 is the show. Every “again” slide is a two-second bridge: one line, then click.</div>
 <h4>Your signature moments</h4>
-<ul><li><b>1 · cover</b>: “Hi Berlin!” You open the talk; walk on together, you center-left, Odd right.</li>
+<ul><li><b>1 · cover</b>: “Hi Berlin!” You open the talk; walk on together, you center-left, Odd right. In the beat
+after Odd's “And I'm Odd.”, glance at Odd with mild, fond resignation; don't laugh. Go on once the laugh starts, or
+after a second without one.</li>
 <li><b>37 · 2.13</b>: find Odd's name in the tag cloud and point at it. A beat after “You weren't that young.”</li>
 <li><b>36 · 2.12</b>: Odd's first concession; let Odd breathe, then “Can I get that in writing?”</li>
 <li><b>49 · m3-0-clean</b>: the class morphs away and nobody speaks. Let it play before you go on.</li>
@@ -494,7 +498,8 @@ now that Martin calls it (a look and “let's move on”).</li>
 <p class="small">→ or space: next click · ←: back · a number, then Enter: jump to that slide · B: black out the slides ·
 T: start or pause the timer · + and −: notes size · F in the slides window: full screen.</p>
 """
-    hot = ["<li><b>1 · cover</b>: the walk-on and “And I'm… odd.” with its beat. The first ten seconds set the tone.</li>",
+    hot = ["<li><b>1 · cover</b>: the walk-on, and “And I'm Odd.” said like Martin's name, a deadpan beat while Martin glances over, then
+“That's <i>also</i> my name.” The first ten seconds set the tone.</li>",
            "<li><b>3 · goal</b>: Odd has two turns in a row, with a click at the start of the second.</li>",
            f"<li><b>Clicks on Odd's lines</b> (Martin clicks when Odd nods): slides "
            f"{', '.join(str(s.n) for s in odd_click_slides)}. Run each one until the nod and the click are one move.</li>",

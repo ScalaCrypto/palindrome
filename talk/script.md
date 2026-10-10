@@ -68,10 +68,12 @@ Checkpoints:
 ## 1 · cover — A Brief History of Scala · 30 s · 0:00
 
 > Both walk on together. Martin center-left, Odd right, arms crossed.
-> Odd says "And I'm... odd." as a confession, with a shrug. A beat, then "That's also my name."
+> Odd says "And I'm Odd." exactly as Martin said his own name: same rhythm, a friendly nod, no pause before
+> "Odd". A beat, deadpan, while Martin glances at Odd; then "That's also my name.", stressing "also", so the room
+> hears the first line again as "I'm odd". Martin goes on once the laugh starts, or after a second without one.
 
 MARTIN: Hi Berlin! I'm Martin.
-ODD: And I'm... odd. That's also my name.
+ODD: And I'm Odd. ... That's also my name.
 MARTIN: We're taking a stroll down memory lane: twenty years of Scala, told through one tiny function.
 ODD: And I'm here to make sure nobody gets sentimental about it.
 
