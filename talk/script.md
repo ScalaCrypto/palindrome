@@ -80,7 +80,7 @@ ODD: And I'm here to make sure nobody gets sentimental about it.
 > Two clicks: .mkString("") appears, then palindromize.
 
 MARTIN: Here's the tiny function: isPalindrome. Is a String its own reverse? Compare, done. Ship it.
-ODD: You'd expect the plain comparison to work. But in 2007, reverse isn't a String, so it always fails.
+ODD: You'd expect the plain comparison to work. But in 2007, reverse doesn't return a String, so it always fails.
 MARTIN: I can fix that [click] and it's still a one-liner!
 ODD: One expensive line. It copies the whole string twice, just to compare it with itself.
 MARTIN: Fine. [click] Then palindromize: make a palindrome by appending the reverse.
