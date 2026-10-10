@@ -737,7 +737,9 @@ CLICK = "(click)"  # a [click], in the notes
 # In the slide files, each turn of the notes starts with its speaker's colour, as in the presenter view (Odd blue,
 # Martin orange), and turns are separated by <br><br>: the Slides artifact shows the notes as plain text with HTML's
 # whitespace collapsed, so a newline alone would run every turn into one paragraph there. The newline kept beside the
-# <br>s is what the local player (talk/present/player.js, which reads the text) splits on.
+# <br>s is what the local player (talk/present/player.js, which reads the text) splits on. A **bold** phrase, a line's
+# key words, becomes <b>: the artifact keeps its text and drops the bold, and the player shows it bold again.
+BOLD = re.compile(r"\*\*(.+?)\*\*")
 MARKS = {"ODD": "🔵", "MARTIN": "🟠", "BOTH": "🟣"}
 SPEECH = re.compile(r"^(MARTIN|ODD|BOTH): (.+(?:\n[ \t]+\S.*)*)", re.M)  # an indented line continues the one above
 
@@ -758,7 +760,8 @@ def script_notes(script: Path = SCRIPT) -> list[tuple[int, str, str]]:
 def with_notes(html: str, notes: str) -> str:
     """A slide with `notes` as its speaker notes, in place of any it had."""
     turns = [f"{MARKS[who]} {line}" if (who := line.split(":")[0]) in MARKS else line for line in notes.split("\n")]
-    aside = "<aside>" + "<br><br>\n".join(escape(t, quote=False) for t in turns) + "</aside>" if notes else ""
+    aside = "<aside>" + "<br><br>\n".join(BOLD.sub(r"<b>\1</b>", escape(t, quote=False)) for t in turns) + "</aside>" \
+        if notes else ""
     if re.search(r"<aside>.*?</aside>", html, re.S):
         return re.sub(r"\n?<aside>.*?</aside>", lambda _: ("\n" + aside) if aside else "", html, count=1, flags=re.S)
     return html.replace("</section>", (aside + "\n" if aside else "") + "</section>", 1)
@@ -921,6 +924,9 @@ def notes_problems(sid: str, html: str, text: str) -> list[str]:
     steps = max((int(m) for m in re.findall(r'data-build-in="fade (\d+)"', html)), default=0)
     if (clicks := text.count(CLICK)) != steps:
         problems.append(f"{sid}: {clicks} [click] for {steps} build{'s' * (steps != 1)}")
+    for line in text.split("\n"):  # per turn, as with_notes makes the <b>s: two unpaired ones mustn't cancel out
+        if line.count("**") % 2:
+            problems.append(f"{sid}: a ** without its pair in \"{line}\"")
     spoken = set(runs_of_words(text))
     for bubble in BUBBLE.findall(html):
         if same := [run for run in runs_of_words(bubble) if run in spoken]:

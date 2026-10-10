@@ -20,6 +20,7 @@
   <span class="timer paused" title="Elapsed (T: start or pause)">0:00</span>
   <button data-act="timer" title="Start or pause the timer (T)">Start</button>
   <button data-act="reset" title="Reset the timer">Reset</button>
+  <button data-act="bold" title="Key words in bold, or plain notes (E)">Bold</button>
   <button data-act="smaller" title="Smaller notes (−)">A−</button>
   <button data-act="larger" title="Larger notes (+)">A+</button>
   <span class="clock"></span>
@@ -57,7 +58,9 @@
       // "(click)", or the original script's lone "*", where a build comes in, as a cue that stands out
       said.split(/\(click\)|(?<=^|\s)\*(?=\s|$)/).forEach((piece, n) => {
         if (n) turn.append(Object.assign(document.createElement("span"), {className: "click", textContent: "click"}));
-        turn.append(piece);
+        // **…**: a line's key words, bold while the Bold switch is on (E)
+        piece.split(/\*\*(.+?)\*\*/).forEach((part, k) =>
+          turn.append(k % 2 ? Object.assign(document.createElement("b"), {textContent: part}) : part));
       });
       if (who === "pace") turn.prepend("⏱ ");
       return turn;
@@ -132,6 +135,18 @@
   };
   setNotes(notesSize);
 
+  // Bold: the key words of each line stand out, and the rest steps back; off, the notes are plain. Kept across reloads.
+  let bold = stored("bold") ?? true;
+  const setBold = on => {
+    bold = on;
+    $(".notes").classList.toggle("bold", on);
+    const button = $('[data-act="bold"]');
+    button.classList.toggle("on", on);
+    button.setAttribute("aria-pressed", String(on));
+    store("bold", on);
+  };
+  setBold(bold);
+
   const setBlank = on => {
     blanked = on;
     $('[data-act="blank"]').classList.toggle("on", on);
@@ -149,13 +164,14 @@
     blank: () => setBlank(!blanked),
     timer: toggleTimer,
     reset: () => { timer.start = null; timer.elapsed = 0; store("timer", timer); tick(); },
+    bold: () => setBold(!bold),
     smaller: () => setNotes(notesSize - 2),
     larger: () => setNotes(notesSize + 2),
   };
   for (const b of document.querySelectorAll("button[data-act]"))
     b.addEventListener("click", e => { actions[b.dataset.act](); b.blur(); });
 
-  // Keys: the shared moves, plus a slide number then Enter to jump there, B to black out, T for the timer.
+  // Keys: the shared moves, plus a slide number then Enter to jump there, B to black out, T for the timer, E for bold.
   let typed = "";
   addEventListener("keydown", e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -170,6 +186,7 @@
     typed = "";
     if (e.key === "b" || e.key === "B" || e.key === ".") return setBlank(!blanked);
     if (e.key === "t" || e.key === "T") return toggleTimer();
+    if (e.key === "e" || e.key === "E") return setBold(!bold);
     if (e.key === "+" || e.key === "=") return setNotes(notesSize + 2);
     if (e.key === "-") return setNotes(notesSize - 2);
     const to = keyMove(deck, pos, e);

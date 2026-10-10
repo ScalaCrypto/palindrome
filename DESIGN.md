@@ -5,6 +5,45 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — Key words in bold, in both scripts
+
+### What changed
+
+Every spoken line of `talk/script.md` and `talk/bullets.md` marks its central words `**bold**`: what a glance must
+not miss, each phrase cut to its core (`**Repr** is whatever type the **caller** passed in`), as many as the line
+has central points, and none on a line that only sets up the next. That's 29% of the dialogue's words and 35% of
+the bullets' (theirs are shorter lines). The presenter view shows them
+bold and brighter, the rest of the line a little dimmer, and E (or the Bold button) switches between that and plain
+notes; the practice PDFs show them bold. `talk/deck.py` writes them into the slide files as `<b>`, which the
+artifact's plain-text notes drop, and fails on an unpaired `**`. The words were chosen line by line, and applied by a
+script that checked each phrase against its line, so the wording is unchanged: both files equal the last commit's with
+the `**` removed.
+
+### Why
+
+The speakers wanted to see the gist of a line at a glance, without reading it. Bold within the line keeps the line
+whole for whoever wants it, and the toggle lets them compare both looks, with either script, before choosing.
+
+### Alternatives rejected
+
+- **Bold copies of both scripts** (four scripts): every slide change in four places, and the copies would drift.
+  The marks in the one file, and a switch where they're shown, give the same choice.
+- **`**` left in the slide files**: the artifact shows notes as plain text, so it would show the asterisks.
+- **`<b>` read by the local player as `<b>`**: it reads the notes as text, which drops tags; it turns each `<b>` back
+  into `**` first, so the presenter view needs only one way to read bold.
+- **Bolding every key phrase whole**: the first pass bolded half the words, too many to stand out at a glance.
+- **One bold phrase per line**: some lines carry two or three points that mustn't be missed.
+- **Full bold (700)**: wider, so `oneliner` and `m2-8` needed scrolling; 600 with −0.02em tracking fits.
+
+### Verified
+
+`talk/deck.py` with either script, `talk/present.py --check` with either (all fit), and `talk/render.py` pass. The
+presenter view was screenshotted on `m2-8` with both scripts; the artifact's own text normalizer (`fn0`) on a rebuilt
+slide gives the plain text, no marks. The PDFs have the bold (314 key-word runs in `odd.pdf`, 446 in
+`odd-bullets.pdf`) and no stray `**`.
+
+---
+
 ## 2026-10-10 — Speaker notes that read in the artifact: a turn per paragraph, coloured marks, `(click)`
 
 ### What changed

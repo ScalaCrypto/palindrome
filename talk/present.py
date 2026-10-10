@@ -14,7 +14,8 @@ Usage: talk/present.py                  serve the talk's deck and open the prese
 
 Then, in the presenter view, click "Open slides window", move that window to the external display, and press F in
 it for full screen. Drive the talk from the presenter view: → or space for the next click, ← back, a slide number
-then Enter to jump, B to black out the slides, T to start or pause the timer, + and − for the notes' size.
+then Enter to jump, B to black out the slides, T to start or pause the timer, E to show the notes' key words in bold
+or not, + and − for the notes' size.
 
 The deck is read from its files on every page load, so reload after talk/deck.py. The fonts come from the cache
 talk/render.py keeps in out/talk-render/fonts, so once they're there (after one run of either script with a network)
