@@ -22,6 +22,8 @@ the talk needs no network at all. talk/present/ holds the pages and the player; 
 does with the Slides format.
 """
 
+from __future__ import annotations
+
 import argparse
 import html
 import http.server
@@ -35,7 +37,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import render  # noqa: E402  (talk/render.py: the talk's deck, and the deck's fonts cached for offline use)
-import deck as build  # noqa: E402  (talk/deck.py: a script's speaker notes, for --notes)
 
 ROOT = render.ROOT
 PAGES = ROOT / "talk/present"
@@ -48,6 +49,7 @@ def deck_payload(deck_dir: Path, script: Path | None = None) -> bytes:
     deck = json.loads((deck_dir / "deck.json").read_text())
     slides = [{"id": sid, "html": (deck_dir / f"slides/{sid}.html").read_text()} for sid in deck["order"]]
     if script:
+        import deck as build  # talk/deck.py, for a script's notes; only here, as it needs a newer Python than the rest
         notes = {sid: text for _, sid, text in build.script_notes(script)}
         slides = [{"id": s["id"], "html": build.with_notes(s["html"], notes.get(s["id"], ""))} for s in slides]
     return json.dumps({"title": deck.get("title", ""), "slides": slides}).encode()
@@ -111,6 +113,8 @@ def main() -> None:
     script = (ROOT / args.notes).resolve() if args.notes else None
     if script and not script.is_file():
         sys.exit(f"talk/present.py: no script at {script}")
+    if script and sys.version_info < (3, 10):
+        sys.exit("talk/present.py: --notes reads the script with talk/deck.py, which needs Python 3.10 or later")
     fonts_css(deck_dir)  # fetch the fonts now, while there's a network, rather than on the first page load
 
     if args.check:

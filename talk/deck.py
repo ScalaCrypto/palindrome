@@ -758,7 +758,7 @@ def script_notes(script: Path = SCRIPT) -> list[tuple[int, str, str]]:
 def with_notes(html: str, notes: str) -> str:
     """A slide with `notes` as its speaker notes, in place of any it had."""
     turns = [f"{MARKS[who]} {line}" if (who := line.split(":")[0]) in MARKS else line for line in notes.split("\n")]
-    aside = f"<aside>{'<br><br>\n'.join(escape(t, quote=False) for t in turns)}</aside>" if notes else ""
+    aside = "<aside>" + "<br><br>\n".join(escape(t, quote=False) for t in turns) + "</aside>" if notes else ""
     if re.search(r"<aside>.*?</aside>", html, re.S):
         return re.sub(r"\n?<aside>.*?</aside>", lambda _: ("\n" + aside) if aside else "", html, count=1, flags=re.S)
     return html.replace("</section>", (aside + "\n" if aside else "") + "</section>", 1)
