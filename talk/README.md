@@ -12,7 +12,9 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
 - `bullets.md`: the alternative to `script.md`, while the speakers try both: the same talk as talking points, one per
   line, each marked for Martin or Odd, to say in their own words. `deck.py` checks it like the script without
   writing it; `present.py --notes talk/bullets.md` presents with it, and `deck.py --notes talk/bullets.md` writes it
-  into the slides' notes instead of the script, for the artifact.
+  into the slides' notes instead of the script, for the artifact. The deck with the bullets as its notes is a
+  second artifact, <https://claude.ai/artifact/MNEpuzNizekFbUBie6rJUx>, published from a copy built that way, so the
+  deck's own artifact and `5.18-deck/` keep the dialogue.
 - `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
