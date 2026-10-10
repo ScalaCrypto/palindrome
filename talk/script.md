@@ -99,13 +99,13 @@ ODD: Including on a String. Which isn't a Seq.
 MARTIN: Including on a String. [click] And palindromize gives back what you gave it, adding only what it needs.
 ODD: Same type out as in. That one sentence will cost us two collection redesigns.
 MARTIN: [click] Case-insensitive, and Racecar with a capital R still counts.
-ODD: And the caller decides what "equal" means.
+ODD: So the caller should decide what "equal" means.
 MARTIN: Hold that thought. That's where it gets interesting.
 
 ## 4 · eq — Seq[A] needs Equality for A · 25 s · 2:00
 
-ODD: The catch: the element type decides, not the caller. A capital R would never equal a small r.
-MARTIN: So equality needs to become a type class. One trait, one method.
+ODD: But double-equals never asks the caller.
+MARTIN: For this, equality needs to become a type class. One trait, one method.
 ODD: And a case-insensitive instance for Char that nobody has written yet.
 MARTIN: Let's go back to 2007 and write it.
 
