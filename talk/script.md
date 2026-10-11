@@ -297,7 +297,7 @@ ODD: Let's talk about it in the **Q&A**.
 
 ## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:10
 
-MARTIN: **2.11**, in **2014** the year of the ice bucket challenge.
+MARTIN: **2.11**, in **2014**: the year of the ice bucket challenge.
 ODD: A good time for **privacy**.
 
 ## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:20
