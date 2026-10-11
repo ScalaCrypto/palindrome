@@ -394,8 +394,8 @@ MARTIN: Our Equality, Scala 2 style. **Watch**.
 
 MARTIN: [click] The **braces** are gone!
 ODD: **Python** developers, here we come.
-MARTIN: [click] And Equality gets an **operator**.
-ODD: **One extension**, and **every type** with an Equality can use the operator [click]. An implicit def is now a **given**. Same thing, better name.
+MARTIN: [click] And Equality gets an **operator** [click].
+ODD: An implicit def is now a **given**. Same thing, better name.
 MARTIN: [click] And the lambdas shrink to **underscores**.
 ODD: Very readable. For **the one who wrote it**.
 
@@ -416,7 +416,7 @@ MARTIN: Now **palindromize**.
 > One click.
 
 MARTIN: Everything reads like a **method call**.
-ODD: [click] And **IsSeq gets a using clause of its own**, so the other using clause **can refer to its element type**.
+ODD: [click] And **IsSeq gets a using clause of its own**, so we **can refer to its element type**.
 MARTIN: No extra type parameter. **No refinement**.
 ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed the wart**. I'm... **almost moved**.
 
@@ -504,7 +504,7 @@ ODD: That the **machinery was there already** in 2007. **Generics, type classes,
 MARTIN: And every release made them **cheaper** to write.
 ODD: **Not every step was a pure win**, though. CanBuildFrom did its job but **frightened everyone**. 2.13's **refinement was a detour**.
 MARTIN: And in Scala 3, the code finally **reads the way we'd explain it**.
-ODD: ... I finally **agree**.
+ODD: At last we agree.
 
 ## 61 · thanks — Thank you · 15 s · 21:30
 
