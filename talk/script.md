@@ -504,7 +504,7 @@ ODD: That the **machinery was there already** in 2007. **Generics, type classes,
 MARTIN: And every release made them **cheaper** to write.
 ODD: **Not every step was a pure win**, though. CanBuildFrom did its job but **frightened everyone**. 2.13's **refinement was a detour**.
 MARTIN: And in Scala 3, the code finally **reads the way we'd explain it**.
-ODD: ... I finally **agree**.
+ODD: At last we agree.
 
 ## 61 · thanks — Thank you · 15 s · 21:30
 
