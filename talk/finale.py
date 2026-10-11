@@ -61,6 +61,9 @@ class Chrome:
         def fds():  # Chrome reads commands on fd 3 and writes replies on fd 4
             os.dup2(to_chrome, 3)
             os.dup2(from_chrome, 4)
+            # dup2 onto the same fd (a pipe that already got 3) leaves it close-on-exec, so Chrome wouldn't get it
+            os.set_inheritable(3, True)
+            os.set_inheritable(4, True)
 
         self.proc = subprocess.Popen(
             [render.chrome(), "--headless=new", "--disable-gpu", "--hide-scrollbars", f"--user-data-dir={profile}",
