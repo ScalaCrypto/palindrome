@@ -425,7 +425,7 @@ ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed
 > The click commented the whole class out; one more click brings its bubble.
 
 MARTIN: And the **implicit class**?
-ODD: [click] **Nothing left** no use for it.
+ODD: [click] **Nothing left**, no use for it.
 MARTIN: Shall we **delete** it?
 ODD: **Please do**.
 
