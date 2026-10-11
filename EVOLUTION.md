@@ -58,7 +58,8 @@ Every idea of the talk is already expressible in 2.5. What's missing is only the
 
 Things that look odd today, and why:
 - **The wrapper calls `Palindrome.isPalindrome(xs)`**: unqualified, the call would resolve to its own method.
-- **`Character.toLowerCase`**: `Char` has no `toLower` before 2.8.
+- **`x.toLowerCase`**: `Char`'s rich wrapper, `RichChar` (an implicit conversion in `Predef`), names it
+  `toLowerCase` until 2.8 renames it `toLower`.
 - **Elements are compared pairwise, never `xs == xs.reverse`**: before 2.8, `==` compares contents only between
   collections of the same kind, and a `String`'s `reverse` isn't a `String` (here a `List`), so
   `"racecar".reverse == "racecar"` is `false`. That's also why the talk's stage 0 one-liner has no version here.
@@ -83,7 +84,7 @@ object Eq {
 
   // Opt-in: pass it explicitly, or bring it into scope as an implicit.
   val caseInsensitive: Eq[Char] = new Eq[Char] {
-    def eqv(x: Char, y: Char): Boolean = Character.toLowerCase(x) == Character.toLowerCase(y)
+    def eqv(x: Char, y: Char): Boolean = x.toLowerCase == y.toLowerCase
   }
 }
 
@@ -133,7 +134,7 @@ object Palindrome {
   can't take a `String` (views don't chain), so strings use the function form: `palindromize("abc")`.
 - **`@tailrec`** (stage 2): the compiler now rejects `loop` if it ever stops being tail-recursive. The generated code
   is unchanged: it was already a loop.
-- **`x.toLower`**: the 2.8 library adds `toLower` to `Char`, replacing `Character.toLowerCase`.
+- **`x.toLower`**: 2.8 renames `RichChar`'s `toLowerCase` to `toLower`, and deprecates the old name.
 - **Tests**: `Vector` arrives with the redesign, so the tests use `Seq(...)` and `Vector(...)`. Before 2.8 they use
   `List` throughout (2.5 and 2.6 have no `Seq(...)` factory either). The `palindromize` test now checks the static
   result types (`val s: String = palindromize("abc")`), and plain `==` works on the results.
@@ -156,7 +157,7 @@ object Palindrome {
  
    // Opt-in: pass it explicitly, or bring it into scope as an implicit.
    val caseInsensitive: Eq[Char] = new Eq[Char] {
--    def eqv(x: Char, y: Char): Boolean = Character.toLowerCase(x) == Character.toLowerCase(y)
+-    def eqv(x: Char, y: Char): Boolean = x.toLowerCase == y.toLowerCase
 +    def eqv(x: Char, y: Char): Boolean = x.toLower == y.toLower
    }
  }

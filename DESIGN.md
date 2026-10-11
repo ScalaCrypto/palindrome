@@ -5,6 +5,34 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — 2.5–2.7 lowercase with `x.toLowerCase`
+
+### What changed
+
+`caseInsensitive` in 2.5, 2.6 and 2.7 compares `x.toLowerCase == y.toLowerCase` instead of
+`Character.toLowerCase(x) == Character.toLowerCase(y)`. The 2.5 and 2.8 notes and the script say why: `RichChar`, which
+`Char` converts to implicitly, has `toLowerCase` from 2.5 on, and 2.8 renames it `toLower` (deprecating the old name).
+
+### Why
+
+The user asked why 2.5 didn't use `x.toLowerCase`. It compiles and runs on 2.5.1, 2.6.1 and 2.7.7 (`toLower` doesn't),
+and on 2.8.2 and 2.9.3 with a deprecation warning: "Use ch.toLower instead". So `Character.toLowerCase` was a choice,
+not a limit, and the notes said otherwise: 2.5's that `Char` had no `toLower`, which read as no method at all, and
+2.8's that 2.8 added one. With the method on both sides, the 2.8 step is the rename the script already called it,
+and the morph changes only the name.
+
+### Alternatives rejected
+
+- **Keeping `Character.toLowerCase` and correcting the notes**: the slide would still show a Java static call
+  turning into a method, a bigger change than 2.8 made.
+
+### Verification
+
+`legacy/test.sh 2.5 2.6 2.7`, `tools/evolution.py --check`, `talk/deck.py`, `talk/render.py` and `talk/present.py --check`
+with either script pass.
+
+---
+
 ## 2026-10-11 — The finale grows from the overview into 2.8
 
 ### What changed

@@ -189,21 +189,21 @@ ODD: Two and a half thousand commits. Six hundred of them by **Paul Phillips**. 
 
 MARTIN: 2.8 was a **big one**. New **collections**, **@tailrec**, named and default arguments.
 ODD: The release that **broke everyone's code**, and everyone **upgraded anyway**.
-MARTIN: But why would a palindromize **care** about a collections rewrite?
-ODD: Because palindromize **builds a collection**. And from 2.8, it can build the **kind you asked for**.
+MARTIN: But palindromize **needs** the new collections.
+ODD: Because it **builds a collection**. And from 2.8, it can build the **kind you asked for**.
 MARTIN: Let's see how we can use that.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
 MARTIN: First, a small one, in **Equality**.
-ODD: In 2.5 we use Java's **toLowerCase**.
+ODD: In 2.5 we call **toLowerCase** on each Char.
 
 ## 15 · e2-8 — Char gets toLower · 30 s · 7:15
 
 > One click.
 
 MARTIN: Now **toLower**, right on the Char [click].
-ODD: We could call **toLowerCase on a Char** in 2007 too. It's a **rename**.
+ODD: Same method as in **2007**. It's a **rename**.
 MARTIN: A **shorter** rename!
 ODD: The **smallest win** of the night. I'll allow it.
 
@@ -228,7 +228,7 @@ ODD: **Repr** is whatever **type the caller passed in**, [click] and CanBuildFro
 MARTIN: [click] So a **String comes back as a String**!
 ODD: Because 2.8 wraps a String in **StringOps**, and its **Repr is String**.
 MARTIN: **reverse** gives you back a String too. No more **mkString**!
-ODD: It works. And it **scared** a generation of Scala developers.
+ODD: This works. And it **scared** a generation of Scala developers.
 MARTIN: You got your String back.
 ODD: I got my String back. And a **therapist**.
 
@@ -365,7 +365,6 @@ MARTIN: Here is palindromize, 2.10 style.
 ## 40 · m2-13 — IsSeq and BuildFrom · 55 s · 14:40
 
 > Two clicks.
-
 MARTIN: 2.13 replaces CanBuildFrom with **IsSeq** and **BuildFrom**. [click]
 ODD: In Scala 2, only a single implicit parameter list is allowed, so we have to resort to a **type refinement** for the element type.
 MARTIN: Is that why we need the A0 type?
