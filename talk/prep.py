@@ -33,7 +33,7 @@ import render  # noqa: E402  (talk/render.py: Chrome, and where the screenshots 
 ROOT = render.ROOT
 SCRIPT = ROOT / "talk/script.md"
 BULLETS = ROOT / "talk/bullets.md"
-SHOTS = render.OUT / "5.18-deck/shots"
+SHOTS = render.OUT / "5.19-deck/shots"
 OUT = ROOT / "out/talk-prep"
 IMAGES = OUT / "img"
 
@@ -515,7 +515,7 @@ column says.</p>
 """
     body = (cover(f'<span class="{color}">{name}</span>\'s practice script',
                   f"Your {variant.lines} in {'blue' if me == 'ODD' else 'orange'}, with {partner}'s as cues",
-                  f'<p class="small">Generated from {variant.script.relative_to(ROOT)} by talk/prep.py. Slides are the deck 5.18 build.</p>')
+                  f'<p class="small">Generated from {variant.script.relative_to(ROOT)} by talk/prep.py. Slides are the deck 5.19 build.</p>')
             + f'<h2>Your part at a glance</h2>{role}'
             + plan
             + f'<h2 class="part">The script</h2>'

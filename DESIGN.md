@@ -5,6 +5,63 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — The finale: the whole code, 2.5 to 4.0, panning to each change (deck 5.19)
+
+### What changed
+
+After the thank-you slide, before the reserve slides, `talk/deck.py` generates a finale of 11 slides (`finale`,
+`fin2-5-all` … `fin4-0`): the whole code as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5
+zoomed out to fit the slide (16px), then a slide per version that changes any of it (2.5, 2.8, 2.9, 2.10, 2.11, 2.12,
+2.13, 3.0, 3.6, 4.0) at the code slides' 25px. Each morphs from the last with a magic move: the tokens are chained
+through all ten states by `morph.chain`, as the tracks' slides are. While the code morphs, the view pans so that the
+version's highlighted lines (the notes' anchors, from `NOTES`, `EQ_NOTES` and `OPS_NOTES`) are centred, or the first
+at the top when they don't fit. The timeline's amber dot slides along to the version, past the ones that change
+nothing. There are no bubbles. The zoomed-out slide fades into the first close-up, and the finale is silent: the
+script has a stage direction and no lines for it.
+
+The code moves inside a panel with an id of its own, and two masks in the background colour, also with ids, hide
+what's above and below it. The view pans by whole lines and the panel ends 2px below a line, so its edges never cut
+a line in half. The timeline is the tag-cloud deck's, with its dot taken out of the SVG into a `div` with an id. Every
+label but the slide's own (amber, without an id) keeps its place by id, so only the two labels that change colour
+crossfade.
+
+### Why
+
+The user asked for an ending that shows how the whole code evolved, with the code zoomed in on what changes and the
+version marker moving with it. Every other code slide shows one track and only what changes in it; here everything
+is on one canvas, and the pan shows where in the file each change happens.
+
+### Alternatives rejected
+
+- **A zoom** (text growing from the overview to the close-up). Both renderers animate a magic move by its boxes:
+  the artifact's (`app.js`) animates `left`, `top`, `width` and `height`, and the local player translates and
+  resizes. A `<p>`'s text takes its new size at once. SVG text would scale with its box, but the artifact draws an
+  inline `<svg>` as an image (a data URL), where the deck's web fonts don't apply. Glyph outlines as SVG paths would
+  keep the font, but would need a font toolchain and hundreds of KB a slide. The user agreed to a pan, and the one
+  change of size, overview to close-up, is a fade.
+- **Every code run on every slide.** A slide may have 200 elements, and the whole code is up to 171 runs, plus the
+  timeline's 24. A slide holds only the runs in its view and in the next slide's, so code slides into view from
+  under the masks (at most 192 elements, on `fin2-13`). Code that leaves the view for good fades where it was,
+  instead of sliding under a mask: the old slide is drawn on top during a magic move, so a run under its mask that
+  the next slide doesn't have would fade out over the margins.
+- **A closing zoomed-out view of 4.0.** Its 20 lines fit at 25px, so `fin4-0` already shows all of it.
+- **A heading per slide.** It would cost three lines of code in view, and the timeline already names the version.
+
+### Limitations accepted
+
+- A morph and its pan are one 0.48 s move in the artifact (2.4 s in the local player); neither can be slowed down.
+- Highlights that leave the view fade out on top of the masks, for as long as the fade lasts.
+- The slides' 200-element limit is counted by hand: inline `<span>`s in a `<p>` aren't counted, as far as the type's
+  `app.js` shows, but nothing in the repo runs its validator.
+
+### Verified
+
+`talk/deck.py` and `talk/render.py --screenshots` pass. The screenshots show the zoomed-out 2.5 and each version's
+close-up with its highlights. The local player, frozen halfway through 2.8 → 2.9 and 2.13 → 3.0, shows the code
+moving with the pan, the dot between the two versions, and nothing drawn outside the panel.
+
+---
+
 ## 2026-10-11 — Key words in bold, in both scripts
 
 ### What changed

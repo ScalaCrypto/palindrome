@@ -524,12 +524,41 @@ BOTH: **Thank you! Questions?**
 
 ---
 
+# Finale: the code, 2.5 to 4.0
+
+## 62 · fin2-5-all — The whole code, 2.5
+
+> The finale, without words. Click once the applause starts: the whole of 2.5, then one click a version,
+> each once the morph has settled. It ends on 4.0's code; for the questions, go back to 61 (the QR code).
+
+## 63 · fin2-5 — 2.5, close up
+
+## 64 · fin2-8 — Scala 2.8
+
+## 65 · fin2-9 — Scala 2.9
+
+## 66 · fin2-10 — Scala 2.10
+
+## 67 · fin2-11 — Scala 2.11
+
+## 68 · fin2-12 — Scala 2.12
+
+## 69 · fin2-13 — Scala 2.13
+
+## 70 · fin3-0 — Scala 3.0
+
+## 71 · fin3-6 — Scala 3.6
+
+## 72 · fin4-0 — Scala 4.0
+
+---
+
 # Reserve: only if the Q&A asks
 
 Jump to these from the presenter view (type the number, then Enter), and back to 61 when done. Martin opens with
 the heading's idea; Odd answers.
 
-## 62 · r-indexedseq — Index like it's 2007
+## 73 · r-indexedseq — Index like it's 2007
 
 > For "isn't the extractor slow?"
 
@@ -537,7 +566,7 @@ MARTIN: **Index like it's 2007**.
 ODD: Our pattern takes **half a second** on a long String. The 2007 loop is **ten thousand times faster**.
 MARTIN: Sometimes the **old ways** win.
 
-## 63 · r-stringslice — Slice it like Java 6
+## 74 · r-stringslice — Slice it like Java 6
 
 > For "can't the slices share?"
 
@@ -546,7 +575,7 @@ ODD: Every slice points into the **original**, so **nothing is copied**. The pat
 MARTIN: Under a **tenth of a millisecond**!
 ODD: Until a tiny slice keeps a **huge string alive**. That's why **Java dropped it**.
 
-## 64 · r-linear — Knuth–Morris–Pratt saves the day
+## 75 · r-linear — Knuth–Morris–Pratt saves the day
 
 > For "can palindromize be linear?"
 
