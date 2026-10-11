@@ -69,11 +69,8 @@
 <p data-bleed="" style="position:absolute; left:1558px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.8</p>
 <p data-bleed="" style="position:absolute; left:1639px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">3.9</p>
 <p data-bleed="" style="position:absolute; left:1720px; top:1010px; width:80px; font-size:24px; line-height:1.2; text-align:center; color:#9AA3AF">4.0</p>
-<aside>🟠 MARTIN: So, the <b>2.13 way</b>. (click)<br><br>
-🔵 ODD: <b>IsSeq reads anything as a sequence</b>, String included. But the <b>element type</b> can't be used in the <b>same parameter list</b>.<br><br>
-🟠 MARTIN: Hence the <b>extra type parameter</b>?<br><br>
-🔵 ODD: Pinned to it with a <b>refinement</b>. That's a <b>wart</b>.<br><br>
-🟠 MARTIN: (click) But the result comes out of a <b>single call</b>. And <b>method syntax on a String</b>, at last!<br><br>
-🔵 ODD: At least <b>in our code</b>. The <b>library had support for it since 2.10</b>. Nobody read that ScalaDoc.<br><br>
-🟠 MARTIN: Including you.</aside>
+<aside>🟠 MARTIN: 2.13 replaces CanBuildFrom with <b>IsSeq</b> and <b>BuildFrom</b>. (click)<br><br>
+🔵 ODD: In Scala 2, only a single implicit parameter list is allowed, so we have to resort to a <b>type refinement</b> for the element type. (click)<br><br>
+🟠 MARTIN: Is that why we need the A0 type?<br><br>
+🔵 ODD: Yes, but that's a <b>wart</b>.</aside>
 </section>

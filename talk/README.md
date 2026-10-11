@@ -80,7 +80,7 @@ artifact's changed slides and copy them here.
 ## Deck versions
 
 The deck's directory starts with its version: the major number is the kind of deck, the minor its revision. A
-revision that changes the deck's code or look renames the directory (`git mv talk/5.19-deck talk/5.19-deck`, and `DECK`
+revision that changes the deck's code or look renames the directory (`git mv talk/5.18-deck talk/5.19-deck`, and `DECK`
 in `deck.py`); the artifact keeps its link.
 
 5.0 merged the four decks that came before it: the hand-written talk deck (1.x, light, with its own hand-copied code

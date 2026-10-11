@@ -41,23 +41,22 @@ MARTIN: **isPalindrome**: a String equals **its reverse**. Ship it
 ODD: In 2007 reverse **isn't a String**, so the comparison **always fails**
 MARTIN: [click] Fixed, and still **one line**
 ODD: It **copies the string twice** to compare it with itself
-MARTIN: [click] **palindromize**: **append the reverse**
-ODD: "abc" gets **three more letters** when **two would do**
+MARTIN: [click] Another function, **palindromize**: a palindrome of any string
+ODD: **"abc"** becomes **"abc cba"**, when it ought to be **"abc ba"**
 
 ## 3 · goal — Callable as methods · 45 s · 1:15
 
 MARTIN: The goal: **any sequence**, **any element type**, called as **methods**
-ODD: Including **on a String**, which **isn't a Seq**
-MARTIN: [click] palindromize returns the **type you gave it**, adding only what it needs
-ODD: **Same type** out as in: that costs **two collection redesigns**
-MARTIN: [click] **Case-insensitive**: Racecar still counts
+ODD: Including **on a String**, which **isn't a Scala Seq**
+MARTIN: [click] palindromize returns the **type you gave it**, adding only what's needed
+ODD: **Same type** out as in: that costs Scala **two collection redesigns**
+MARTIN: [click] **Case-insensitive**: Racecar is a palindrome
 ODD: So the **caller** decides what **"equal"** means
 
 ## 4 · eq — Seq[A] needs Equality for A · 25 s · 2:00
 
-ODD: **Double-equals never asks the caller**
-MARTIN: So equality becomes a **type class**
-ODD: Plus a **case-insensitive instance for Char**
+MARTIN: Equality becomes a **type class**: one trait, one method
+ODD: Plus a **case-insensitive instance for Char**, not written yet
 MARTIN: Back to **2007** to write it
 
 ## 5 · tc2-5 — Scala 2.5 · 2007 · 20 s · 2:25
@@ -75,26 +74,23 @@ ODD: **Generics, implicits**, anonymous classes: all there, just a lot of **typi
 ## 7 · e2-5 — Equality is a type class · 40 s · 3:10
 
 MARTIN: Our **Eq** in 2.5
-MARTIN: [click] The **instances**
-ODD: **Anonymous classes**, braces and all: the **Java 6** experience
-MARTIN: [click] The **default** needs no import
-ODD: In the **companion**: the **compiler always looks there**, readers don't
+ODD: [click] A **new instance** for each **usage**
 MARTIN: [click] Case-insensitive is **opt-in**
 ODD: A **plain value**: nothing happens unless you ask
 
 ## 8 · o2-5 — Method syntax through an implicit conversion · 55 s · 3:50
 
-MARTIN: **Method syntax**: Seq has no isPalindrome, and we **can't change Seq**
-ODD: [click] So we **wrap it**: a class that **only forwards**
-ODD: [click] The **compiler wraps for you**: a **new object on every call**
-ODD: Not on a **String**: that takes **two conversions**, and the compiler does one
+MARTIN: **Method syntax**: Seq has no isPalindrome, and we **can't change Seq**, so we **wrap it**
+MARTIN: [click] A class that **only forwards**
+ODD: [click] Call isPalindrome on a Seq: the **compiler creates the wrapper**
+ODD: Not on a **String**: that takes **two conversions**, and the compiler **can only do one**
 MARTIN: We could write a **second wrapper** just for String
-ODD: "**Two wrappers** for one method? I'll wait for a **new Scala version**."
+ODD: "**Two wrappers** for one method? I'll wait for Scala **to catch up**."
 
 ## 9 · m0-again — What's wrong? · 30 s · 4:45
 
 MARTIN: Our **one-liners** again: what's **wrong** with them?
-ODD: [click] A **whole copy**, just to compare
+ODD: [click] **Copying** just to compare
 MARTIN: [click] Palindromes **longer** than they need to be
 ODD: [click] **Strings only**: we want **any sequence**, of anything
 MARTIN: 2.5, show us a **better way**
@@ -110,30 +106,33 @@ MARTIN: Now **palindromize**, done properly
 ## 11 · m2-5 — A better way · 45 s · 5:40
 
 MARTIN: [click] Find the **longest palindromic suffix**, **mirror** only what's before it
-ODD: [click] I gave it a **String** and got a **Seq of Char** back
-MARTIN: The **best a 2007 generic signature can do**. **2.8 is coming**
-ODD: "Put that on the **tombstone**."
+ODD: Give it a **String**, what do I **get back**?
+MARTIN: [click] A **Seq**
+ODD: A **Seq of Char**, but I gave you a **String**
+MARTIN: The **best a 2007 generic signature can do**
+ODD: "That's a **bummer**."
+MARTIN: Neither 2.6 nor 2.7 helps us
 
 ## 12 · tc2-8 — Scala 2.8 · 2010 · 15 s · 6:25
 
-MARTIN: 2.6 and 2.7 **change nothing** in our code. **2.8, 2010**: two and a half thousand commits
-ODD: Six hundred by **Paul Phillips**: "That man was a **compiler**."
+MARTIN: Scala **2.8, released in 2010**
+ODD: Two and a half thousand commits, six hundred by **Paul Phillips**: "That man was a **compiler**."
 
 ## 13 · f2-8 — New in Scala 2.8 · 30 s · 6:40
 
-MARTIN: The **big one**: new **collections**, **@tailrec**, named and default arguments
-ODD: **Broke everybody's code**, and everybody **upgraded anyway**
-MARTIN: Why would a palindrome checker **care** about collections?
-ODD: palindromize **builds one**, and from 2.8 it can build the **kind you gave it**
+MARTIN: A **big one**: new **collections**, **@tailrec**, named and default arguments
+ODD: **Broke everyone's code**, and everyone **upgraded anyway**
+MARTIN: Why would palindromize **care** about a collections rewrite?
+ODD: It **builds a collection**, and from 2.8 it can build the **kind you asked for**
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
 MARTIN: First a small one, in **Eq**
-ODD: Lowercasing through **java.lang.Character**: very Java
+ODD: In 2.5, Java's **toLowerCase**
 
 ## 15 · e2-8 — Char gets toLower · 20 s · 7:15
 
-MARTIN: [click] **Char does it itself** now
+MARTIN: [click] Now **Char's own toLower**
 ODD: The **smallest win** of the night: allowed
 
 ## 16 · m2-5-again — @tailrec · 5 s · 7:35
@@ -142,26 +141,27 @@ MARTIN: **Two upgrades** for our methods. First, **@tailrec**
 
 ## 17 · m2-8-is — @tailrec · 25 s · 7:40
 
-ODD: [click] Stop being a **tail call** and it's a **compile error**. **Same bytecode**
+ODD: [click] Stop being a **tail call** and it's a **compile time error**. **Same bytecode**
 MARTIN: A **promise** you can't break
-ODD: And the **compiler keeps it**. Fine
+ODD: And the **compiler keeps it**. I like that
+MARTIN: On to the big one: **CanBuildFrom**
 
 ## 18 · m2-8 — CanBuildFrom keeps the collection type · 50 s · 8:05
 
 > Odd counts the signature's type parameters on his fingers.
 
-MARTIN: The big one: **CanBuildFrom** [click]
-ODD: **Repr is the caller's type**; CanBuildFrom supplies a **builder for exactly that**
+ODD: [click] **Repr is the caller's type**; CanBuildFrom supplies a **builder for exactly that**
 MARTIN: [click] A **String comes back as a String**!
-ODD: **StringOps** wraps it, and its **Repr is String**: reverse too, no more **mkString**
-ODD: It works, and it **scared** a generation away from the **Scaladoc**
+ODD: **StringOps** wraps it, and its **Repr is String**
+MARTIN: **reverse** gives a String too: no more **mkString**!
+ODD: It works, and it **scared** a generation of Scala developers
 MARTIN: You got your String back
 ODD: "I got my String back. And a **therapist**."
 
 ## 19 · tc2-9 — Scala 2.9 · 2011 · 15 s · 8:55
 
-MARTIN: **2.9, 2011**
-ODD: Paul Phillips, 1,023 commits: "He wasn't a compiler. He was **the compiler**."
+MARTIN: **2.9, from 2011**
+ODD: Paul Phillips, now 1,023 commits: "He wasn't a compiler. He was **the compiler**."
 
 ## 20 · f2-9 — New in Scala 2.9 · 15 s · 9:10
 
@@ -170,24 +170,23 @@ ODD: Everyone else upgraded for parallel collections. **We came for tails**
 
 ## 21 · m2-8-again — tails finds the palindromic suffix · 10 s · 9:25
 
-MARTIN: The **suffix search**: a range of indices and an **unchecked get**
+MARTIN: The **suffix search**: a range over indices and an **unchecked get**
 
 ## 22 · m2-9 — tails finds the palindromic suffix · 30 s · 9:35
 
 MARTIN: [click] **tails**! **No indices, no get**
-ODD: **Every suffix, longest first**; the **first palindrome** says **how much to mirror**
-ODD: Same cost, **fewer ways to be wrong**: the only metric I trust
+ODD: Same algorithm, same cost, **fewer ways to be wrong**: the only metric I trust
 
 ## 23 · tc2-10 — Scala 2.10 · 2013 · 20 s · 10:05
 
 MARTIN: **2.10**, January 2013: so many contributors we can show only **sixty**
 ODD: The first release that **sorts before** its predecessor. ... "**Alphabetically**."
 MARTIN: Nobody sorts versions alphabetically
-ODD: "Every **build script** in 2013 did."
+ODD: "Every **build script** in those days did."
 
 ## 24 · f2-10 — New in Scala 2.10 · 20 s · 10:25
 
-MARTIN: Three at once: **implicit classes**, **value classes**, **extractors** for both ends of a sequence
+MARTIN: Three things: **implicit classes**, **value classes**, **sequence extractors**
 ODD: And **string interpolation**. And **macros**: "I have feelings about macros."
 MARTIN: Not in this talk
 
@@ -199,7 +198,7 @@ MARTIN: Our **wrapper**, and its conversion
 
 MARTIN: [click] One declaration, and **no allocation**!
 ODD: Usually: as a **generic type** or in an **array**, **it boxes**
-ODD: And its field must be public: every Seq grows a **public member**
+ODD: And every Seq now has a **public xs member**
 MARTIN: That's **2.11's problem**
 
 ## 27 · m2-9-again — +: and :+ extractors · 5 s · 11:20
@@ -209,16 +208,16 @@ MARTIN: Now the **index loop**: Odd's favourite
 ## 28 · m2-10 — +: and :+ extractors · 45 s · 11:25
 
 MARTIN: [click] Look at that **pattern**!
-ODD: First, middle and last in **one case**. **Pretty**, I admit
-MARTIN: [click] The whole loop is **one match** on what's left
-ODD: On a **List the last element costs a walk**, on a **String every step copies**: quietly **n squared**
-MARTIN: On a **Vector** it's effectively **constant**
-ODD: Ask me in the **Q&A**
+ODD: First, middle and last in **one case**. **Pretty**
+MARTIN: [click] The whole loop becomes a **match**
+ODD: On a **String every step copies**: quietly **n squared**
+MARTIN: On a **Vector** it's **effectively constant**
+ODD: Let's talk about it in the **Q&A**
 
 ## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:10
 
-MARTIN: **2.11, 2014**: **Jason Zaugg** leads the commits
-ODD: The **calm** after the storm
+MARTIN: **2.11**: in **2014** everything was about the ice bucket challenge
+ODD: A good time for **privacy**
 
 ## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:20
 
@@ -238,8 +237,8 @@ ODD: "**Thank you**, 2.11."
 
 ## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 13:00
 
-MARTIN: **2.12**, 2016: built on **Java 8**
-ODD: Lambdas compile to Java's: Scala **catching up with Java**
+MARTIN: **2.12**, released in 2016: built on **Java 8**
+ODD: Scala lambdas compile to proper JVM **lambdas**: Scala **catching up with Java**
 
 ## 34 · f2-12 — New in Scala 2.12 · 10 s · 13:10
 
@@ -263,7 +262,7 @@ ODD: "**No.**"
 
 > Martin finds Odd's name in the cloud and points at it.
 
-MARTIN: **2.13**, 2019. Wait, Odd, is that **your name** in there?
+MARTIN: 2019 brings **2.13**. Wait, Odd, is that **your name** in there?
 ODD: "I was young and **needed the commits**."
 MARTIN: In 2019? "You weren't that young." So you're **partly responsible** for what comes next
 ODD: "**No comment**."
@@ -271,21 +270,19 @@ ODD: "**No comment**."
 ## 38 · f2-13 — New in Scala 2.13 · 15 s · 14:05
 
 MARTIN: The second **collections rewrite**: **CanBuildFrom is gone**
-ODD: "**Rest in peace**. Nobody cried."
-MARTIN: In come **IsSeq** and **BuildFrom**, LazyList, literal types
+ODD: "**Rest in peace**. No one cried."
+MARTIN: In comes **IsSeq** and **BuildFrom**
 
 ## 39 · m2-10-again — IsSeq and BuildFrom · 10 s · 14:20
 
-ODD: Our 2.12 palindromize now hands back a **wrapped String**, not a String
+MARTIN: palindromize, 2.10 style
 
 ## 40 · m2-13 — IsSeq and BuildFrom · 45 s · 14:30
 
-MARTIN: The **2.13 way** [click]
-ODD: **IsSeq** reads anything as a sequence, **String too**
-ODD: But its **element type** can't be used in the **same parameter list**: an extra type parameter, pinned by a **refinement**. A **wart**
-MARTIN: [click] The result in a **single call**, and **method syntax on a String**, at last!
-ODD: **In our code**. The **library could since 2.10**: nobody read that Scaladoc
-MARTIN: Including you
+MARTIN: **IsSeq** and **BuildFrom** replace CanBuildFrom
+ODD: [click] Scala 2 allows only **one implicit parameter list**: the element type needs a **type refinement**
+MARTIN: [click] That's why we need A0?
+ODD: Yes, and it's a **wart**
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:15
 
@@ -296,7 +293,7 @@ MARTIN: **Surprisingly little**
 ## 42 · f3-0 — New in Scala 3.0 · 20 s · 15:30
 
 MARTIN: **given** and using, **extension methods**, **optional braces**, **top-level** definitions
-ODD: We use **all four**, and every one **deletes code**
+ODD: We use **all four**, and every one **reduces boilerplate**
 MARTIN: Are you... **excited**?
 ODD: "Show me the **diff**."
 
@@ -321,13 +318,13 @@ MARTIN: The methods, and the **wrapper class** we've carried since 2.10
 ## 46 · m3-0-is — using extensions · 20 s · 16:45
 
 MARTIN: isPalindrome becomes an **extension** [click]
-ODD: **No object, no wrapper**, no conversion; the old one is **commented out**
-MARTIN: **Nobody calls it** anymore
+ODD: **No object, no wrapper**, no conversion; the old one is **commented out**: **nobody calls it**
+MARTIN: Now **palindromize**
 
 ## 47 · m3-0-ops — using extensions · 35 s · 17:05
 
-MARTIN: Now **palindromize** [click] Everything reads like a **method call**
-ODD: [click] **IsSeq gets a clause of its own**, so the **next clause can use its element type**
+MARTIN: [click] Everything reads like a **method call**
+ODD: [click] **IsSeq gets a using clause of its own**, so the other **can refer to its element type**
 MARTIN: No extra type parameter, **no refinement**
 ODD: Same library: the **language fixed the wart**. "I'm... **almost moved**."
 
@@ -344,9 +341,9 @@ ODD: "**Please**."
 
 ## 50 · tc3-6 — Scala 3.6 · 2024 · 15 s · 18:00
 
-MARTIN: 3.1 to 3.5 **change nothing** we use. Scala **3.6, 2024**
+MARTIN: 3.1 to 3.5 **change nothing** we use. Scala **3.6, in 2024**
 ODD: Technically **3.6.2**: 3.6.0 was published **by accident**
-MARTIN: "We **don't talk about** 3.6.0. Or 3.6.1."
+MARTIN: "We **don't talk about** 3.6.0."
 
 ## 51 · f3-6 — New in Scala 3.6 · 15 s · 18:15
 
@@ -360,7 +357,7 @@ MARTIN: Our **given**, one more time
 ## 53 · e3-6 — The new given syntax · 15 s · 18:35
 
 MARTIN: [click] Read that **out loud**
-ODD: It reads like the **sentence** you'd say anyway. That's new
+ODD: It reads **how you'd say it** out loud. That's nice
 
 ## 54 · m3-0-again — Context bounds get names · 5 s · 18:50
 
@@ -394,28 +391,29 @@ MARTIN: 3.6's isPalindrome. **Watch the match**
 
 ## 59 · m4-0 — Prolog extractors · 25 s · 20:05
 
-MARTIN: [click] The **comparison disappears** into the pattern. **Beautiful**!
-ODD: **Which equality would it use**? The **caller should decide**
-MARTIN: "That's a **4.1 problem**."
+MARTIN: The **same name** at both ends: the **comparison disappears** into the pattern. **Beautiful**!
+ODD: [click] But **which equality would it use**? The **caller should decide**, remember?
+MARTIN: "That's a **4.1 problem**..."
 
 ## 60 · takeaways — What the palindrome taught us · 40 s · 20:30
 
 > Drop the comedy a notch. Slower, to the room.
 
-MARTIN: What did one tiny function **teach** us?
+MARTIN: What did two tiny functions **teach** us?
 ODD: The ideas were **all there in 2007**: **generics, type classes, implicit conversions**
 MARTIN: Every release made them **cheaper** to write
 ODD: **Not every step a pure win**: CanBuildFrom **frightened everyone**, 2.13's **refinement was a detour**
 MARTIN: In Scala 3 the code **reads the way we'd explain it**
-ODD: ... "I'll **give you that one**."
+ODD: ... "I finally **agree**."
 
 ## 61 · thanks — Thank you · 15 s · 21:10
 
 > Stand together. Leave the QR code up for the questions.
 
-MARTIN: Every version, 2.5.1 to 3.9.0, **compiles and is tested**, on **GitHub**
+MARTIN: Every version, 2.5 to 3.9, **compiles and is tested**, on **GitHub**
 ODD: Every diff in **EVOLUTION.md**, every bad decision in **DESIGN.md**
-BOTH: **Thank you! Questions?**
+MARTIN: **Thank you!**
+ODD: **Questions?**
 
 ---
 

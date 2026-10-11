@@ -194,7 +194,6 @@ EQ_TITLES = {
 EQ_NOTES = {
     "2.5": [
         (["Eq[A] = ⟨new Eq[A] {⟩"], "each instance is an\nanonymous class"),
-        (["⟨implicit def universal[A]⟩"], "the default, found in\nEq's implicit scope"),
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
     ],
     "2.8": [
