@@ -91,7 +91,7 @@ MARTIN: Here's the tiny function: **isPalindrome**. Is a String its **own revers
 ODD: You'd expect the plain comparison to work. But in 2007, reverse **doesn't return a String**, so it **always fails**.
 MARTIN: I can fix that [click] and it's **still a one-liner**!
 ODD: One expensive line. It **copies the whole string twice**, just to compare it with itself.
-MARTIN: Fine. We need another function [click] **palindromize**: make a palindrome of any string.
+MARTIN: Fine. We look at its dual function [click] **palindromize**: make a palindrome of any string.
 ODD: But **"abc"** becomes **"abc cba"**, when it ought to be **"abc ba"**.
 MARTIN: Are you going to be like this the whole talk?
 ODD: All **thirty minutes**.
@@ -132,7 +132,7 @@ ODD: True. **Generics, implicits**, anonymous classes, all there. It just made y
 
 > Two clicks, one per bubble.
 
-MARTIN: Here's our **Eq** in 2.5. [click]
+MARTIN: Here's our **Equality** in 2.5. [click]
 ODD: We create a **new instance** for each **usage**
 MARTIN: [click] And case-insensitive is **opt-in**.
 ODD: A **plain value**. Nothing happens unless you ask for it. That I can live with.
@@ -162,7 +162,7 @@ MARTIN: All right. Scala 2.5, show us a **better way**.
 
 > One click.
 
-MARTIN: **Generic**, with an **implicit Eq**. [click]
+MARTIN: **Generic**, with an **implicit Equality**. [click]
 ODD: **Index arithmetic**, in a functional language.
 MARTIN: It's **tail-recursive**!
 ODD: Says who? **Nothing checks it**.
@@ -195,7 +195,7 @@ MARTIN: Let's see how we can use that.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
-MARTIN: First, a small one, in **Eq**.
+MARTIN: First, a small one, in **Equality**.
 ODD: In 2.5 we use Java's **toLowerCase**.
 
 ## 15 · e2-8 — Char gets toLower · 20 s · 7:15
@@ -330,7 +330,7 @@ ODD: **Lambdas** instead of anonymous classes? That sounds useful.
 
 ## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:20
 
-MARTIN: Eq, with its **anonymous classes**.
+MARTIN: Equality, with its **anonymous classes**.
 
 ## 36 · e2-12 — SAM conversion: lambdas implement traits · 20 s · 13:25
 
@@ -365,9 +365,11 @@ MARTIN: Here is palindromize, 2.10 style.
 > Two clicks.
 
 MARTIN: 2.13 replaces CanBuildFrom with **IsSeq** and **BuildFrom**. [click]
-ODD: In Scala 2, only a single implicit parameter list is allowed, so we have to resort to a **type refinement** for the element type. [click]
+ODD: In Scala 2, only a single implicit parameter list is allowed, so we have to resort to a **type refinement** for the element type.
 MARTIN: Is that why we need the A0 type?
-ODD: Yes, but that's a **wart**.
+ODD: Yes, but that's a **wart**. [click]
+MARTIN: And why the **toSeq**?
+ODD: IsSeq only lends us **sequence operations**. Our palindrome check wants **the real thing**.
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:15
 
@@ -384,7 +386,7 @@ ODD: Show me the **diff**.
 
 ## 43 · e2-12-again — given indentation and extensions · 5 s · 15:50
 
-MARTIN: Our Eq, Scala 2 style. **Watch**.
+MARTIN: Our Equality, Scala 2 style. **Watch**.
 
 ## 44 · e3-0 — given indentation and extensions · 40 s · 15:55
 
@@ -392,8 +394,8 @@ MARTIN: Our Eq, Scala 2 style. **Watch**.
 
 MARTIN: [click] The **braces** are gone!
 ODD: **Python** developers, here we come.
-MARTIN: [click] And Eq gets an **operator**.
-ODD: **One extension**, and **every type** with an Eq can use the operator [click]. An implicit def is now a **given**. Same thing, better name.
+MARTIN: [click] And Equality gets an **operator**.
+ODD: **One extension**, and **every type** with an Equality can use the operator [click]. An implicit def is now a **given**. Same thing, better name.
 MARTIN: [click] And the lambdas shrink to **underscores**.
 ODD: Very readable. For **the one who wrote it**.
 
@@ -411,9 +413,9 @@ MARTIN: Now **palindromize**.
 
 ## 47 · m3-0-ops — using extensions · 35 s · 17:05
 
-> Two clicks.
+> One click.
 
-MARTIN: [click] Everything reads like a **method call**.
+MARTIN: Everything reads like a **method call**.
 ODD: [click] And **IsSeq gets a using clause of its own**, so the other using clause **can refer to its element type**.
 MARTIN: No extra type parameter. **No refinement**.
 ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed the wart**. I'm... **almost moved**.

@@ -73,7 +73,7 @@ ODD: **Generics, implicits**, anonymous classes: all there, just a lot of **typi
 
 ## 7 · e2-5 — Equality is a type class · 40 s · 3:10
 
-MARTIN: Our **Eq** in 2.5
+MARTIN: Our **Equality** in 2.5
 ODD: [click] A **new instance** for each **usage**
 MARTIN: [click] Case-insensitive is **opt-in**
 ODD: A **plain value**: nothing happens unless you ask
@@ -97,7 +97,7 @@ MARTIN: 2.5, show us a **better way**
 
 ## 10 · m2-5-is — A better way · 25 s · 5:15
 
-MARTIN: **Generic**, with an **implicit Eq**
+MARTIN: **Generic**, with an **implicit Equality**
 ODD: [click] **Index arithmetic**, in a functional language
 MARTIN: It's **tail-recursive**!
 ODD: Says who? **Nothing checks it**
@@ -127,7 +127,7 @@ ODD: It **builds a collection**, and from 2.8 it can build the **kind you asked 
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
-MARTIN: First a small one, in **Eq**
+MARTIN: First a small one, in **Equality**
 ODD: In 2.5, Java's **toLowerCase**
 
 ## 15 · e2-8 — Char gets toLower · 20 s · 7:15
@@ -247,7 +247,7 @@ ODD: **Lambdas** instead of anonymous classes? Sounds useful
 
 ## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:20
 
-MARTIN: Eq, with its **anonymous classes**
+MARTIN: Equality, with its **anonymous classes**
 
 ## 36 · e2-12 — SAM conversion: lambdas implement traits · 20 s · 13:25
 
@@ -281,8 +281,10 @@ MARTIN: palindromize, 2.10 style
 
 MARTIN: **IsSeq** and **BuildFrom** replace CanBuildFrom
 ODD: [click] Scala 2 allows only **one implicit parameter list**: the element type needs a **type refinement**
-MARTIN: [click] That's why we need A0?
+MARTIN: That's why we need A0?
 ODD: Yes, and it's a **wart**
+MARTIN: [click] And why the **toSeq**?
+ODD: IsSeq only lends **sequence operations**; the check wants **the real thing**
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:15
 
@@ -299,14 +301,14 @@ ODD: "Show me the **diff**."
 
 ## 43 · e2-12-again — given indentation and extensions · 5 s · 15:50
 
-MARTIN: Our Eq, Scala 2 style. **Watch**
+MARTIN: Our Equality, Scala 2 style. **Watch**
 
 ## 44 · e3-0 — given indentation and extensions · 40 s · 15:55
 
 MARTIN: [click] The **braces** are gone!
 ODD: "**Python** developers, here we come."
-MARTIN: [click] Eq gets an **operator**
-ODD: **One extension**, for **every type** with an Eq
+MARTIN: [click] Equality gets an **operator**
+ODD: **One extension**, for **every type** with an Equality
 ODD: [click] implicit def becomes **given**: same thing, better name
 MARTIN: [click] The lambdas shrink to **underscores**
 ODD: "Very readable. For **the one who wrote it**."
@@ -323,7 +325,7 @@ MARTIN: Now **palindromize**
 
 ## 47 · m3-0-ops — using extensions · 35 s · 17:05
 
-MARTIN: [click] Everything reads like a **method call**
+MARTIN: Everything reads like a **method call**
 ODD: [click] **IsSeq gets a using clause of its own**, so the other **can refer to its element type**
 MARTIN: No extra type parameter, **no refinement**
 ODD: Same library: the **language fixed the wart**. "I'm... **almost moved**."
