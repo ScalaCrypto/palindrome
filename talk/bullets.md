@@ -285,7 +285,7 @@ MARTIN: **IsSeq** and **BuildFrom** replace CanBuildFrom
 ODD: [click] Scala 2 allows only **one implicit parameter list**: the element type needs a **type refinement**
 MARTIN: That's why we need A0?
 ODD: Yes, and it's a **wart**
-MARTIN: [click] And why the **toSeq**?
+MARTIN: And why the **toSeq**?
 ODD: IsSeq only lends **sequence operations**; the check wants **the real thing**
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:35

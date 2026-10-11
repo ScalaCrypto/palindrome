@@ -300,7 +300,7 @@ ODD: Let's talk about it in the **Q&A**.
 ## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:20
 
 MARTIN: **2.11**, April **2014**: the month of **Heartbleed**.
-ODD: A good time to **hide your fields**.
+ODD: A good time to **hide your privates**.
 
 ## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:30
 
@@ -364,20 +364,18 @@ MARTIN: Here is palindromize, 2.10 style.
 
 ## 40 · m2-13 — IsSeq and BuildFrom · 55 s · 14:40
 
-> Two clicks.
+> One click.
 
 MARTIN: 2.13 replaces CanBuildFrom with **IsSeq** and **BuildFrom**. [click]
-ODD: In Scala 2, only a single implicit parameter list is allowed, so we have to resort to a **type refinement** for the element type.
+ODD: But you can only have **one** implicit parameter list, so we use **type refinement** for the element type.
 MARTIN: Is that why we need the A0 type?
-ODD: Yes, but that's a **wart**. [click]
-MARTIN: And why the **toSeq**?
-ODD: IsSeq only lends us **sequence operations**. Our palindrome check wants **the real thing**.
+ODD: Yes, but kind of a **wart**.
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:35
 
-MARTIN: And then the big bang: **Scala 3**, 2021. After eight and a half years, **Dotty** graduates.
+MARTIN: And now the big bang: **Scala 3**, 2021. After eight and a half years, **Dotty** graduates.
 ODD: A whole **new compiler**. What could possibly go wrong.
-MARTIN: **Surprisingly little**.
+MARTIN: **Surprisingly little did**.
 
 ## 42 · f3-0 — New in Scala 3.0 · 20 s · 15:50
 
@@ -427,7 +425,7 @@ ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed
 > The click commented the whole class out; one more click brings its bubble.
 
 MARTIN: And the **implicit class**?
-ODD: [click] **Nothing left** for it to do.
+ODD: [click] **Nothing left** no use for it.
 MARTIN: Shall we **delete** it?
 ODD: **Please do**.
 

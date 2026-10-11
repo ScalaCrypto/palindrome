@@ -158,9 +158,8 @@ NOTES = {
     ],
     "2.13": [
         (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨isSeq: IsSeq[Repr] { type A = A0 }⟩", "eq: Eq[⟨A0⟩]",
-          "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(seq.iterator ++⟩ seq"],
+          "⟨BuildFrom[Repr, A0, Repr]⟩", "val seq = ⟨isSeq(xs)⟩", "⟨bf.fromSpecific(xs)(seq.iterator ++⟩ seq"],
          "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
-        (["val seq = ⟨isSeq(xs).toSeq⟩", "indexWhere(⟨isPalindrome⟩(_))"], "isPalindrome takes a Seq"),
     ],
     "3.0": [
         (["⟨extension [A: Eq](xs: Seq[A])⟩"],
