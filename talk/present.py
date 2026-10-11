@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Presents a deck (the talk's deck, talk/5.19-deck/, unless another is named) from this computer, with a presenter
+"""Presents a deck (the talk's deck, talk/5.20-deck/, unless another is named) from this computer, with a presenter
 view: the slides full screen on the external display, and on the laptop the current slide, what the next click
 shows, the speaker notes and a timer.
 
@@ -42,7 +42,8 @@ import render  # noqa: E402  (talk/render.py: the talk's deck, and the deck's fo
 ROOT = render.ROOT
 PAGES = ROOT / "talk/present"
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
-         ".css": "text/css; charset=utf-8", ".woff2": "font/woff2", ".json": "application/json"}
+         ".css": "text/css; charset=utf-8", ".woff2": "font/woff2", ".json": "application/json",
+         ".png": "image/png", ".mp4": "video/mp4"}
 
 
 def deck_payload(deck_dir: Path, script: Path | None = None) -> bytes:
@@ -80,6 +81,8 @@ def handler(deck_dir: Path, script: Path | None = None):
             name = path.removeprefix("/fonts/")
             if path.startswith("/fonts/") and "/" not in name and (render.FONTS / name).is_file():
                 return self.send(render.FONTS / name)
+            if path.startswith("/_blob/") and (asset := render.local_asset(deck_dir, path.removeprefix("/_blob/"))):
+                return self.send(asset)
             self.send_error(404)
 
         def send(self, file: Path):

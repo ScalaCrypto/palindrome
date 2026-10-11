@@ -3,7 +3,7 @@
 The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself is specified in
 `../scaladays-2026-talk.md`, and the code it shows comes from `../EVOLUTION.md`.
 
-- `5.19-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
+- `5.20-deck/project/`: the deck. `deck.json` holds the title, slide order, sections and fonts, and `slides/<id>.html`
   holds one slide each, including its speaker notes (`<aside>`). The format is the one the claude.ai Slides artifact
   uses; the paths match the artifact's own.
 - `script.md`: the talk as a dialogue between Martin and Odd, slide by slide, with stage directions and timing.
@@ -14,18 +14,19 @@ The slide deck for *A Brief History of Scala* (ScalaDays 2026). The talk itself 
   writing it; `present.py --notes talk/bullets.md` presents with it, and `deck.py --notes talk/bullets.md` writes it
   into the slides' notes instead of the script, for the artifact. The deck with the bullets as its notes is a
   second artifact, <https://claude.ai/artifact/MNEpuzNizekFbUBie6rJUx>, published from a copy built that way, so the
-  deck's own artifact and `5.19-deck/` keep the dialogue.
+  deck's own artifact and `5.20-deck/` keep the dialogue.
 - `deck.py`: builds the deck's code slides, their notes, its slide order and every slide's speaker notes; below.
 - `morph.py`: the code morph `deck.py` uses.
 - `tag-cloud/`: a separate deck of who wrote each Scala release, generated from `tag-cloud/authors.json`, below.
 - `render.py`: renders a deck, the talk's deck unless another is named, in headless Chrome and checks the layout.
 - `present.py` and `present/`: presents the deck from this computer, with a presenter view; below.
 - `prep.py`: builds the speakers' practice documents, as PDFs to read offline; below.
+- `finale.py`: records the finale as the looping video its slide plays; below.
 
 ## The deck
 
 The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until shared from its Share menu), and
-`5.19-deck/project/` is its versioned copy. The deck has two kinds of slide:
+`5.20-deck/project/` is its versioned copy. The deck has two kinds of slide:
 
 - **Code slides** are generated from the version sources by `deck.py`, in three tracks: the palindrome methods
   (`m2-5`, …, `m3-6`), `Eq` (`e2-5`, …, `e3-6`) and Scala 2's method syntax (`o2-5`, …, `o2-13`; Scala 3's extensions
@@ -49,11 +50,13 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   automatically wherever they fit on the slide, clear of the heading, the code and the timeline: the code panel holds
   only its code, so a bubble never adds a line to it. A bubble never mentions a later version. After 3.6, a made-up Scala 4.0 follows: its tag-cloud and "New in" slides
   (`cloud4-0`, `f4-0`, hand-written) and a code slide (`m4-0`) whose match names `x` twice. After the thank-you
-  slide comes the finale (`fin2-5-all`, `fin2-5`, …, `fin4-0`), without bubbles or words: the whole code at once, as
-  one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5 zoomed out to fit the slide, then at the
-  code slides' size, one slide per version that changes any of it. Each morphs from the last while the view pans to
-  what changed, highlighted, and the timeline's amber dot slides on to its version, past those that change nothing.
-  It's a pan, not a zoom, because a magic move animates boxes, not text sizes. The notes are
+  slide comes the finale (`finale`), without bubbles or words, one slide that plays a looping video: the whole code at
+  once, as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5 zoomed out to fit the slide, then
+  at the code slides' size, each version that changes any of it morphing from the last while the view pans to what
+  changed, highlighted, and the timeline's amber dot slides on to its version, past those that change nothing; after
+  4.0 it fades back to the start. It's a pan, not a zoom, because a magic move animates boxes, not text sizes. Its
+  frames are slides `deck.py` writes as a deck of their own (`fin2-5-all` … `fin4-0`, in `out/finale/project/`), and
+  `finale.py` records them; see "The finale's video" below. The notes are
   `NOTES`, `EQ_NOTES` and `OPS_NOTES` in `deck.py`, and how
   tokens are matched between versions is in `../DESIGN.md`. **Never edit these by hand**: the next build overwrites them.
 - **Every other slide is hand-written**: the cover, the framing slides, the "New in" slides, the takeaways and the reserve slides. Edit them in the artifact or in their files. The build leaves them
@@ -72,15 +75,15 @@ talk/deck.py                 # rebuild the code slides and deck.json
 talk/render.py --screenshots # check the layout
 ```
 
-then publish `5.19-deck/project/` to the artifact with `5.19-deck/` as the root, so each file keeps its `project/…`
+then publish `5.20-deck/project/` to the artifact with `5.20-deck/` as the root, so each file keeps its `project/…`
 path. After editing the artifact in the browser (or through Claude), read its changed `project/slides/*.html` back
-into `5.19-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
+into `5.20-deck/project/` first, then rebuild, check, commit and publish. With Claude Code, ask it to read the
 artifact's changed slides and copy them here.
 
 ## Deck versions
 
 The deck's directory starts with its version: the major number is the kind of deck, the minor its revision. A
-revision that changes the deck's code or look renames the directory (`git mv talk/5.18-deck talk/5.19-deck`, and `DECK`
+revision that changes the deck's code or look renames the directory (`git mv talk/5.19-deck talk/5.20-deck`, and `DECK`
 in `deck.py`); the artifact keeps its link.
 
 5.0 merged the four decks that came before it: the hand-written talk deck (1.x, light, with its own hand-copied code
@@ -126,6 +129,41 @@ opening slide and at the start of the morph into 2.5, since before 2.8 a `String
 The commented-out implicit class is then deleted, on the click to a slide of its own (`m3-0-clean`).
 5.19 adds the finale after the thank-you slide: the whole code, 2.5 zoomed out, then morphing version by version to
 4.0 while the view pans to each change and the timeline's dot moves along.
+5.20 makes the finale one slide that plays it as a looping video, instead of a slide a click per version.
+
+## The finale's video
+
+The finale is one slide, `finale`, showing a video that loops while the slide is up: the Slides format plays a clip
+named on an image (`<img src="/_blob/<still>" data-video="/_blob/<clip>">`), and shows the image, its still, wherever
+it doesn't play (thumbnails, downloads). The video is recorded from the finale's frames, which `deck.py` writes on
+every build as a deck of their own in `out/finale/project/`:
+
+```bash
+talk/deck.py      # the frames, in out/finale/project/
+talk/finale.py    # out/finale/finale.mp4 and its still, out/finale/finale.png (needs ffmpeg: brew install ffmpeg)
+```
+
+`finale.py` plays the frames in the local player in headless Chrome, freezes each morph at evenly spaced moments and
+screenshots them, and encodes the frames as H.264 with how long each is shown: the overview, each version's morph
+and a pause on it, and a fade back to the start. Its timing is at the top of `finale.py`.
+
+The video and the still are assets in the artifact's asset store, which `deck.py` names in `FINALE_CLIP` and
+`FINALE_STILL`; the bullets deck's artifact has copies with ids of its own, `FINALE_BULLETS`, which a build with
+`--notes talk/bullets.md` uses. Their local copies are in `5.20-deck/assets/`, each named after its id, and
+`present.py` and `render.py` show those. After a change to the code or the finale's look, record it again and
+replace the assets:
+
+1. `talk/deck.py`, then `talk/finale.py`.
+2. Upload `out/finale/finale.mp4` and `out/finale/finale.png` to the deck's artifact as assets, set `FINALE_CLIP` and
+   `FINALE_STILL` to the urls they get, and copy each file to `5.20-deck/assets/<id>.mp4` or `.png`, deleting the old
+   ones there and in the artifact. With Claude Code, ask it to.
+3. Copy the two assets into the bullets deck's artifact, set `FINALE_BULLETS` to the copies' urls, add a symlink in
+   `5.20-deck/assets/` from each copy's id to the deck's file (so a `--notes talk/bullets.md` build renders too), and
+   delete the old copies and links.
+4. Rebuild, check and publish as usual.
+
+The asset store takes uploads of a few MB at most (1 MB and 2.3 MB went up, 5 MB didn't), so keep the video small:
+an animated image of the same loop comes to about 10 MB, which is why it's a video.
 
 ## The tag-cloud deck
 
@@ -203,7 +241,7 @@ the talk or the plans change. The slide images show each slide's final build.
 
 ```bash
 talk/render.py                 # measure every slide of the talk's deck; exit 1 if anything overflows
-talk/render.py --screenshots   # also write out/talk-render/5.19-deck/shots/*.png and contact sheets sheet*.png
+talk/render.py --screenshots   # also write out/talk-render/5.20-deck/shots/*.png and contact sheets sheet*.png
 talk/render.py --screenshots talk/tag-cloud  # the same for another deck, into out/talk-render/tag-cloud/
 ```
 
