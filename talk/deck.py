@@ -806,9 +806,27 @@ def finale_footer(version: str) -> list[str]:
             f'width:16px; height:16px; border-radius:8px; background:{TAG_CLOUD.AMBER}"></div>']
 
 
+# The repository's QR code, the thank-you slide's, stays in the panel's top right corner throughout: no version's
+# code reaches that far right above 2.13's longest line, the first below it. It's drawn over the code on the panel's
+# colour, so code passing it mid-morph goes under it, as under the masks. At 232px a module is 6.3px, scannable across
+# a room from a projected slide, a little over half as wide as on the thank-you slide.
+QR_SIZE = 232
+QR_LEFT, QR_TOP = 1792 - 24 - QR_SIZE, 128 + 24
+
+
+def finale_qr() -> list[str]:
+    """The QR code, from the thank-you slide, and the patch of panel behind it."""
+    thanks = (DECK / "slides/thanks.html").read_text()
+    qr = re.search(r'<svg aria-label="QR code[^>]*>.*?</svg>', thanks, re.S).group(0)
+    qr = re.sub(r'style="[^"]*"', f'id="fin-qr" style="position:absolute; left:{QR_LEFT}px; top:{QR_TOP}px; '
+                                  f'width:{QR_SIZE}px; height:{QR_SIZE}px"', qr, count=1)
+    return [f'<div id="fin-qr-patch" style="position:absolute; left:{QR_LEFT - 4}px; top:{QR_TOP - 4}px; '
+            f'width:{QR_SIZE + 8}px; height:{QR_SIZE + 8}px; background:{PANEL}"></div>', qr]
+
+
 def finale_slide(slide_id: str, transition: str, rows: list[str], version: str) -> str:
-    """A finale slide: the panel, the highlights and code (`rows`), the masks over what's outside the panel, and the
-    timeline. Everything that may cross the margins is data-bleed."""
+    """A finale slide: the panel, the highlights and code (`rows`), the QR code, the masks over what's outside the
+    panel, and the timeline. Everything that may cross the margins is data-bleed."""
     top, bottom = FIN_PANEL
     mask = lambda name, y0, y1: (f'<div id="fin-mask-{name}" data-bleed="" style="position:absolute; left:0px; '
                                  f'top:{y0}px; width:1920px; height:{y1 - y0}px; background:{BG}"></div>')
@@ -817,7 +835,8 @@ def finale_slide(slide_id: str, transition: str, rows: list[str], version: str) 
          f"font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px\">",
          f'<div id="fin-panel" style="position:absolute; left:128px; top:{top}px; width:1664px; height:{bottom - top}px; '
          f'background:{PANEL}; border:1px solid {PANEL_EDGE}; border-radius:16px"></div>']
-        + rows + [mask("top", 0, top), mask("bottom", bottom, 1080)] + finale_footer(version) + ["</section>"]) + "\n"
+        + rows + finale_qr() + [mask("top", 0, top), mask("bottom", bottom, 1080)] + finale_footer(version)
+        + ["</section>"]) + "\n"
 
 
 def bleed(row: str, y0: float, y1: float) -> str:
@@ -864,12 +883,12 @@ def finale() -> list[tuple[str, str]]:
 # Slides format plays, looping, while the slide is shown. Their copies in talk/5.20-deck/assets/, each named after its
 # asset's id, are what talk/present.py and talk/render.py show for them.
 FINALE_FRAMES = ROOT / "out/finale/project"
-FINALE_CLIP = "/_blob/954245e15ec163acbcdd696a65e513a5"
-FINALE_STILL = "/_blob/aa3fc2747ae9ff0d0d12383e4521e367"
+FINALE_CLIP = "/_blob/a8dd69f192524dbadf99aad997994db6"
+FINALE_STILL = "/_blob/1c039043ee62a418578ac19a84eb48cd"
 # The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md;
 # their local copies are symlinks to the deck's.
-FINALE_BULLETS = {FINALE_CLIP: "/_blob/83877e474d4191c833c2289de4afc6f0",
-                  FINALE_STILL: "/_blob/2ef61bdfbb66aea116d4832ad508f421"}
+FINALE_BULLETS = {FINALE_CLIP: "/_blob/39dc2aa238168769fe2574515e0930e4",
+                  FINALE_STILL: "/_blob/b85d0046a6e5a93123a4a53167d82601"}
 
 
 def write_finale_frames(slides: list[tuple[str, str]]):
