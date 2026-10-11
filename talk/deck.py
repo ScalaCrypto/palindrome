@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.19-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.20-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py                          speaker notes from talk/script.md
@@ -19,9 +19,11 @@ change is highlighted and explained, and the build fails if any code that's new 
 highlight. Where a hand-written slide interrupts the morph, the code it interrupts is shown again afterwards, so the
 next change still morphs.
 
-After the thank-you slide, the finale (fin*, generated too) shows the whole code at once: all of 2.5 zoomed out, then a
-slide per version that changes anything, morphing from the last while the view pans to the change and the timeline's
-amber dot moves on to the version; highlights, no bubbles.
+After the thank-you slide, the finale (generated too) shows the whole code at once: all of 2.5 zoomed out, growing
+into 2.8, then each version that changes anything, morphing from the last while the view pans to the change and the
+timeline's amber dot moves on to the version; highlights, no bubbles. It's one slide, a looping animation: the script
+writes its frames as a deck of their own (fin*, in out/finale/), and talk/finale.py plays them in the local player and
+records the loop.
 
 Bubbles are placed automatically: the position nearest the anchor that overlaps no code and no other bubble, and
 whose tail crosses no code but its own. The script fails if a note's anchor isn't in the code, or no place fits.
@@ -42,7 +44,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.19-deck/project"
+DECK = ROOT / "talk/5.20-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -83,7 +85,7 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 # Scala 2's method syntax, "code" for the methods), the track's previous state shown again, with no notes (but the one-liner's)
 # and under the next slide's heading (("eq-again", u), ("ops-again", u), ("again", u)), so its one click is the morph
 # into its state in v. A code slide shows only the methods
-# that change in that step. ("finale", None) is the finale's slides (see finale below). Anything else is a hand-written
+# that change in that step. ("finale", None) is the finale's slide (see finale below). Anything else is a hand-written
 # slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
@@ -573,7 +575,7 @@ TRACKS = {
     "eq": {"slide": "e", "token": "e", "titles": EQ_TITLES, "notes": EQ_NOTES},
     "ops": {"slide": "o", "token": "o", "titles": OPS_TITLES, "notes": OPS_NOTES},
 }
-GENERATED = re.compile(r"^(m|e|o|tc|fin)\d")  # generated slide ids: m2-5, m2-8-is, e2-12-again, o2-10, tc2-8, fin2-8, ...
+GENERATED = re.compile(r"^((m|e|o|tc)\d|finale$)")  # generated slide ids: m2-5, m2-8-is, e2-12-again, o2-10, tc2-8, ...
 CLOUDS = ROOT / "talk/tag-cloud/project/slides"  # the tag-cloud deck's slides, one per release (s2-8.html, ...)
 
 
@@ -731,11 +733,14 @@ def first_method(state: dict, notes: list) -> set[int]:
 
 
 # The finale: the whole code at once (Eq, the methods and Scala 2's method syntax, as one file), first zoomed out to
-# fit the slide (2.5), then at the code slides' size, morphing from each version that changes something to the next,
-# 2.5 to 4.0, while the view pans to what changed, with its highlights but no bubbles, and the timeline's amber dot
-# slides along to the version. It's a pan, not a zoom: the artifact's magic move animates boxes, not text sizes, so
-# the code keeps one size, and the zoomed-out view fades into the first. The code moves inside a panel the height of
-# the slide; masks the background colour hide what's outside it.
+# fit the slide (2.5), then growing into the next version at the code slides' size, and from there morphing from each
+# version that changes something to the next, up to 4.0, while the view pans to what changed, with its highlights but
+# no bubbles, and the timeline's amber dot slides along to the version. The deck shows it as one slide that loops by
+# itself: these are its frames, a deck of their own in FINALE_FRAMES, which talk/finale.py plays in the local player
+# and records as a video. The player scales text whose size changes in a magic move, so the zoomed-out code grows into
+# the first close-up; the artifact's own magic move wouldn't (it animates boxes, not text sizes), but it never plays
+# these frames. The code moves inside a panel the height of the slide; masks the background colour hide what's
+# outside it.
 # The view pans by whole lines, and the panel ends where a line does, so its edges never cut a line in half: panned,
 # a line shows in each padding, the top one 1px below the border, and the panel ends 2px below the bottom one.
 FIN_TOP = 128 + 1 + PANEL_PAD_Y  # the first line's top, unpanned
@@ -821,27 +826,28 @@ def bleed(row: str, y0: float, y1: float) -> str:
     return row if inside else re.sub(r"^<(\w+) ", r'<\1 data-bleed="" ', row, count=1)
 
 
-def finale(last_transition: str) -> list[tuple[str, str]]:
-    """The finale's slides, as (id, html): the zoomed-out 2.5, then a slide per version. A slide holds the code runs in
-    its view and those in the next slide's, so they slide into view from under the masks; the rest is left out (the
-    format allows 200 elements a slide), so code that leaves the view for good fades where it was."""
+def finale() -> list[tuple[str, str]]:
+    """The finale's slides, as (id, html): 2.5 zoomed out, then a slide per later version. A slide holds the code runs
+    in its view and those in the next slide's, so they slide into view from under the masks; the rest is left out (the
+    format allows 200 elements a slide), so code that leaves the view for good fades where it was. The first close-up
+    also holds all of the zoomed-out code it keeps, which grows past the masks rather than fading."""
     states = finale_states()
     runs = morph.chain(states)
-    spans = [finale_spans(st, FIN_TOP) if k else [] for k, st in enumerate(states)]
+    spans = [finale_spans(st, FIN_TOP) for st in states]
     tops = [FIN_TOP - finale_shift(st, sp) * LH for st, sp in zip(states, spans)]
     in_view = lambda y0, y1: y1 > FIN_PANEL[0] and y0 < FIN_PANEL[1]
     line_y = lambda k, run: (tops[k] + run[0]["line"] * LH, tops[k] + (run[0]["line"] + 1) * LH)
-    seen = [{r[0]["id"] for r in runs[k] if in_view(*line_y(k, r))} for k in range(len(states))] + [set()]
+    seen = ([{r[0]["id"] for r in runs[0]}]  # the overview shows all of it
+            + [{r[0]["id"] for r in runs[k] if in_view(*line_y(k, r))} for k in range(1, len(states))] + [set()])
     keep = [seen[k] | seen[k + 1] for k in range(len(states))]
+    keep[1] |= seen[0]  # the overview grows into the first close-up as a whole
 
     # Zoomed out: 2.5's code at the largest size that fits the panel.
-    first = states[0]
-    size = min(SIZE, int((FIN_PANEL[1] - FIN_PANEL[0] - 2 - 2 * PANEL_PAD_Y) / len(first["lines"]) / 1.4))
-    lh = round(size * 1.4, 1)
-    rows = morph.code_runs_html(runs[0], size, lh, size * 0.6, LEFT, FIN_TOP, "fa")
-    slides = [("fin2-5-all", finale_slide("fin2-5-all", "fade", rows, "2.5"))]
+    size = min(SIZE, int((FIN_PANEL[1] - FIN_PANEL[0] - 2 - 2 * PANEL_PAD_Y) / len(states[0]["lines"]) / 1.4))
+    rows = morph.code_runs_html(runs[0], size, round(size * 1.4, 1), size * 0.6, LEFT, FIN_TOP, "f")
+    slides = [("fin2-5", finale_slide("fin2-5", "magic", rows, "2.5"))]
 
-    for k, st in enumerate(states):
+    for k, st in enumerate(states[1:], 1):
         v = st["versions"][0]
         shift = tops[k] - FIN_TOP
         moved = [(sp[0], sp[1] + shift, sp[2], sp[3] + shift) for sp in spans[k]]
@@ -849,8 +855,44 @@ def finale(last_transition: str) -> list[tuple[str, str]]:
         shown = [r for r in runs[k] if r[0]["id"] in keep[k]]
         rows += [bleed(html, *line_y(k, r)) for r, html in zip(shown, morph.code_runs_html(shown, SIZE, LH, CW, LEFT, tops[k], "f"))]
         sid = "fin" + v.replace(".", "-")
-        slides.append((sid, finale_slide(sid, "magic" if k + 1 < len(states) else last_transition, rows, v)))
+        slides.append((sid, finale_slide(sid, "magic", rows, v)))
     return slides
+
+
+# The finale's frames, as a deck for the local player, and the recording talk/finale.py makes of them, a video and its
+# still (the overview), in the artifact's asset store: the slide shows the still with the video named on it, which the
+# Slides format plays, looping, while the slide is shown. Their copies in talk/5.20-deck/assets/, each named after its
+# asset's id, are what talk/present.py and talk/render.py show for them.
+FINALE_FRAMES = ROOT / "out/finale/project"
+FINALE_CLIP = "/_blob/954245e15ec163acbcdd696a65e513a5"
+FINALE_STILL = "/_blob/aa3fc2747ae9ff0d0d12383e4521e367"
+# The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md;
+# their local copies are symlinks to the deck's.
+FINALE_BULLETS = {FINALE_CLIP: "/_blob/83877e474d4191c833c2289de4afc6f0",
+                  FINALE_STILL: "/_blob/2ef61bdfbb66aea116d4832ad508f421"}
+
+
+def write_finale_frames(slides: list[tuple[str, str]]):
+    """The finale's slides, as a deck of their own in FINALE_FRAMES."""
+    frames = FINALE_FRAMES / "slides"
+    frames.mkdir(parents=True, exist_ok=True)
+    for old in frames.glob("*.html"):
+        old.unlink()
+    for sid, html in slides:
+        (frames / f"{sid}.html").write_text(html)
+    deck = {"v": 4, "title": "Finale frames", "order": [sid for sid, _ in slides], "faces": FACES}
+    (FINALE_FRAMES / "deck.json").write_text(json.dumps(deck, indent=2, ensure_ascii=False) + "\n")
+
+
+def finale_image_slide(transition: str, assets: dict[str, str] | None = None) -> str:
+    """The finale's slide in the deck: its video, filling the slide (the timeline is in the frames); `assets` maps
+    the asset urls to another artifact's copies of them."""
+    clip, still = ((assets or {}).get(url, url) for url in (FINALE_CLIP, FINALE_STILL))
+    return (f'<section id="finale" data-transition="{transition}" style="background:{BG}; color:{FG}; '
+            f"font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px\">\n"
+            f'<img src="{still}" data-video="{clip}" '
+            f'alt="The whole code morphing from Scala 2.5 to 4.0, looping" data-bleed="" '
+            f'style="position:absolute; left:0px; top:0px; width:1920px; height:1080px">\n</section>\n')
 
 
 # The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
@@ -926,9 +968,8 @@ def build(notes_from: Path = SCRIPT):
             continue
         kind, v = item
         if kind == "finale":
-            fin = finale(leaving(n))
-            ids += [sid for sid, _ in fin]
-            item_id.append(ids[-1])
+            ids.append("finale")
+            item_id.append("finale")
             continue
         if kind == "cloud":
             ids.append("tc" + v.replace(".", "-"))
@@ -972,8 +1013,9 @@ def build(notes_from: Path = SCRIPT):
             continue
         kind, v = item
         if kind == "finale":
-            for sid, html in fin:
-                (slides / f"{sid}.html").write_text(html)
+            write_finale_frames(finale())
+            assets = FINALE_BULLETS if notes_from == BULLETS else None
+            (slides / "finale.html").write_text(finale_image_slide(leaving(n), assets))
             continue
         if kind == "cloud":
             html = (CLOUDS / f"s{v.replace('.', '-')}.html").read_text()

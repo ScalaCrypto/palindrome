@@ -6,7 +6,7 @@ This document maintains the complete state, module matrix, architecture, and con
 
 ## 1. Project Overview
 
-The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.19-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
+The project is a showcase ("A tour of Scala versions in the view of isPalindrome") containing **19 subprojects**, each implementing the same palindrome checker in a specific Scala release from `2.5` to `3.9`. It is the sample code for the ScalaDays 2026 talk *A Brief History of Scala* (`scaladays-2026-talk.md`; the choice of `isPalindrome` as the running example is in `scala-history-talk-problem-selection.md`). The talk has **one deck**, `talk/5.20-deck/`: hand-written framing slides around code slides generated from the sources, with a note for every change (see `talk/README.md`).
 
 Every version implements the same design: a generic `isPalindrome` over `Seq[A]`, element equality as an `Eq` type class, `palindromize`, which builds a palindrome of the input's own collection type, and method syntax (`xs.isPalindrome`). Each version writes that design with the best features its Scala release has, so the diff between neighbouring versions shows what the language gained (see section 4).
 
@@ -79,8 +79,9 @@ palindrome/
 │   └── evolution.py                # Generates EVOLUTION.md; --check fails if it's stale
 ├── talk/
 │   ├── README.md                   # How the deck, its artifact and the render check fit together
-│   ├── 5.19-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
-│   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*/fin*.html
+│   ├── 5.20-deck/project/           # The talk's deck (claude.ai Slides format): deck.json + slides/<id>.html
+│   │                               #   hand-written slides, plus GENERATED code slides m*/e*/o*.html and finale.html
+│   ├── 5.20-deck/assets/            # Local copies of the deck's asset-store files (the finale's video and still)
 │   ├── script.md                   # The talk as a dialogue, slide by slide: every slide's speaker notes come from it
 │   ├── bullets.md                  # The alternative: the same talk as talking points (present.py --notes shows it)
 │   ├── deck.py                     # Builds the deck: generates the code slides and notes, normalizes the rest
@@ -89,6 +90,7 @@ palindrome/
 │   ├── present.py                  # Presents the deck from this computer: slides window + presenter view (README)
 │   ├── present/                    # The player: index.html (slides), presenter.html, player.js, present.css
 │   ├── prep.py                     # Builds the speakers' practice PDFs (Odd, Martin, together) from each script
+│   ├── finale.py                   # Records the finale as a looping video, from frames deck.py writes to out/finale/
 │   ├── tag-cloud.py                # Generates the tag-cloud deck from tag-cloud/authors.json
 │   └── tag-cloud/                  # Who wrote each Scala release: authors.json + GENERATED project/
 ├── .github/workflows/
@@ -196,9 +198,9 @@ the reference for what each version looks like. It is **generated** by `tools/ev
   (`.github/workflows/evolution.yml`) fails when `EVOLUTION.md` is stale. In Claude Code, a `PostToolUse` hook in
   `.claude/settings.json` runs the generator automatically after every Write/Edit to one of those files, and reports
   a missing or stray `NOTES.md` back to Claude. Other assistants and manual edits must run it themselves.
-- **Deck version**: the deck's directory starts with its version (`5.19-deck`). A revision that changes the deck's
+- **Deck version**: the deck's directory starts with its version (`5.20-deck`). A revision that changes the deck's
   code or look renames it (`git mv`, and `DECK` in `talk/deck.py`); `talk/README.md` has the history.
-- **The deck is `talk/5.19-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
+- **The deck is `talk/5.20-deck/`**, and its artifact is where it's presented. It has two kinds of slide:
   - **Code slides** are generated from the version sources by `talk/deck.py`, in three tracks that each morph from
     version to version where their code changes: the methods (`m*.html`), `Eq` (`e*.html`) and Scala 2's method
     syntax (`o*.html`), with the bubbles in its `NOTES`/`EQ_NOTES`/`OPS_NOTES`.
@@ -208,9 +210,11 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     also shows 2.13's method syntax as an implicit class (`OPS_2_13`, not in the sources; `DESIGN.md`), commented
     out method by method, and then as a whole on a click of its own (`m3-0-ops`), with a note that it's obsolete; the
     click after that deletes it, onto a slide of its own (`m3-0-clean`). After the thank-you slide, a silent finale
-    (`fin*.html`, also generated) shows the whole code at once, `Eq`, the methods and the method syntax: 2.5 zoomed
-    out to fit, then one slide per version that changes something, 2.5 to 4.0, each morphing from the last while the
-    view pans to what changed (highlighted, no bubbles) and the timeline's amber dot slides to the version. Where a
+    (`finale.html`, also generated) plays a looping video of the whole code at once, `Eq`, the methods and the method
+    syntax: 2.5 zoomed out to fit, growing into 2.8 at the code slides' size, then each version that changes
+    something, up to 4.0, morphing from the last while the view pans to what changed (highlighted, no bubbles) and the timeline's amber dot slides to the version.
+    `talk/finale.py` records the video from frames `talk/deck.py` writes (`out/finale/`); after a code change, record
+    it again and replace its assets (`talk/README.md`, "The finale's video"). Where a
     step changes both methods, `isPalindrome` morphs first, with its bubbles (`m*-is.html`), and `palindromize` on the
     next click. The tour ends with a made-up Scala 4.0 (`cloud4-0`, `f4-0`,
     `m4-0`: Prolog extractors, a match that names `x` twice). The bubbles go anywhere on the slide outside the code,
@@ -237,8 +241,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     `faces`. Add or reorder slides there, not in the artifact; the build fails if a hand-written slide's file isn't in
     `SEQUENCE`, or a slide in it has no file.
 - **After changing the code, the notes or a slide**, run `talk/deck.py`, check it with `talk/render.py
-  --screenshots`, and republish `talk/5.19-deck/project/` to its artifact. **After editing the artifact**, read the
-  changed slides back into `talk/5.19-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
+  --screenshots`, and republish `talk/5.20-deck/project/` to its artifact. **After editing the artifact**, read the
+  changed slides back into `talk/5.20-deck/project/slides/` first, then run the same steps; `talk/README.md` says how.
 - **Keep this file current**: `STATE.md` is the single source of project facts for all assistants (`CLAUDE.md` and `.junie/guidelines.md` point here). When a change makes something here stale (a version, a signature, a code example), update it in the same PR.
 
 ### Common Commands
@@ -253,13 +257,14 @@ legacy/test.sh           # build and test 2.5–2.9 without Mill
 legacy/test.sh 2.7 2.9   # ... only some of them
 tools/evolution.py       # regenerate EVOLUTION.md
 tools/evolution.py --check  # fail if EVOLUTION.md is stale
-talk/deck.py             # rebuild the deck in talk/5.19-deck/ (code slides, notes, order)
+talk/deck.py             # rebuild the deck in talk/5.20-deck/ (code slides, notes, order)
 talk/render.py           # check the deck's layout (needs Chrome); --screenshots for PNGs
 talk/tag-cloud.py        # regenerate the tag-cloud deck in talk/tag-cloud/
 talk/render.py --screenshots talk/tag-cloud   # check and screenshot another deck
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
 talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view
 talk/present.py --notes talk/bullets.md  # present with the talking points instead of the dialogue
+talk/finale.py           # record the finale's video from the frames talk/deck.py writes (needs ffmpeg)
 talk/prep.py             # practice PDFs for offline reading, both scripts, into out/talk-prep/ (after render.py --screenshots)
 ```
 

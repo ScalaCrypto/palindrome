@@ -5,6 +5,104 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — The finale grows from the overview into 2.8
+
+### What changed
+
+The finale no longer fades from the zoomed-out 2.5 into 2.5 at full size: the zoomed-out code morphs straight into
+2.8 at the code slides' size, its text growing as it moves, and every later version keeps that size. The frames lose
+`fin2-5-all`; the overview is `fin2-5`, its runs carry the same ids as the close-ups' (`f…`, not `fa…`), so they
+morph, and its transition is `magic`. The first close-up, `fin2-8`, holds every run of the overview it keeps, not only
+those in its view, so the code that ends up outside the view grows out past the masks instead of fading where it was.
+The local player's magic move scales an element whose `font-size` changes (`translate(…) scale(old / new)` from its
+top-left corner) instead of only resizing its box. The loop is 36.0 s, the clip 2.3 MB.
+
+### Why
+
+The user asked for it: the fade to 2.5 close up only repeated the code just shown, and the zoom shows where the
+close-up is in the whole.
+
+### Alternatives rejected
+
+- **Scaling every resized element** in the magic move: a box that only changes width (a highlight, a panel) would
+  have its contents stretched. Only a change of text size scales.
+- **Interpolating `font-size`** in the animation: the text would reflow and re-hint on every frame; a scale moves it
+  as one image, which is how a zoom looks.
+- **Keeping the overview's runs out of `fin2-8`** (as each later step does with code leaving the view): most of 2.5
+  leaves the view in this step, and fading it in place at the small size, while the rest grows, would look like two
+  animations at once.
+
+### Limitations accepted
+
+- The zoom exists only in the recording: the artifact's own magic move animates boxes, not text sizes. It never plays
+  these frames, only the video.
+
+### Verified
+
+- Frames checked by eye: the overview, the zoom midway (text between the two sizes, moving into place), and 2.8.
+- `talk/finale.py` twice gave byte-identical video, the one uploaded.
+- `talk/deck.py`, `talk/present.py --check`, `talk/render.py --screenshots` and `tools/evolution.py --check` pass.
+
+---
+
+## 2026-10-11 — The finale as one slide with a looping video (deck 5.20)
+
+### What changed
+
+The finale is one slide, `finale`, instead of eleven: it plays a video of the whole sequence that loops for as long as
+the slide is up, so nobody has to click through it. The eleven slides are still generated, as the video's frames:
+`talk/deck.py` writes them as a deck of their own in `out/finale/project/`, and a new `talk/finale.py` plays them in
+the local player in headless Chrome, freezes each transition at evenly spaced moments (the player's `freezeAll` test
+hook), screenshots each one through Chrome's DevTools pipe, and has ffmpeg encode the frames, with how long each is
+shown, as H.264. The loop is 38.5 s: the 2.5 overview (3 s), its fade into 2.5 close up, then each version's morph
+(1.5 s) and a pause on it (2 s; 3 s on 4.0), then a dip through the empty slide back to the overview, so the loop
+never jumps. The slide is the format's video: `<img src="/_blob/<still>" data-video="/_blob/<clip>">`, the still
+being the overview. The clip and the still are in each artifact's asset store (`FINALE_CLIP`, `FINALE_STILL`; the
+bullets deck has copies with their own ids, `FINALE_BULLETS`), and in `talk/5.20-deck/assets/`, named after their ids,
+for `talk/present.py` (which serves `/_blob/<id>` from there) and `talk/render.py` (which points `src` there). The local
+player plays an `<img data-video>` as a muted, looping `<video>`, as the artifact does. The script's eleven finale
+sections become one, and the reserve slides are 63–65.
+
+### Why
+
+The user asked for the finale as "a GIF or something" that loops while its slide is shown. A video is what the Slides
+format offers for that: it plays a clip on a slide, looping, while it's presented. Recording the local player's own
+morph, rather than drawing the frames another way, makes the video match the slides exactly.
+
+### Alternatives rejected
+
+- **An animated GIF**: 256 colours, too few for anti-aliased, syntax-coloured code; and no GIF encoder was installed.
+- **An animated WebP** (lossless, 300 frames): sharp, and a GIF's looping `<img>`, but 10.3 MB. The asset store
+  refused it ("store_unavailable", twice), and a 5 MB test too, while 1 MB and 2.3 MB went up. Lossy WebP was larger
+  still (12–20 MB), and other encoder settings saved under 3%. Fewer frames would get it under the limit only by
+  making the morphs choppy.
+- **Publishing the image as one of the artifact's own files** (15 MB allowed): the format's `<img src>` takes only
+  `/_blob/<id>` or a design system's `project/ds/<folder>/…` file, and the page drops anything else.
+- **Recording in Chrome with MediaRecorder** (no ffmpeg needed): real time, so the frame timing can jitter, and its
+  WebM lacks seek metadata. ffmpeg (installed with Homebrew, with the user's go-ahead) is deterministic: the same
+  frames give the same bytes.
+- **Keeping the eleven click-through slides beside the video**: two finales to keep in step; the slides live on only
+  as the video's frames.
+
+### Limitations accepted
+
+- The video is a recording: after a change to the code or the finale's look, it must be recorded again and its assets
+  replaced by hand (new ids in `deck.py`, new local copies, the bullets deck's copies); `talk/README.md` lists the steps.
+- It holds the local player's morph, eased the same way but not the artifact's own renderer, so it can differ from
+  the artifact's magic move in small ways (the artifact's is 480 ms; the video's 1.5 s, slow enough to follow).
+- H.264 with 4:2:0 chroma softens coloured thin strokes slightly; at CRF 24 the code reads as sharply as on the slides.
+- The clip (2.3 MB) is in git, as `talk/5.20-deck/assets/`; each recording adds one.
+
+### Verified
+
+- `talk/finale.py` twice gave byte-identical video (sha256 a3ee7055…), the one uploaded.
+- Frames checked by eye: the overview, the fade into 2.5, a morph midway, and the dip back to the overview.
+- The local player plays it: in headless Chrome, 4 s after the slide opens, the video is at 4.0 s, not paused, 1920
+  wide, 38.5 s long, looping, with no error.
+- `talk/deck.py` (both scripts), `talk/present.py --check`, `talk/render.py --screenshots` pass.
+
+---
+
 ## 2026-10-11 — The finale: the whole code, 2.5 to 4.0, panning to each change (deck 5.19)
 
 ### What changed

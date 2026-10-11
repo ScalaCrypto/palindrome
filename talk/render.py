@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Renders a deck (the talk's deck, talk/5.19-deck/, unless another is named) with headless Chrome and checks
+"""Renders a deck (the talk's deck, talk/5.20-deck/, unless another is named) with headless Chrome and checks
 its layout.
 
 Usage: talk/render.py                 measure every slide; exit 1 if anything overflows
        talk/render.py --screenshots   also write one PNG per slide, plus contact sheets, to
-                                      out/talk-render/5.19-deck/
+                                      out/talk-render/5.20-deck/
        talk/render.py [--screenshots] talk/tag-cloud   the same for another deck, into out/talk-render/tag-cloud/
 
 Each slide is laid out on the deck's fixed 1920x1080 canvas with the deck's own fonts, then measured:
@@ -19,6 +19,8 @@ deck.json and are cached under out/talk-render/fonts. Needs Python 3 and Google 
 its path if it isn't found.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -31,7 +33,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.19-deck/project"
+DECK = ROOT / "talk/5.20-deck/project"
 OUT = ROOT / "out/talk-render"
 FONTS = OUT / "fonts"
 BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -110,6 +112,22 @@ def run_chrome(profile: Path, args: list[str], done) -> str:
             proc.wait()
 
 
+def local_asset(deck_dir: Path, blob: str) -> Path | None:
+    """The local copy of a file a slide names from the artifact's asset store (/_blob/<id>): the file named
+    after its id in the deck's assets/, beside project/."""
+    found = sorted((deck_dir.parent / "assets").glob(f"{blob}.*")) if re.fullmatch(r"[\w-]+", blob) else []
+    return found[0] if found else None
+
+
+def with_local_assets(deck_dir: Path, html: str) -> str:
+    """A slide with its asset store images pointing at their local copies; it fails if one has none."""
+    def local(m):
+        if not (asset := local_asset(deck_dir, m[1])):
+            sys.exit(f"talk/render.py: no local copy of /_blob/{m[1]} in {deck_dir.parent / 'assets'}")
+        return f'src="{asset.as_uri()}"'
+    return re.sub(r'src="/_blob/([^"]+)"', local, html)
+
+
 def screenshot_written(path: Path):
     """done() for a screenshot: the PNG exists and has stopped growing."""
     last = [-1]
@@ -163,7 +181,7 @@ def main() -> None:
             sys.exit(f"talk/render.py: no deck at {DECK}")
     OUT = OUT / DECK.parent.name
     deck = json.loads((DECK / "deck.json").read_text())
-    slides = {sid: (DECK / f"slides/{sid}.html").read_text() for sid in deck["order"]}
+    slides = {sid: with_local_assets(DECK, (DECK / f"slides/{sid}.html").read_text()) for sid in deck["order"]}
     fonts = local_fonts(deck)
     OUT.mkdir(parents=True, exist_ok=True)
 
