@@ -8,6 +8,8 @@ Usage: talk/present.py                  serve the talk's deck and open the prese
        talk/present.py --notes talk/bullets.md
                                         the talk's deck with another script's speaker notes, in place of its own
        talk/present.py --port 8800      another port (default 8765)
+       talk/present.py --host 0.0.0.0   serve the local network too, so another computer can open the presenter view
+                                        (or the slides); it prints their addresses. Anyone on the network can.
        talk/present.py --no-open        don't open a browser
        talk/present.py --check [deck]   check that every slide's notes fit the presenter view without scrolling,
                                         in a 1440x820 window (a laptop's browser window); --size WxH for another
@@ -15,7 +17,8 @@ Usage: talk/present.py                  serve the talk's deck and open the prese
 Then, in the presenter view, click "Open slides window", move that window to the external display, and press F in
 it for full screen. Drive the talk from the presenter view: → or space for the next click, ← back, a slide number
 then Enter to jump, B to black out the slides, T to start or pause the timer, E to show the notes' key words in bold
-or not, + and − for the notes' size.
+or not, + and − for the notes' size. Every open page follows the others, on this computer or another: they keep
+in step through this server.
 
 The deck is read from its files on every page load, so reload after talk/deck.py. The fonts come from the cache
 talk/render.py keeps in out/talk-render/fonts, so once they're there (after one run of either script with a network)
@@ -29,10 +32,13 @@ import argparse
 import html
 import http.server
 import json
+import queue
 import re
+import socket
 import sys
 import tempfile
 import threading
+import urllib.parse
 import webbrowser
 from pathlib import Path
 
@@ -64,10 +70,38 @@ def fonts_css(deck_dir: Path) -> bytes:
     return css.replace(render.FONTS.as_uri() + "/", "fonts/").encode()
 
 
+class Hub:
+    """Passes each page's messages (player.js's Link) on to every other open page, wherever it runs."""
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.pages: dict[str, queue.Queue] = {}
+
+    def join(self, page: str) -> queue.Queue:
+        with self.lock:
+            self.pages[page] = queue.Queue()
+            return self.pages[page]
+
+    def leave(self, page: str, inbox: queue.Queue) -> None:
+        with self.lock:
+            if self.pages.get(page) is inbox:
+                del self.pages[page]
+
+    def post(self, sender: str, message: bytes) -> None:
+        with self.lock:
+            for page, inbox in self.pages.items():
+                if page != sender:
+                    inbox.put(message)
+
+
 def handler(deck_dir: Path, script: Path | None = None):
+    hub = Hub()
+
     class Handler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             path = self.path.split("?")[0]
+            if path == "/link":
+                return self.stream(self.page())
             if path in ("/", "/index.html"):
                 return self.send(PAGES / "index.html")
             if path in ("/presenter", "/presenter.html"):
@@ -84,6 +118,39 @@ def handler(deck_dir: Path, script: Path | None = None):
             if path.startswith("/_blob/") and (asset := render.local_asset(deck_dir, path.removeprefix("/_blob/"))):
                 return self.send(asset)
             self.send_error(404)
+
+        def do_POST(self):
+            if self.path.split("?")[0] != "/link":
+                return self.send_error(404)
+            message = self.rfile.read(int(self.headers.get("Content-Length", 0)))
+            hub.post(self.page(), b" ".join(message.splitlines()))
+            self.send_response(204)
+            self.end_headers()
+
+        def page(self) -> str:
+            return urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get("id", [""])[0]
+
+        def stream(self, page: str):
+            """The messages for one page, as server-sent events, until it goes; a comment line now and then finds
+            out when it has."""
+            inbox = hub.join(page)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            try:
+                self.wfile.write(b": open\n\n")
+                self.wfile.flush()
+                while True:
+                    try:
+                        self.wfile.write(b"data: " + inbox.get(timeout=10) + b"\n\n")
+                    except queue.Empty:
+                        self.wfile.write(b": still here\n\n")
+                    self.wfile.flush()
+            except OSError:
+                pass
+            finally:
+                hub.leave(page, inbox)
 
         def send(self, file: Path):
             self.reply(file.read_bytes(), TYPES.get(file.suffix, "application/octet-stream"))
@@ -106,6 +173,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("deck", nargs="?", help="a deck's directory (default: the talk's deck)")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--host", default="127.0.0.1",
+                        help="the address to serve on (default 127.0.0.1, this computer only; 0.0.0.0 for the network)")
     parser.add_argument("--no-open", action="store_true", help="don't open a browser")
     parser.add_argument("--check", action="store_true", help="check that the notes fit without scrolling, then exit")
     parser.add_argument("--size", default="1440x820", help="the presenter window for --check (default 1440x820)")
@@ -123,19 +192,32 @@ def main() -> None:
 
     if args.check:
         sys.exit(check(deck_dir, args.size, script))
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler(deck_dir, script))
+    server = http.server.ThreadingHTTPServer((args.host, args.port), handler(deck_dir, script))
     url = f"http://localhost:{args.port}/"
     print(f"Presenting {deck_dir.parent.relative_to(ROOT)}"
           + (f", notes from {script.relative_to(ROOT)}" if script else "") + "\n"
           f"  presenter view: {url}presenter\n"
-          f"  slides:         {url}  (or the presenter view's \"Open slides window\")\n"
-          f"Ctrl-C to stop.")
+          f"  slides:         {url}  (or the presenter view's \"Open slides window\")")
+    if args.host not in ("127.0.0.1", "localhost"):
+        lan = f"http://{lan_address() if args.host in ('0.0.0.0', '') else args.host}:{args.port}/"
+        print(f"  from another computer on the network: {lan}presenter and {lan}")
+    print("Ctrl-C to stop.")
     if not args.no_open:
         threading.Timer(0.3, lambda: webbrowser.open(url + "presenter")).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         print()
+
+
+def lan_address() -> str:
+    """This computer's address on the local network: the one it would send from (a UDP connect sends nothing)."""
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        try:
+            s.connect(("192.0.2.1", 9))
+            return s.getsockname()[0]
+        except OSError:
+            return socket.gethostname()
 
 
 def check(deck_dir: Path, size: str, script: Path | None = None) -> int:

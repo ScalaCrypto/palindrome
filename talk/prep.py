@@ -539,8 +539,9 @@ def together(slides, checkpoints, variant: Variant) -> str:
     plan = f"""
 <h2>Sunday afternoon: the rehearsal</h2>
 <p>About two and a half hours, in a hotel room or a quiet corner. Bring the laptop, its charger, the clicker, and this
-document. Without a projector, put the slides window on the laptop and the presenter view on a phone or iPad
-browser, or both on the laptop side by side.</p>
+document. Without a projector, put the slides window on the laptop and the presenter view in a phone or iPad
+browser on the same Wi-Fi (<code>talk/present.py --host 0.0.0.0</code> prints its address; a hotel network may keep
+the two apart), or both on the laptop side by side.</p>
 <table class="grid">
 <tr><th>Time</th><th>Step</th><th>What it's for</th></tr>
 <tr><td>15 min</td><td><b>Set up</b></td><td><code>talk/present.py</code>: presenter view, slides window, clicker paired.

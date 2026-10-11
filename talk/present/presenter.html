@@ -93,7 +93,9 @@
     store("pos", pos);
   };
 
-  const link = new Link(m => {
+  // A headless check is one page on its own: an open link would hold up headless Chrome's virtual time.
+  const alone = test || new URLSearchParams(location.search).has("fit");
+  const link = alone ? {post() {}} : new Link(m => {
     if (m.type === "hello") link.post({type: "state", ...pos, animate: false});
     if (m.type === "state") { pos = clampPos(deck, m); render(); }
     if (m.type === "blank") { blanked = m.on; $('[data-act="blank"]').classList.toggle("on", blanked); }

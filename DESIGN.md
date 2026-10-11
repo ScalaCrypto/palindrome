@@ -5,6 +5,45 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — The presenter view on another computer
+
+### What changed
+
+`talk/present.py --host 0.0.0.0` serves the local network as well as this computer, and prints the addresses another
+computer opens. The pages keep in step through the server instead of the browser's `BroadcastChannel`: each page
+streams the others' moves from `/link` (server-sent events) and posts its own there, one at a time so they arrive in
+order. The default is still `127.0.0.1`. A headless check (`?fit`, `?at`) opens no link.
+
+### Why
+
+The user asked for it: the speaker screen, the presenter view, on a computer other than the one showing the slides.
+A `BroadcastChannel` only reaches pages in the same browser on the same computer, so binding to `0.0.0.0` alone
+would have served a presenter view that neither moved the slides nor followed them.
+
+### Alternatives rejected
+
+- **Keeping `BroadcastChannel` beside the server's link**: two ways for a move to arrive, so every local page would
+  get each one twice. One way, through the server, works everywhere; on this computer it adds no noticeable delay.
+- **WebSockets**: the standard library has no WebSocket server, and each page only needs to receive a stream and
+  post the odd message, which server-sent events and `fetch` do with `http.server` alone.
+- **A password or token**: the talk runs on a network the speakers trust, and a token in the URL would be one
+  more thing to type on stage. The README says that anyone on the network can drive the slides.
+
+### Limitations accepted
+
+- An open link holds up headless Chrome's virtual time (`--virtual-time-budget`), so the headless checks run without
+  one; they only ever use one page.
+- A move made while the server is down is lost; the page reconnects by itself when it's back, and the next move
+  brings the pages back in step.
+
+### Verification
+
+- `talk/present.py --check`, with either script, passes.
+- With `--host 0.0.0.0`, the server answers on the computer's network address; five moves posted by one page reach
+  another in order, and not the sender; a headless presenter view moves to slide 6 on a move posted by another page.
+
+---
+
 ## 2026-10-11 — The finale grows from the overview into 2.8
 
 ### What changed

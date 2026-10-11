@@ -264,6 +264,7 @@ talk/render.py --screenshots talk/tag-cloud   # check and screenshot another dec
 talk/present.py          # present the deck: slides on the external display, presenter view on the laptop
 talk/present.py --check  # fail if a slide's notes need scrolling in the presenter view
 talk/present.py --notes talk/bullets.md  # present with the talking points instead of the dialogue
+talk/present.py --host 0.0.0.0  # also serve the network, for a presenter view on another computer
 talk/finale.py           # record the finale's video from the frames talk/deck.py writes (needs ffmpeg)
 talk/prep.py             # practice PDFs for offline reading, both scripts, into out/talk-prep/ (after render.py --screenshots)
 ```

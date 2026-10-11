@@ -260,14 +260,29 @@ class Stage {
   }
 }
 
-// Keeps the open pages of a show in step: each page applies a move itself and tells the others.
+// Keeps the open pages of a show in step: each page applies a move itself and tells the others, through the server
+// (present.py's /link), so a page on another computer follows too. Messages wait until the stream is open, and go
+// out one at a time, so they arrive in order.
 class Link {
   constructor(onMessage) {
-    this.channel = "BroadcastChannel" in window ? new BroadcastChannel("palindrome-deck") : null;
-    if (this.channel) this.channel.onmessage = e => onMessage(e.data);
+    this.id = Math.random().toString(36).slice(2);
+    this.waiting = [];
+    this.sent = Promise.resolve();
+    const source = new EventSource(`link?id=${this.id}`);
+    source.onmessage = e => onMessage(JSON.parse(e.data));
+    source.onopen = () => {
+      const waiting = this.waiting || [];
+      this.waiting = null;
+      waiting.forEach(m => this.send(m));
+    };
   }
   post(message) {
-    if (this.channel) this.channel.postMessage(message);
+    if (this.waiting) this.waiting.push(message);
+    else this.send(message);
+  }
+  send(message) {
+    this.sent = this.sent.then(() => fetch(`link?id=${this.id}`, {method: "POST", body: JSON.stringify(message)}))
+                         .catch(() => {});
   }
 }
 
