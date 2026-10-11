@@ -5,6 +5,46 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — The finale grows from the overview into 2.8
+
+### What changed
+
+The finale no longer fades from the zoomed-out 2.5 into 2.5 at full size: the zoomed-out code morphs straight into
+2.8 at the code slides' size, its text growing as it moves, and every later version keeps that size. The frames lose
+`fin2-5-all`; the overview is `fin2-5`, its runs carry the same ids as the close-ups' (`f…`, not `fa…`), so they
+morph, and its transition is `magic`. The first close-up, `fin2-8`, holds every run of the overview it keeps, not only
+those in its view, so the code that ends up outside the view grows out past the masks instead of fading where it was.
+The local player's magic move scales an element whose `font-size` changes (`translate(…) scale(old / new)` from its
+top-left corner) instead of only resizing its box. The loop is 36.0 s, the clip 2.3 MB.
+
+### Why
+
+The user asked for it: the fade to 2.5 close up only repeated the code just shown, and the zoom shows where the
+close-up is in the whole.
+
+### Alternatives rejected
+
+- **Scaling every resized element** in the magic move: a box that only changes width (a highlight, a panel) would
+  have its contents stretched. Only a change of text size scales.
+- **Interpolating `font-size`** in the animation: the text would reflow and re-hint on every frame; a scale moves it
+  as one image, which is how a zoom looks.
+- **Keeping the overview's runs out of `fin2-8`** (as each later step does with code leaving the view): most of 2.5
+  leaves the view in this step, and fading it in place at the small size, while the rest grows, would look like two
+  animations at once.
+
+### Limitations accepted
+
+- The zoom exists only in the recording: the artifact's own magic move animates boxes, not text sizes. It never plays
+  these frames, only the video.
+
+### Verified
+
+- Frames checked by eye: the overview, the zoom midway (text between the two sizes, moving into place), and 2.8.
+- `talk/finale.py` twice gave byte-identical video, the one uploaded.
+- `talk/deck.py`, `talk/present.py --check`, `talk/render.py --screenshots` and `tools/evolution.py --check` pass.
+
+---
+
 ## 2026-10-11 — The finale as one slide with a looping video (deck 5.20)
 
 ### What changed

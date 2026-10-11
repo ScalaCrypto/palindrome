@@ -4,10 +4,10 @@
 Usage: talk/finale.py      after talk/deck.py; writes out/finale/finale.mp4 and its still, out/finale/finale.png
 
 talk/deck.py writes the finale's frames as a deck of their own (out/finale/project/): the whole of 2.5 zoomed out, then a
-slide per version, each morphing from the last. This plays them in the local player (talk/present/) in headless
+slide per later version, each morphing from the last. This plays them in the local player (talk/present/) in headless
 Chrome, driven through its DevTools pipe, freezes each transition at evenly spaced moments (the player's test hook,
 freezeAll) and screenshots each one. The frames, with how long each is shown, become an H.264 video: the overview,
-its fade into 2.5 close up, each version's morph and a pause on it, and, after 4.0, a fade back to the overview, so
+it growing into 2.8, each later version's morph and a pause on it, and, after 4.0, a fade back to the overview, so
 the slide, which plays it looping, never jumps. The still, which the slide shows wherever the video doesn't play
 (thumbnails, downloads), is the overview, the loop's first frame.
 
@@ -122,8 +122,7 @@ def main() -> None:
     if not (ffmpeg := shutil.which("ffmpeg")):
         sys.exit("talk/finale.py: ffmpeg not found (brew install ffmpeg)")
     player = (present.PAGES / "player.js").read_text()
-    durations = dict(re.findall(r"\b(MAGIC|FADE) = (\d+)", player))
-    magic, fade = int(durations["MAGIC"]), int(durations["FADE"])
+    magic = int(re.search(r"\bMAGIC = (\d+)", player).group(1))
     count = len(json.loads((FRAMES / "deck.json").read_text())["order"])
 
     shots = OUT / "frames"
@@ -152,8 +151,7 @@ def main() -> None:
         try:
             chrome.open(f"{base}?at=0.0", "document.querySelector('.layer section')")
             keep(chrome.shot(), OVERVIEW)
-            transition(0, fade, fade, HOLD)  # the overview fades into 2.5 close up, at the player's own pace
-            for i in range(1, count - 1):
+            for i in range(count - 1):  # the overview grows into 2.8, then each version morphs into the next
                 transition(i, MORPH, magic, LAST if i == count - 2 else HOLD)
             # back to the start, through the empty slide: 4.0 fades out under a cover the slide's colour, then the
             # overview fades in (frame n would be the overview, the loop's first)

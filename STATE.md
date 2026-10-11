@@ -211,8 +211,8 @@ the reference for what each version looks like. It is **generated** by `tools/ev
     out method by method, and then as a whole on a click of its own (`m3-0-ops`), with a note that it's obsolete; the
     click after that deletes it, onto a slide of its own (`m3-0-clean`). After the thank-you slide, a silent finale
     (`finale.html`, also generated) plays a looping video of the whole code at once, `Eq`, the methods and the method
-    syntax: 2.5 zoomed out to fit, then each version that changes something, 2.5 to 4.0, morphing from the last while
-    the view pans to what changed (highlighted, no bubbles) and the timeline's amber dot slides to the version.
+    syntax: 2.5 zoomed out to fit, growing into 2.8 at the code slides' size, then each version that changes
+    something, up to 4.0, morphing from the last while the view pans to what changed (highlighted, no bubbles) and the timeline's amber dot slides to the version.
     `talk/finale.py` records the video from frames `talk/deck.py` writes (`out/finale/`); after a code change, record
     it again and replace its assets (`talk/README.md`, "The finale's video"). Where a
     step changes both methods, `isPalindrome` morphs first, with its bubbles (`m*-is.html`), and `palindromize` on the
