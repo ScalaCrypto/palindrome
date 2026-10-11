@@ -51,11 +51,12 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   only its code, so a bubble never adds a line to it. A bubble never mentions a later version. After 3.6, a made-up Scala 4.0 follows: its tag-cloud and "New in" slides
   (`cloud4-0`, `f4-0`, hand-written) and a code slide (`m4-0`) whose match names `x` twice. After the thank-you
   slide comes the finale (`finale`), without bubbles or words, one slide that plays a looping video: the whole code at
-  once, as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5 zoomed out to fit the slide, then
-  at the code slides' size, each version that changes any of it morphing from the last while the view pans to what
-  changed, highlighted, and the timeline's amber dot slides on to its version, past those that change nothing; after
-  4.0 it fades back to the start. It's a pan, not a zoom, because a magic move animates boxes, not text sizes. Its
-  frames are slides `deck.py` writes as a deck of their own (`fin2-5-all` … `fin4-0`, in `out/finale/project/`), and
+  once, as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5 zoomed out to fit the slide, growing
+  into 2.8 at the code slides' size, then each version that changes any of it morphing from the last while the view
+  pans to what changed, highlighted, and the timeline's amber dot slides on to its version, past those that change
+  nothing; after 4.0 it fades back to the start. The local player scales text whose size changes in a magic move,
+  which the artifact's doesn't, so the zoom is in the recording only. Its frames are slides `deck.py` writes as a
+  deck of their own (`fin2-5` … `fin4-0`, in `out/finale/project/`), and
   `finale.py` records them; see "The finale's video" below. The notes are
   `NOTES`, `EQ_NOTES` and `OPS_NOTES` in `deck.py`, and how
   tokens are matched between versions is in `../DESIGN.md`. **Never edit these by hand**: the next build overwrites them.
@@ -144,8 +145,8 @@ talk/finale.py    # out/finale/finale.mp4 and its still, out/finale/finale.png (
 ```
 
 `finale.py` plays the frames in the local player in headless Chrome, freezes each morph at evenly spaced moments and
-screenshots them, and encodes the frames as H.264 with how long each is shown: the overview, each version's morph
-and a pause on it, and a fade back to the start. Its timing is at the top of `finale.py`.
+screenshots them, and encodes the frames as H.264 with how long each is shown: the overview, its growing into 2.8,
+each later version's morph and a pause on it, and a fade back to the start. Its timing is at the top of `finale.py`.
 
 The video and the still are assets in the artifact's asset store, which `deck.py` names in `FINALE_CLIP` and
 `FINALE_STILL`; the bullets deck's artifact has copies with ids of its own, `FINALE_BULLETS`, which a build with

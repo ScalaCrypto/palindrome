@@ -198,7 +198,13 @@ class Stage {
       const from = {transform: `translate(${a.x - b.x}px, ${a.y - b.y}px) ${own}`.trim()};
       const to = {transform: own || "none"};
       const resize = !(nc instanceof SVGElement) && (Math.abs(a.w - b.w) > 0.5 || Math.abs(a.h - b.h) > 0.5);
-      if (resize) {
+      // Text that changes size (the finale's zoomed-out code growing into its first version) scales from the old size,
+      // so the text grows with its box.
+      const grow = parseFloat(getComputedStyle(oc).fontSize) / parseFloat(getComputedStyle(nc).fontSize);
+      if (resize && Math.abs(grow - 1) > 0.01) {
+        Object.assign(from, {transform: `${from.transform} scale(${grow})`, transformOrigin: "0 0"});
+        to.transformOrigin = "0 0";
+      } else if (resize) {
         Object.assign(from, {width: `${a.w}px`, height: `${a.h}px`});
         Object.assign(to, {width: `${b.w}px`, height: `${b.h}px`});
       }
