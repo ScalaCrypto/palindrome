@@ -88,11 +88,11 @@ ODD: And I'm here to make sure nobody gets **sentimental** about it.
 > Two clicks: .mkString("") appears, then palindromize.
 
 MARTIN: Here's the tiny function: **isPalindrome**. Is a String its **own reverse**? Compare, done. Ship it.
-ODD: You'd expect the plain comparison to work. But in 2007, reverse **doesn't return a String**, so it **always fails**.
+ODD: You'd expect equals to work. But in 2.5, reverse **doesn't return a String**, so it **always fails**.
 MARTIN: I can fix that [click] and it's **still a one-liner**!
-ODD: One expensive line. It **copies the whole string twice**, just to compare it with itself.
-MARTIN: Fine. We look at its dual function [click] **palindromize**: make a palindrome of any string.
-ODD: But **"abc"** becomes **"abc cba"**, when it ought to be **"abc ba"**.
+ODD: One expensive line. It **copies the whole string twice**.
+MARTIN: Fine. We will also look at another function [click] **palindromize**: make a palindrome out of any string.
+ODD: But it might not return the shortest possible palindrome.
 MARTIN: Are you going to be like this the whole talk?
 ODD: All **thirty minutes**.
 
@@ -100,10 +100,10 @@ ODD: All **thirty minutes**.
 
 > Two clicks: palindromize's examples, then the case-insensitive ones.
 
-MARTIN: So here's where we want to end up. **Any sequence**, **any element type**, called as a **method**.
+MARTIN: So here's where we want to end up. **Any sequence**, **any element type**, called on as a **method**.
 ODD: Including **on a String**. Which **isn't a Scala Seq**.
 MARTIN: Including on a String. [click] And palindromize gives back **what you gave it**, adding only what's needed.
-ODD: **Same type** out as in. That one feature will cost Scala **two collection redesigns**.
+ODD: **Same type out as in**. That one will take **two collection redesigns**.
 MARTIN: [click] **Case-insensitive**, and Racecar with a capital R is a palindrome.
 ODD: So the **caller** should decide what **"equal"** means.
 MARTIN: Hold that thought. That's where it gets interesting.
@@ -111,14 +111,14 @@ MARTIN: Hold that thought. That's where it gets interesting.
 ## 4 · eq — Seq[A] needs Equality for A · 25 s · 2:00
 
 MARTIN: For this, equality needs to become a **type class**. One trait, one method.
-ODD: And a **case-insensitive instance for Char** that isn't written yet.
+ODD: And we want a **case-insensitive instance for Char**.
 MARTIN: Let's go back to **2007** and write it.
 
 ## 5 · tc2-5 — Scala 2.5 · 2007 · 20 s · 2:25
 
 > The names fade in. Let them, for a beat.
 
-MARTIN: Scala **2.5**, May 2007. Two hundred and eighty-nine commits, by **ten people**.
+MARTIN: Scala **2.5**, May 2007. 289 commits, by **10 people**.
 ODD: Ten. That's not a community, that's a **team lunch**.
 
 ## 6 · f2-5 — New in Scala 2.5 · 25 s · 2:45
@@ -126,22 +126,22 @@ ODD: Ten. That's not a community, that's a **team lunch**.
 MARTIN: **New in 2.5**: type constructor polymorphism, placeholder lambdas, case clauses as functions.
 ODD: And we use **none** of them.
 MARTIN: That's the point. Scala already had **everything** this design needs.
-ODD: True. **Generics, implicits**, anonymous classes, all there. It just made you **type a lot**.
+ODD: True. **Generics, implicits, anonymous classes**, all there. It just made you **type a lot**.
 
 ## 7 · e2-5 — Equality is a type class · 40 s · 3:10
 
 > Two clicks, one per bubble.
 
 MARTIN: Here's our **Equality** in 2.5. [click]
-ODD: We create a **new instance** for each **usage**
-MARTIN: [click] And case-insensitive is **opt-in**.
+ODD: But we create a **new instance** for each **usage**
+MARTIN: [click] And case-insensitive is an **opt-in**.
 ODD: A **plain value**. Nothing happens unless you ask for it. That I can live with.
 
 ## 8 · o2-5 — Method syntax through an implicit conversion · 55 s · 3:50
 
 > Two clicks.
 
-MARTIN: Now **method syntax**. Seq has no isPalindrome method, and we **can't change Seq**, so we **wrap it**. [click] A class that **only forwards the calls**.
+MARTIN: Now for the **method syntax**. Seq has no isPalindrome method, and we **can't change Seq**, so we **wrap it**. [click] A class that **only forwards the calls**.
 ODD: When you call isPalindrome on a Seq, the **compiler creates a wrapper for you** [click].
 MARTIN: Does it work on a **String**?
 ODD: Not this one. A String would need **two conversions**, and the compiler **can only do one**.
@@ -164,9 +164,9 @@ MARTIN: All right. Scala 2.5, show us a **better way**.
 
 MARTIN: **Generic**, with an **implicit Equality**. [click]
 ODD: **Index arithmetic**, in a functional language.
-MARTIN: It's **tail-recursive**!
-ODD: Says who? **Nothing checks it**.
-MARTIN: And now **palindromize**, done properly.
+MARTIN: It's at least **tail-recursive**!
+ODD: Are we sure about that? **Nothing checks it**.
+MARTIN: I promise! And now **palindromize**, done properly.
 
 ## 11 · m2-5 — A better way · 45 s · 5:40
 
@@ -174,23 +174,22 @@ MARTIN: And now **palindromize**, done properly.
 
 MARTIN: Here it is! [click]
 ODD: Ok. And if I give it a **String**, what do I **get back**?
-MARTIN: A **Seq**.
-ODD: A **Seq of Char**, but I gave you a **String**...
-MARTIN: In 2007, that's the **best a generic signature can do**. [click]
+MARTIN: A **Seq** of Char.
+ODD: But I gave you a **String**...
+MARTIN: In 2.5, that's the **best a generic signature can do**. [click]
 ODD: That's a **bummer**
 MARTIN: Unfortunately, neither 2.6 nor 2.7 helps us with this.
 
 ## 12 · tc2-8 — Scala 2.8 · 2010 · 15 s · 6:25
 
 MARTIN: So: Scala **2.8, released in 2010**.
-ODD: Two and a half thousand commits. Six hundred of them by **Paul Phillips**. That man was a **compiler**.
 
 ## 13 · f2-8 — New in Scala 2.8 · 30 s · 6:40
 
 MARTIN: 2.8 was a **big one**. New **collections**, **@tailrec**, named and default arguments.
 ODD: The release that **broke everyone's code**, and everyone **upgraded anyway**.
 MARTIN: But palindromize **needs** the new collections.
-ODD: Because it **builds a collection**. And from 2.8, it can build the **kind you asked for**.
+ODD: Because it **builds a collection**. And from 2.8, it can build the **kind you want**.
 MARTIN: Let's see how we can use that.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
@@ -202,9 +201,9 @@ ODD: In 2.5 we call **toLowerCase** on each Char.
 
 > One click.
 
-MARTIN: Now **toLower**, right on the Char [click].
-ODD: Same method as in **2007**. It's a **rename**.
-MARTIN: A **shorter** rename!
+MARTIN: Now its name is **toLower** [click].
+ODD: Same method as in **2.5**. It's just a **rename**.
+MARTIN: A **shorter** name!
 ODD: The **smallest win** of the night. I'll allow it.
 
 ## 16 · m2-5-again — @tailrec · 5 s · 7:45
@@ -218,7 +217,7 @@ MARTIN: Back to our methods. 2.8 brings **two upgrades**. First, **@tailrec**.
 ODD: If the recursion ever stops being a **tail call**, it's a **compile time error**. **Same bytecode** as before.
 MARTIN: Same bytecode. But a **promise** you can't break. [click]
 ODD: A promise that the **compiler keeps**. I like that.
-MARTIN: Now, on to the big one: **CanBuildFrom**.
+MARTIN: Now, on to the major one: **CanBuildFrom**.
 
 ## 18 · m2-8 — CanBuildFrom keeps the collection type · 50 s · 8:15
 
@@ -235,7 +234,6 @@ ODD: I got my String back. And a **therapist**.
 ## 19 · tc2-9 — Scala 2.9 · 2011 · 15 s · 9:05
 
 MARTIN: **2.9, from 2011**.
-ODD: Paul Phillips: now a thousand and twenty-three commits. I take it back. He wasn't a compiler. He was **the compiler**.
 
 ## 20 · f2-9 — New in Scala 2.9 · 15 s · 9:20
 
@@ -322,13 +320,13 @@ ODD: I did. **Thank you**, 2.11.
 
 ## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 13:10
 
-MARTIN: **2.12**, released in 2016. Built on **Java 8**.
-ODD: Scala lambdas now compile to proper JVM **lambdas**. Scala, **catching up with Java**...
+MARTIN: **2.12**, released in 2016. Now built on **Java 8**.
+ODD: **Scala lambdas** now compile to proper **JVM lambdas**. Scala, **catching up with Java**...
 
 ## 34 · f2-12 — New in Scala 2.12 · 10 s · 13:20
 
 MARTIN: **SAM conversion**, **traits as interfaces**, a right-biased Either.
-ODD: **Lambdas** instead of anonymous classes? That sounds useful.
+ODD: **Lambdas** instead of **anonymous classes**? That sounds useful.
 
 ## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:30
 
@@ -379,7 +377,7 @@ MARTIN: **Surprisingly little did**.
 
 ## 42 · f3-0 — New in Scala 3.0 · 20 s · 15:50
 
-MARTIN: **given** and using, **extension methods**, **optional braces**, **top-level** definitions.
+MARTIN: **given** and **using**, **extension methods**, **optional braces** and **top-level** definitions.
 ODD: We use **all four**, and every one of them **reduces boilerplate**.
 MARTIN: Are you... **excited**?
 ODD: Show me the **diff**.
@@ -415,10 +413,10 @@ MARTIN: Now **palindromize**.
 
 > One click.
 
-MARTIN: Everything reads like a **method call**.
+MARTIN: isPalindrome reads like a **method call**.
 ODD: [click] And **IsSeq gets a using clause of its own**, so we **can refer to its element type**.
 MARTIN: No extra type parameter. **No refinement**.
-ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed the wart**. I'm... **almost moved**.
+ODD: Same **IsSeq**, same **BuildFrom**: the library didn't change, the **language fixed the wart**. I'm... **almost moved**.
 
 ## 48 · m3-0 — using extensions · 15 s · 18:00
 
@@ -479,7 +477,7 @@ ODD: Two authors, **three opinions**.
 
 ## 57 · f4-0 — New in Scala 4.0 · 20 s · 20:00
 
-MARTIN: One feature. **Prolog extractors**.
+MARTIN: And one feature. **Prolog extractors**.
 ODD: Use **one name twice in a pattern**, and both places have to **match the same value**.
 MARTIN: If you remember **Prolog** from university: you're **welcome**. If you don't: also welcome.
 
