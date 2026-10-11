@@ -198,7 +198,18 @@ click shows (the next note, or the next slide), the speaker notes as the speaker
 and Martin's on the right in orange, without the names, and a timer. A `click` tag in the notes marks where a click
 brings something onto the slide; the click to the next slide comes after the last line, unmarked. → or space for the next click, ← back,
 a slide number then Enter to jump, B to black out the slides, T to start or pause the timer, E (or the Bold button)
-to show each line's key words in bold, the rest dimmer, or the notes plain, + and − for the notes' size. The two pages stay in step through the browser (`BroadcastChannel`), so either can be reloaded.
+to show each line's key words in bold, the rest dimmer, or the notes plain, + and − for the notes' size. Every open page stays in step with the others through `present.py` (each sends its moves to the server, which
+passes them on to the rest), so any of them can be reloaded.
+
+To drive the talk from another computer on the same network, serve the network too:
+
+```bash
+talk/present.py --host 0.0.0.0   # also prints the addresses to open on the other computer
+```
+
+The other computer opens the presenter view (or the slides) at the printed address, and every page follows every
+other, whichever computer it's on. There's no password: anyone on the network can open the pages and move the
+slides, so use it on a network you trust. macOS may ask once to let Python accept incoming connections.
 
 Every slide's notes fit the presenter view without scrolling, at the default notes size in a 1440x820 browser window
 (a laptop's, with room for the tabs and the address bar). Check that after editing a script:
