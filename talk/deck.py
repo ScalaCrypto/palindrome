@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the talk's deck in talk/5.18-deck/: hand-written framing slides around generated code slides that morph from
+"""Builds the talk's deck in talk/5.19-deck/: hand-written framing slides around generated code slides that morph from
 one Scala version to the next, with handwritten-style notes in speech bubbles that point at the code they explain.
 
 Usage: talk/deck.py                          speaker notes from talk/script.md
@@ -18,6 +18,10 @@ morphs on the next click. From the second code state on, every
 change is highlighted and explained, and the build fails if any code that's new in a version lies outside every
 highlight. Where a hand-written slide interrupts the morph, the code it interrupts is shown again afterwards, so the
 next change still morphs.
+
+After the thank-you slide, the finale (fin*, generated too) shows the whole code at once: all of 2.5 zoomed out, then a
+slide per version that changes anything, morphing from the last while the view pans to the change and the timeline's
+amber dot moves on to the version; highlights, no bubbles.
 
 Bubbles are placed automatically: the position nearest the anchor that overlaps no code and no other bubble, and
 whose tail crosses no code but its own. The script fails if a note's anchor isn't in the code, or no place fits.
@@ -38,7 +42,7 @@ from pathlib import Path
 import morph
 
 ROOT = Path(__file__).resolve().parent.parent
-DECK = ROOT / "talk/5.18-deck/project"
+DECK = ROOT / "talk/5.19-deck/project"
 TITLE = "A Brief History of Scala"
 FACES = {
     "ibm-plex-sans": {"family": "IBM Plex Sans",
@@ -79,7 +83,8 @@ PANEL, PANEL_EDGE, COMMENT = "#242A38", "#343B4C", "#9AA3AF"
 # Scala 2's method syntax, "code" for the methods), the track's previous state shown again, with no notes (but the one-liner's)
 # and under the next slide's heading (("eq-again", u), ("ops-again", u), ("again", u)), so its one click is the morph
 # into its state in v. A code slide shows only the methods
-# that change in that step. Anything else is a hand-written slide's id.
+# that change in that step. ("finale", None) is the finale's slides (see finale below). Anything else is a hand-written
+# slide's id.
 SEQUENCE = [
     "cover", "oneliner", "goal", "eq",
     ("cloud", "2.5"), "f2-5",
@@ -94,7 +99,7 @@ SEQUENCE = [
     ("cloud", "3.0"), "f3-0", ("eq-again", "2.12"), ("eq", "3.0"), ("again", "2.13"), ("code", "3.0"),
     ("cloud", "3.6"), "f3-6", ("eq-again", "3.0"), ("eq", "3.6"), ("again", "3.0"), ("code", "3.6"),
     "cloud4-0", "f4-0", ("again", "3.6"), ("code", "4.0"),
-    "takeaways", "thanks",
+    "takeaways", "thanks", ("finale", None),
     "r-indexedseq", "r-stringslice", "r-linear",
 ]
 SECTIONS = {
@@ -189,7 +194,6 @@ EQ_TITLES = {
 EQ_NOTES = {
     "2.5": [
         (["Eq[A] = ⟨new Eq[A] {⟩"], "each instance is an\nanonymous class"),
-        (["⟨implicit def universal[A]⟩"], "the default, found in\nEq's implicit scope"),
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
     ],
     "2.8": [
@@ -570,7 +574,7 @@ TRACKS = {
     "eq": {"slide": "e", "token": "e", "titles": EQ_TITLES, "notes": EQ_NOTES},
     "ops": {"slide": "o", "token": "o", "titles": OPS_TITLES, "notes": OPS_NOTES},
 }
-GENERATED = re.compile(r"^(m|e|o|tc)\d")  # generated slide ids: m2-5, m2-8-is, e2-12-again, o2-10, tc2-8, ...
+GENERATED = re.compile(r"^(m|e|o|tc|fin)\d")  # generated slide ids: m2-5, m2-8-is, e2-12-again, o2-10, tc2-8, fin2-8, ...
 CLOUDS = ROOT / "talk/tag-cloud/project/slides"  # the tag-cloud deck's slides, one per release (s2-8.html, ...)
 
 
@@ -727,6 +731,129 @@ def first_method(state: dict, notes: list) -> set[int]:
             if all(anchor_span(state["lines"], a)[1] < end for a in ([anchors] if isinstance(anchors, str) else anchors))}
 
 
+# The finale: the whole code at once (Eq, the methods and Scala 2's method syntax, as one file), first zoomed out to
+# fit the slide (2.5), then at the code slides' size, morphing from each version that changes something to the next,
+# 2.5 to 4.0, while the view pans to what changed, with its highlights but no bubbles, and the timeline's amber dot
+# slides along to the version. It's a pan, not a zoom: the artifact's magic move animates boxes, not text sizes, so
+# the code keeps one size, and the zoomed-out view fades into the first. The code moves inside a panel the height of
+# the slide; masks the background colour hide what's outside it.
+# The view pans by whole lines, and the panel ends where a line does, so its edges never cut a line in half: panned,
+# a line shows in each padding, the top one 1px below the border, and the panel ends 2px below the bottom one.
+FIN_TOP = 128 + 1 + PANEL_PAD_Y  # the first line's top, unpanned
+FIN_ROWS = int((952 - 1 - PANEL_PAD_Y - FIN_TOP) / LH)  # the lines in view, not counting the paddings'
+FIN_PANEL = (128, round(FIN_TOP + (FIN_ROWS + 1) * LH + 2))  # the panel's top and bottom
+
+
+def finale_states() -> list[dict]:
+    """The whole code in each version that changes any track (4.0: 3.6's Eq with 4.0's methods), wrapped as the code
+    slides wrap it, with where each track's lines start and its notes, if the track changes in that version."""
+    tracks = {"eq": morph.load_states("eq"), "code": code_states()[1:], "ops": morph.load_states("ops")}
+    versions = sorted({st["versions"][0] for sts in tracks.values() for st in sts}, key=RELEASES.index)
+    out = []
+    for v in versions:
+        lines, parts = [], []
+        for track, sts in tracks.items():
+            st = next((st for st in sts if v in st["versions"]), None)
+            if st is None and track == "eq" and v == "4.0":
+                st = sts[-1]
+            if st is None:  # Scala 3 has no separate method syntax
+                continue
+            if lines:
+                lines.append("")
+            notes = TRACKS[track]["notes"][v] if st["versions"][0] == v else []
+            parts.append((len(lines), [p for line in st["lines"] for p in wrap(line)], notes))
+            lines += parts[-1][1]
+        out.append({"dir": None, "versions": [v], "lines": lines, "parts": parts})
+    return out
+
+
+def finale_spans(state: dict, top: float) -> list[tuple]:
+    """The highlights of a finale state: every note's anchors, each found in its own track's lines."""
+    return [anchor_span(part, a, top + start * LH) for start, part, notes in state["parts"]
+            for anchors, _ in notes for a in ([anchors] if isinstance(anchors, str) else anchors)]
+
+
+def finale_shift(state: dict, spans: list[tuple]) -> int:
+    """How many lines the view is panned down: the highlighted lines centred in it, or their first at its top if
+    they don't fit; never past the code's end."""
+    if not spans:
+        return 0
+    lo, hi = (round((min(s[1] for s in spans) - FIN_TOP) / LH), round((max(s[3] for s in spans) - FIN_TOP) / LH))
+    shift = lo if hi - lo > FIN_ROWS else round((lo + hi) / 2 - FIN_ROWS / 2)
+    return max(0, min(shift, len(state["lines"]) - FIN_ROWS))
+
+
+def finale_footer(version: str) -> list[str]:
+    """The timeline with the amber dot as an element of its own, so a magic move slides it to the next version. Its
+    labels keep their place by id, but for the slide's own, which crossfades with its grey self."""
+    svg, *labels = footer(version)
+    circle = re.search(r'<circle cx="([\d.]+)"[^>]*/>', svg)
+    svg = svg.replace(circle.group(0), "").replace("<svg ", '<svg id="fin-timeline" ', 1)
+
+    def with_id(label):
+        if "font-weight:700" in label:  # the slide's own version
+            return label
+        name = re.search(r">([^<]+)</p>", label).group(1).replace(".", "-")
+        return label.replace("<p ", f'<p id="fin-l{name}" ', 1)
+
+    x, y = float(circle.group(1)), TAG_CLOUD.LINE_Y
+    return [svg, *map(with_id, labels),
+            f'<div id="fin-dot" data-bleed="" style="position:absolute; left:{round(x - 8, 1)}px; top:{y - 8}px; '
+            f'width:16px; height:16px; border-radius:8px; background:{TAG_CLOUD.AMBER}"></div>']
+
+
+def finale_slide(slide_id: str, transition: str, rows: list[str], version: str) -> str:
+    """A finale slide: the panel, the highlights and code (`rows`), the masks over what's outside the panel, and the
+    timeline. Everything that may cross the margins is data-bleed."""
+    top, bottom = FIN_PANEL
+    mask = lambda name, y0, y1: (f'<div id="fin-mask-{name}" data-bleed="" style="position:absolute; left:0px; '
+                                 f'top:{y0}px; width:1920px; height:{y1 - y0}px; background:{BG}"></div>')
+    return "\n".join(
+        [f'<section id="{slide_id}" data-transition="{transition}" style="background:{BG}; color:{FG}; '
+         f"font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px\">",
+         f'<div id="fin-panel" style="position:absolute; left:128px; top:{top}px; width:1664px; height:{bottom - top}px; '
+         f'background:{PANEL}; border:1px solid {PANEL_EDGE}; border-radius:16px"></div>']
+        + rows + [mask("top", 0, top), mask("bottom", bottom, 1080)] + finale_footer(version) + ["</section>"]) + "\n"
+
+
+def bleed(row: str, y0: float, y1: float) -> str:
+    """An element marked data-bleed if it reaches outside the panel, where the masks hide it."""
+    inside = FIN_PANEL[0] <= y0 and y1 <= FIN_PANEL[1]
+    return row if inside else re.sub(r"^<(\w+) ", r'<\1 data-bleed="" ', row, count=1)
+
+
+def finale(last_transition: str) -> list[tuple[str, str]]:
+    """The finale's slides, as (id, html): the zoomed-out 2.5, then a slide per version. A slide holds the code runs in
+    its view and those in the next slide's, so they slide into view from under the masks; the rest is left out (the
+    format allows 200 elements a slide), so code that leaves the view for good fades where it was."""
+    states = finale_states()
+    runs = morph.chain(states)
+    spans = [finale_spans(st, FIN_TOP) if k else [] for k, st in enumerate(states)]
+    tops = [FIN_TOP - finale_shift(st, sp) * LH for st, sp in zip(states, spans)]
+    in_view = lambda y0, y1: y1 > FIN_PANEL[0] and y0 < FIN_PANEL[1]
+    line_y = lambda k, run: (tops[k] + run[0]["line"] * LH, tops[k] + (run[0]["line"] + 1) * LH)
+    seen = [{r[0]["id"] for r in runs[k] if in_view(*line_y(k, r))} for k in range(len(states))] + [set()]
+    keep = [seen[k] | seen[k + 1] for k in range(len(states))]
+
+    # Zoomed out: 2.5's code at the largest size that fits the panel.
+    first = states[0]
+    size = min(SIZE, int((FIN_PANEL[1] - FIN_PANEL[0] - 2 - 2 * PANEL_PAD_Y) / len(first["lines"]) / 1.4))
+    lh = round(size * 1.4, 1)
+    rows = morph.code_runs_html(runs[0], size, lh, size * 0.6, LEFT, FIN_TOP, "fa")
+    slides = [("fin2-5-all", finale_slide("fin2-5-all", "fade", rows, "2.5"))]
+
+    for k, st in enumerate(states):
+        v = st["versions"][0]
+        shift = tops[k] - FIN_TOP
+        moved = [(sp[0], sp[1] + shift, sp[2], sp[3] + shift) for sp in spans[k]]
+        rows = [bleed(highlight_html(sp, None), sp[1], sp[3]) for sp in moved if in_view(sp[1], sp[3])]
+        shown = [r for r in runs[k] if r[0]["id"] in keep[k]]
+        rows += [bleed(html, *line_y(k, r)) for r, html in zip(shown, morph.code_runs_html(shown, SIZE, LH, CW, LEFT, tops[k], "f"))]
+        sid = "fin" + v.replace(".", "-")
+        slides.append((sid, finale_slide(sid, "magic" if k + 1 < len(states) else last_transition, rows, v)))
+    return slides
+
+
 # The speaker notes: the talk's dialogue, in talk/script.md. Each slide has a section there, in deck order, headed
 # "## <number> · <slide id> — ..."; its MARTIN:, ODD: and BOTH: lines are what's said, and become the slide's notes,
 # with each [click] as "(click)" and without the other [bracketed] stage directions. Everything else in the file is
@@ -799,6 +926,11 @@ def build(notes_from: Path = SCRIPT):
             item_id.append(item)
             continue
         kind, v = item
+        if kind == "finale":
+            fin = finale(leaving(n))
+            ids += [sid for sid, _ in fin]
+            item_id.append(ids[-1])
+            continue
         if kind == "cloud":
             ids.append("tc" + v.replace(".", "-"))
             item_id.append(ids[-1])
@@ -840,6 +972,10 @@ def build(notes_from: Path = SCRIPT):
                 path.write_text(new)
             continue
         kind, v = item
+        if kind == "finale":
+            for sid, html in fin:
+                (slides / f"{sid}.html").write_text(html)
+            continue
         if kind == "cloud":
             html = (CLOUDS / f"s{v.replace('.', '-')}.html").read_text()
             html = html.replace(f'<section id="s{v.replace(".", "-")}" data-transition="push"',
