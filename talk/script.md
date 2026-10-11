@@ -394,8 +394,8 @@ MARTIN: Our Equality, Scala 2 style. **Watch**.
 
 MARTIN: [click] The **braces** are gone!
 ODD: **Python** developers, here we come.
-MARTIN: [click] And Equality gets an **operator**.
-ODD: **One extension**, and **every type** with an Equality can use the operator [click]. An implicit def is now a **given**. Same thing, better name.
+MARTIN: [click] And Equality gets an **operator** [click].
+ODD: An implicit def is now a **given**. Same thing, better name.
 MARTIN: [click] And the lambdas shrink to **underscores**.
 ODD: Very readable. For **the one who wrote it**.
 
