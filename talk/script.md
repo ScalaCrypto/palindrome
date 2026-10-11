@@ -136,7 +136,7 @@ ODD: True. **Generics, implicits**, anonymous classes, all there. It just made y
 MARTIN: Here's our **Eq** in 2.5. [click] Look at those **instances**.
 ODD: **Anonymous classes**, braces and all. The **Java 6** experience.
 MARTIN: [click] And nobody imports the **default**?
-ODD: It sits in **Eq's companion**, where the **compiler always knows to look**. Readers, not so much.
+ODD: It sits in **Eq's companion**, where the **compiler always knows to look**. Humans, not so much.
 MARTIN: [click] And case-insensitive is **opt-in**.
 ODD: A **plain value**. Nothing happens unless you ask for it. That I can live with.
 
@@ -445,7 +445,7 @@ ODD: **Please**.
 
 MARTIN: 3.1 to 3.5 **change nothing** our code uses. So: Scala **3.6, 2024**.
 ODD: Technically **3.6.2**. 3.6.0 was published **by accident**.
-MARTIN: We **don't talk about** 3.6.0. Or 3.6.1.
+MARTIN: We **don't talk about** 3.6.0.
 
 ## 51 · f3-6 — New in Scala 3.6 · 15 s · 18:15
 
