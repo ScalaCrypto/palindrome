@@ -520,8 +520,8 @@ ODD: **Questions?**
 ## 62 · finale — The whole code, 2.5 to 4.0
 
 > The finale, without words: one slide that plays by itself, the whole of 2.5, then each version morphing into the
-> next, 2.5 to 4.0, and round again. Click to it once the applause starts and let it run; for the questions, it can
-> stay up, or go back to 61 (the QR code).
+> next, 2.5 to 4.0, and round again, with the repository's QR code in a corner. Click to it once the applause starts
+> and let it run; it can stay up for the questions.
 
 ---
 

@@ -5,6 +5,51 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — The repository's QR code in the finale
+
+### What changed
+
+The finale shows the repository's QR code throughout, so it can stay up for the questions instead of going back to
+the thank-you slide for it. The code is the thank-you slide's own SVG (`finale_qr` in `talk/deck.py` reads it from
+`thanks.html`), 232px square, in the code panel's top right corner, without a caption. It sits on a patch of the
+panel's colour, drawn over the code, so code passing that corner mid-morph goes under it, as it goes under the masks.
+In the dip from 4.0 back to the overview, the QR code stays above the cover (`talk/finale.py`), so it never blinks;
+the patch dims with the panel. The still shows it too. The
+scripts' stage direction for the finale says it can stay up for the questions.
+
+### Why
+
+The user asked for the QR code in the finale, visible but not taking it over. The finale is what's on screen during
+the questions, which is when people want the link.
+
+### Alternatives rejected
+
+- **The thank-you slide's size (400px):** a quarter of the slide's height in the corner of a code panel takes it
+  over, and it doesn't fit: 2.13's longest line, at y 410, reaches x 1692.
+- **Another corner:** measured on every frame, the code reaches the bottom right on 2.13, and the left is where every
+  line starts. The top right is clear above y 410 on every version, from x 1272.
+- **Outside the panel** (the margins, by the timeline): 128px at most, too small to scan from the back of a room.
+- **Only on the overview and 4.0** (the pauses at either end of the loop): someone who wants to scan it would have to
+  wait up to half a minute.
+- **No patch behind it:** code crossing the corner during a morph would run over the QR code's quiet zone.
+- **A caption** ("Every version, on GitHub", to its left): the user had it removed; a QR code at the end of a talk
+  about this repository needs no label.
+
+### Limitations accepted
+
+- A change that makes a line reach the top right corner (above y 410, past x 1272) would run under the patch. The
+  build doesn't check it; the frames show it.
+
+### Verified
+
+- The QR code decodes (OpenCV's `QRCodeDetector`, in a throwaway venv) to `https://github.com/ScalaCrypto/palindrome`
+  from video frames at 1 s, 9 s, 20 s and 35 s, at full size and scaled to 50% and 35% (about 2px a module).
+- Frames checked by eye: the overview, mid-morph into 2.13, 2.13, and the dip back to the overview.
+- Two recordings gave byte-identical video and still, the ones uploaded. `talk/deck.py` (both scripts),
+  `talk/present.py --check`, `talk/render.py --screenshots` and `tools/evolution.py --check` pass.
+
+---
+
 ## 2026-10-11 — The finale grows from the overview into 2.8
 
 ### What changed
