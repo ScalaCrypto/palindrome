@@ -5,6 +5,8 @@
 // - data-transition on a slide: how it leaves for the next one. fade, push, none, and magic: children with the same
 //   id on both slides move from their old place and size to their new one, the rest fade out or in.
 // - data-build-in="fade N" on a pinned child: it appears on the slide's Nth click.
+// - data-video on an <img>: the video plays in its place, muted and looping, while the slide is shown (the <img> is its
+//   still, for where a video doesn't play).
 // A position in the show is (slide index, step): step 0 shows no builds, step N the builds up to N.
 
 const W = 1920, H = 1080;
@@ -63,6 +65,13 @@ function makeLayer(slide, step) {
   for (const el of section.querySelectorAll("[data-build-in]")) {
     el.dataset.opacity = el.style.opacity;
     if (buildOrder(el) > step) el.style.opacity = "0";
+  }
+  for (const img of section.querySelectorAll("img[data-video]")) {
+    const video = Object.assign(document.createElement("video"),
+                                {src: img.dataset.video, poster: img.src, muted: true, loop: true, autoplay: true, playsInline: true});
+    video.style.cssText = img.style.cssText;
+    video.id = img.id;
+    img.replaceWith(video);
   }
   layer.append(section);
   return layer;

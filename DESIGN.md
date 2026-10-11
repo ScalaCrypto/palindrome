@@ -5,6 +5,64 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-11 — The finale as one slide with a looping video (deck 5.20)
+
+### What changed
+
+The finale is one slide, `finale`, instead of eleven: it plays a video of the whole sequence that loops for as long as
+the slide is up, so nobody has to click through it. The eleven slides are still generated, as the video's frames:
+`talk/deck.py` writes them as a deck of their own in `out/finale/project/`, and a new `talk/finale.py` plays them in
+the local player in headless Chrome, freezes each transition at evenly spaced moments (the player's `freezeAll` test
+hook), screenshots each one through Chrome's DevTools pipe, and has ffmpeg encode the frames, with how long each is
+shown, as H.264. The loop is 38.5 s: the 2.5 overview (3 s), its fade into 2.5 close up, then each version's morph
+(1.5 s) and a pause on it (2 s; 3 s on 4.0), then a dip through the empty slide back to the overview, so the loop
+never jumps. The slide is the format's video: `<img src="/_blob/<still>" data-video="/_blob/<clip>">`, the still
+being the overview. The clip and the still are in each artifact's asset store (`FINALE_CLIP`, `FINALE_STILL`; the
+bullets deck has copies with their own ids, `FINALE_BULLETS`), and in `talk/5.20-deck/assets/`, named after their ids,
+for `talk/present.py` (which serves `/_blob/<id>` from there) and `talk/render.py` (which points `src` there). The local
+player plays an `<img data-video>` as a muted, looping `<video>`, as the artifact does. The script's eleven finale
+sections become one, and the reserve slides are 63–65.
+
+### Why
+
+The user asked for the finale as "a GIF or something" that loops while its slide is shown. A video is what the Slides
+format offers for that: it plays a clip on a slide, looping, while it's presented. Recording the local player's own
+morph, rather than drawing the frames another way, makes the video match the slides exactly.
+
+### Alternatives rejected
+
+- **An animated GIF**: 256 colours, too few for anti-aliased, syntax-coloured code; and no GIF encoder was installed.
+- **An animated WebP** (lossless, 300 frames): sharp, and a GIF's looping `<img>`, but 10.3 MB. The asset store
+  refused it ("store_unavailable", twice), and a 5 MB test too, while 1 MB and 2.3 MB went up. Lossy WebP was larger
+  still (12–20 MB), and other encoder settings saved under 3%. Fewer frames would get it under the limit only by
+  making the morphs choppy.
+- **Publishing the image as one of the artifact's own files** (15 MB allowed): the format's `<img src>` takes only
+  `/_blob/<id>` or a design system's `project/ds/<folder>/…` file, and the page drops anything else.
+- **Recording in Chrome with MediaRecorder** (no ffmpeg needed): real time, so the frame timing can jitter, and its
+  WebM lacks seek metadata. ffmpeg (installed with Homebrew, with the user's go-ahead) is deterministic: the same
+  frames give the same bytes.
+- **Keeping the eleven click-through slides beside the video**: two finales to keep in step; the slides live on only
+  as the video's frames.
+
+### Limitations accepted
+
+- The video is a recording: after a change to the code or the finale's look, it must be recorded again and its assets
+  replaced by hand (new ids in `deck.py`, new local copies, the bullets deck's copies); `talk/README.md` lists the steps.
+- It holds the local player's morph, eased the same way but not the artifact's own renderer, so it can differ from
+  the artifact's magic move in small ways (the artifact's is 480 ms; the video's 1.5 s, slow enough to follow).
+- H.264 with 4:2:0 chroma softens coloured thin strokes slightly; at CRF 24 the code reads as sharply as on the slides.
+- The clip (2.3 MB) is in git, as `talk/5.20-deck/assets/`; each recording adds one.
+
+### Verified
+
+- `talk/finale.py` twice gave byte-identical video (sha256 a3ee7055…), the one uploaded.
+- Frames checked by eye: the overview, the fade into 2.5, a morph midway, and the dip back to the overview.
+- The local player plays it: in headless Chrome, 4 s after the slide opens, the video is at 4.0 s, not paused, 1920
+  wide, 38.5 s long, looping, with no error.
+- `talk/deck.py` (both scripts), `talk/present.py --check`, `talk/render.py --screenshots` pass.
+
+---
+
 ## 2026-10-11 — The finale: the whole code, 2.5 to 4.0, panning to each change (deck 5.19)
 
 ### What changed
