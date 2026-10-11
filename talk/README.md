@@ -54,7 +54,8 @@ The deck is <https://claude.ai/artifact/25dnv7jYfipK6R27X8g94t> (private until s
   once, as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5 zoomed out to fit the slide, growing
   into 2.8 at the code slides' size, then each version that changes any of it morphing from the last while the view
   pans to what changed, highlighted, and the timeline's amber dot slides on to its version, past those that change
-  nothing; after 4.0 it fades back to the start. The local player scales text whose size changes in a magic move,
+  nothing; after 4.0 it fades back to the start. The repository's QR code, the thank-you slide's, stays in the
+  panel's top right corner throughout, where no version's code reaches. The local player scales text whose size changes in a magic move,
   which the artifact's doesn't, so the zoom is in the recording only. Its frames are slides `deck.py` writes as a
   deck of their own (`fin2-5` … `fin4-0`, in `out/finale/project/`), and
   `finale.py` records them; see "The finale's video" below. The notes are

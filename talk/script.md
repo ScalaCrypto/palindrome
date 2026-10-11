@@ -189,21 +189,21 @@ ODD: Two and a half thousand commits. Six hundred of them by **Paul Phillips**. 
 
 MARTIN: 2.8 was a **big one**. New **collections**, **@tailrec**, named and default arguments.
 ODD: The release that **broke everyone's code**, and everyone **upgraded anyway**.
-MARTIN: But why would a palindromize **care** about a collections rewrite?
-ODD: Because palindromize **builds a collection**. And from 2.8, it can build the **kind you asked for**.
+MARTIN: But palindromize **needs** the new collections.
+ODD: Because it **builds a collection**. And from 2.8, it can build the **kind you asked for**.
 MARTIN: Let's see how we can use that.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
 MARTIN: First, a small one, in **Equality**.
-ODD: In 2.5 we use Java's **toLowerCase**.
+ODD: In 2.5 we call **toLowerCase** on each Char.
 
 ## 15 · e2-8 — Char gets toLower · 30 s · 7:15
 
 > One click.
 
 MARTIN: Now **toLower**, right on the Char [click].
-ODD: We could call **toLowerCase on a Char** in 2007 too. It's a **rename**.
+ODD: Same method as in **2007**. It's a **rename**.
 MARTIN: A **shorter** rename!
 ODD: The **smallest win** of the night. I'll allow it.
 
@@ -228,7 +228,7 @@ ODD: **Repr** is whatever **type the caller passed in**, [click] and CanBuildFro
 MARTIN: [click] So a **String comes back as a String**!
 ODD: Because 2.8 wraps a String in **StringOps**, and its **Repr is String**.
 MARTIN: **reverse** gives you back a String too. No more **mkString**!
-ODD: It works. And it **scared** a generation of Scala developers.
+ODD: This works. And it **scared** a generation of Scala developers.
 MARTIN: You got your String back.
 ODD: I got my String back. And a **therapist**.
 
@@ -300,7 +300,7 @@ ODD: Let's talk about it in the **Q&A**.
 ## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:20
 
 MARTIN: **2.11**, April **2014**: the month of **Heartbleed**.
-ODD: A good time to **hide your fields**.
+ODD: A good time to **hide your privates**.
 
 ## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:30
 
@@ -364,20 +364,18 @@ MARTIN: Here is palindromize, 2.10 style.
 
 ## 40 · m2-13 — IsSeq and BuildFrom · 55 s · 14:40
 
-> Two clicks.
+> One click.
 
 MARTIN: 2.13 replaces CanBuildFrom with **IsSeq** and **BuildFrom**. [click]
-ODD: In Scala 2, only a single implicit parameter list is allowed, so we have to resort to a **type refinement** for the element type.
+ODD: But you can only have **one** implicit parameter list, so we use **type refinement** for the element type.
 MARTIN: Is that why we need the A0 type?
-ODD: Yes, but that's a **wart**. [click]
-MARTIN: And why the **toSeq**?
-ODD: IsSeq only lends us **sequence operations**. Our palindrome check wants **the real thing**.
+ODD: Yes, but kind of a **wart**.
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:35
 
-MARTIN: And then the big bang: **Scala 3**, 2021. After eight and a half years, **Dotty** graduates.
+MARTIN: And now the big bang: **Scala 3**, 2021. After eight and a half years, **Dotty** graduates.
 ODD: A whole **new compiler**. What could possibly go wrong.
-MARTIN: **Surprisingly little**.
+MARTIN: **Surprisingly little did**.
 
 ## 42 · f3-0 — New in Scala 3.0 · 20 s · 15:50
 
@@ -427,7 +425,7 @@ ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed
 > The click commented the whole class out; one more click brings its bubble.
 
 MARTIN: And the **implicit class**?
-ODD: [click] **Nothing left** for it to do.
+ODD: [click] **Nothing left** no use for it.
 MARTIN: Shall we **delete** it?
 ODD: **Please do**.
 
@@ -524,8 +522,8 @@ ODD: **Questions?**
 ## 62 · finale — The whole code, 2.5 to 4.0
 
 > The finale, without words: one slide that plays by itself, the whole of 2.5, then each version morphing into the
-> next, 2.5 to 4.0, and round again. Click to it once the applause starts and let it run; for the questions, it can
-> stay up, or go back to 61 (the QR code).
+> next, 2.5 to 4.0, and round again, with the repository's QR code in a corner. Click to it once the applause starts
+> and let it run; it can stay up for the questions.
 
 ---
 
