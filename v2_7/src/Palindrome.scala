@@ -13,7 +13,7 @@ object Eq {
 
   // Opt-in: pass it explicitly, or bring it into scope as an implicit.
   val caseInsensitive: Eq[Char] = new Eq[Char] {
-    def eqv(x: Char, y: Char): Boolean = Character.toLowerCase(x) == Character.toLowerCase(y)
+    def eqv(x: Char, y: Char): Boolean = x.toLowerCase == y.toLowerCase
   }
 }
 

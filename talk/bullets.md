@@ -128,12 +128,12 @@ ODD: It **builds a collection**, and from 2.8 it can build the **kind you asked 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
 MARTIN: First a small one, in **Equality**
-ODD: In 2.5, Java's **toLowerCase**
+ODD: In 2.5, **toLowerCase** on each Char
 
 ## 15 · e2-8 — Char gets toLower · 30 s · 7:15
 
 MARTIN: [click] Now **toLower**, right on the Char
-ODD: **toLowerCase on a Char** worked in 2007 too: a **rename**
+ODD: Same method as in **2007**: a **rename**
 MARTIN: A **shorter** rename!
 ODD: The **smallest win** of the night: allowed
 

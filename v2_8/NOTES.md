@@ -14,7 +14,7 @@
   can't take a `String` (views don't chain), so strings use the function form: `palindromize("abc")`.
 - **`@tailrec`** (stage 2): the compiler now rejects `loop` if it ever stops being tail-recursive. The generated code
   is unchanged: it was already a loop.
-- **`x.toLower`**: the 2.8 library adds `toLower` to `Char`, replacing `Character.toLowerCase`.
+- **`x.toLower`**: 2.8 renames `RichChar`'s `toLowerCase` to `toLower`, and deprecates the old name.
 - **Tests**: `Vector` arrives with the redesign, so the tests use `Seq(...)` and `Vector(...)`. Before 2.8 they use
   `List` throughout (2.5 and 2.6 have no `Seq(...)` factory either). The `palindromize` test now checks the static
   result types (`val s: String = palindromize("abc")`), and plain `==` works on the results.
