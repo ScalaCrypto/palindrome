@@ -196,7 +196,7 @@ EQ_NOTES = {
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
     ],
     "2.8": [
-        (["= ⟨x.toLower == y.toLower⟩"], "Char now has toLower"),
+        (["= ⟨x.toLower == y.toLower⟩"], "a shorter name\nfor toLowerCase"),
     ],
     "2.12": [
         (["Eq[A] = ⟨(x, y) => x == y⟩", "Eq[Char] = ⟨(x, y) => x.toLower == y.toLower⟩"],

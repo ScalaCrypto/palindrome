@@ -58,16 +58,16 @@ from recognition: everybody in the room has lived through CanBuildFrom.
 
 ## Timing
 
-The dialogue runs about 21½ minutes, with room for laughs and the morphs already counted (the times below assume a
-relaxed pace and a beat after each joke). That leaves 8½ minutes of the 30 for questions, or for a slow start.
+The dialogue runs about 21¾ minutes, with room for laughs and the morphs already counted (the times below assume a
+relaxed pace and a beat after each joke). That leaves 8¼ minutes of the 30 for questions, or for a slow start.
 Checkpoints:
 
 | At slide | Clock | If you're later than this |
 |---|---|---|
 | 12 · Scala 2.8 | 6:25 | Shorten the tag-cloud jokes to the version and the year |
-| 23 · Scala 2.10 | 10:05 | From here, cut the last exchange on any slide that runs long |
-| 41 · Scala 3.0 | 15:15 | Say only the first line of each "New in" slide |
-| 56 · Scala 4.0 | 19:25 | Go straight from 4.0 to the takeaways |
+| 23 · Scala 2.10 | 10:15 | From here, cut the last exchange on any slide that runs long |
+| 41 · Scala 3.0 | 15:35 | Say only the first line of each "New in" slide |
+| 56 · Scala 4.0 | 19:45 | Go straight from 4.0 to the takeaways |
 
 ---
 
@@ -198,18 +198,20 @@ MARTIN: Let's see how we can use that.
 MARTIN: First, a small one, in **Equality**.
 ODD: In 2.5 we use Java's **toLowerCase**.
 
-## 15 · e2-8 — Char gets toLower · 20 s · 7:15
+## 15 · e2-8 — Char gets toLower · 30 s · 7:15
 
 > One click.
 
-MARTIN: Now we can use **Char's own toLower** [click].
+MARTIN: Now **toLower**, right on the Char [click].
+ODD: We could call **toLowerCase on a Char** in 2007 too. It's a **rename**.
+MARTIN: A **shorter** rename!
 ODD: The **smallest win** of the night. I'll allow it.
 
-## 16 · m2-5-again — @tailrec · 5 s · 7:35
+## 16 · m2-5-again — @tailrec · 5 s · 7:45
 
 MARTIN: Back to our methods. 2.8 brings **two upgrades**. First, **@tailrec**.
 
-## 17 · m2-8-is — @tailrec · 25 s · 7:40
+## 17 · m2-8-is — @tailrec · 25 s · 7:50
 
 > One click.
 
@@ -218,7 +220,7 @@ MARTIN: Same bytecode. But a **promise** you can't break. [click]
 ODD: A promise that the **compiler keeps**. I like that.
 MARTIN: Now, on to the big one: **CanBuildFrom**.
 
-## 18 · m2-8 — CanBuildFrom keeps the collection type · 50 s · 8:05
+## 18 · m2-8 — CanBuildFrom keeps the collection type · 50 s · 8:15
 
 > palindromize morphs in. Two clicks. Odd points at the signature and counts its type parameters on his fingers.
 
@@ -230,28 +232,28 @@ ODD: It works. And it **scared** a generation of Scala developers.
 MARTIN: You got your String back.
 ODD: I got my String back. And a **therapist**.
 
-## 19 · tc2-9 — Scala 2.9 · 2011 · 15 s · 8:55
+## 19 · tc2-9 — Scala 2.9 · 2011 · 15 s · 9:05
 
 MARTIN: **2.9, from 2011**.
 ODD: Paul Phillips: now a thousand and twenty-three commits. I take it back. He wasn't a compiler. He was **the compiler**.
 
-## 20 · f2-9 — New in Scala 2.9 · 15 s · 9:10
+## 20 · f2-9 — New in Scala 2.9 · 15 s · 9:20
 
 MARTIN: **Parallel collections**, the App trait, and the one we need: **tails**.
 ODD: Everyone else upgraded for parallel collections. **We came for tails**.
 
-## 21 · m2-8-again — tails finds the palindromic suffix · 10 s · 9:25
+## 21 · m2-8-again — tails finds the palindromic suffix · 10 s · 9:35
 
 MARTIN: Remember that **suffix search**? A range over indices, and an **unchecked get**.
 
-## 22 · m2-9 — tails finds the palindromic suffix · 30 s · 9:35
+## 22 · m2-9 — tails finds the palindromic suffix · 30 s · 9:45
 
 > One click.
 
 MARTIN: [click] **tails**! **No indices. No get.**
 ODD: Same algorithm, same cost. But **fewer ways to be wrong**: the only metric I trust.
 
-## 23 · tc2-10 — Scala 2.10 · 2013 · 20 s · 10:05
+## 23 · tc2-10 — Scala 2.10 · 2013 · 20 s · 10:15
 
 > A beat before "Alphabetically": the room needs a second to see 2.10 sort before 2.9.
 
@@ -260,17 +262,17 @@ ODD: And the first release that **sorts before** its predecessor. **Alphabetical
 MARTIN: Nobody sorts versions alphabetically.
 ODD: Every **build script** in those days did.
 
-## 24 · f2-10 — New in Scala 2.10 · 20 s · 10:25
+## 24 · f2-10 — New in Scala 2.10 · 20 s · 10:35
 
 MARTIN: 2.10 gives us three things: **implicit classes**, **value classes**, and **sequence extractors**.
 ODD: And **string interpolation**, the one feature everyone uses. And **macros**... I have feelings about macros...
 MARTIN: Not in this talk.
 
-## 25 · o2-8-again — Implicit value classes · 5 s · 10:45
+## 25 · o2-8-again — Implicit value classes · 5 s · 10:55
 
 MARTIN: Remember our **wrapper**, and its conversion?
 
-## 26 · o2-10 — Implicit value classes · 30 s · 10:50
+## 26 · o2-10 — Implicit value classes · 30 s · 11:00
 
 > One click.
 
@@ -280,11 +282,11 @@ MARTIN: Usually beats always.
 ODD: And every Seq now has a **public member**.
 MARTIN: That's **2.11's problem**.
 
-## 27 · m2-9-again — +: and :+ extractors · 5 s · 11:20
+## 27 · m2-9-again — +: and :+ extractors · 5 s · 11:30
 
 MARTIN: And now, the **index loop**. Odd's favourite.
 
-## 28 · m2-10 — +: and :+ extractors · 45 s · 11:25
+## 28 · m2-10 — +: and :+ extractors · 45 s · 11:35
 
 > Two clicks.
 
@@ -295,21 +297,21 @@ ODD: But on a **String every step copies**. Quietly **n squared**.
 MARTIN: On a **Vector** it's fine; it's **effectively constant**!
 ODD: Let's talk about it in the **Q&A**.
 
-## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:10
+## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:20
 
-MARTIN: **2.11**, in **2014**: the year of the ice bucket challenge.
-ODD: A good time for **privacy**.
+MARTIN: **2.11**, April **2014**: the month of **Heartbleed**.
+ODD: A good time to **hide your fields**.
 
-## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:20
+## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:30
 
 MARTIN: A **consolidation** release: a **modular library**, case classes beyond twenty-two fields.
 ODD: And the one we need: **value classes** can keep their **field to themselves**. My complaint from 2.10.
 
-## 31 · o2-10-again — Value classes may hide their field · 5 s · 12:35
+## 31 · o2-10-again — Value classes may hide their field · 5 s · 12:45
 
 MARTIN: So: that **public field**.
 
-## 32 · o2-11 — Value classes may hide their field · 20 s · 12:40
+## 32 · o2-11 — Value classes may hide their field · 20 s · 12:50
 
 > One click.
 
@@ -318,21 +320,21 @@ ODD: That's it? A whole release, for **one word**?
 MARTIN: You asked for it.
 ODD: I did. **Thank you**, 2.11.
 
-## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 13:00
+## 33 · tc2-12 — Scala 2.12 · 2016 · 10 s · 13:10
 
 MARTIN: **2.12**, released in 2016. Built on **Java 8**.
 ODD: Scala lambdas now compile to proper JVM **lambdas**. Scala, **catching up with Java**...
 
-## 34 · f2-12 — New in Scala 2.12 · 10 s · 13:10
+## 34 · f2-12 — New in Scala 2.12 · 10 s · 13:20
 
 MARTIN: **SAM conversion**, **traits as interfaces**, a right-biased Either.
 ODD: **Lambdas** instead of anonymous classes? That sounds useful.
 
-## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:20
+## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:30
 
 MARTIN: Equality, with its **anonymous classes**.
 
-## 36 · e2-12 — SAM conversion: lambdas implement traits · 20 s · 13:25
+## 36 · e2-12 — SAM conversion: lambdas implement traits · 20 s · 13:35
 
 > One click. Odd's first concession: take a breath before it.
 
@@ -341,7 +343,7 @@ ODD: Two anonymous classes, **two lines**. ... All right. **I concede**. That's 
 MARTIN: Can I get that in **writing**?
 ODD: **No.**
 
-## 37 · tc2-13 — Scala 2.13 · 2019 · 20 s · 13:45
+## 37 · tc2-13 — Scala 2.13 · 2019 · 20 s · 13:55
 
 > Martin finds Odd's name in the cloud and points at it. A beat after "You weren't that young.", before the rest.
 
@@ -350,17 +352,17 @@ ODD: I was young and **needed the commits**.
 MARTIN: In 2019? You weren't that young. So you're **partly responsible** for what comes next.
 ODD: **No comment**.
 
-## 38 · f2-13 — New in Scala 2.13 · 15 s · 14:05
+## 38 · f2-13 — New in Scala 2.13 · 15 s · 14:15
 
 MARTIN: The second **collections rewrite**. **CanBuildFrom is gone**.
 ODD: **Rest in peace**. No one cried.
 MARTIN: In comes **IsSeq** and **BuildFrom**.
 
-## 39 · m2-10-again — IsSeq and BuildFrom · 10 s · 14:20
+## 39 · m2-10-again — IsSeq and BuildFrom · 10 s · 14:30
 
 MARTIN: Here is palindromize, 2.10 style.
 
-## 40 · m2-13 — IsSeq and BuildFrom · 45 s · 14:30
+## 40 · m2-13 — IsSeq and BuildFrom · 55 s · 14:40
 
 > Two clicks.
 
@@ -371,24 +373,24 @@ ODD: Yes, but that's a **wart**. [click]
 MARTIN: And why the **toSeq**?
 ODD: IsSeq only lends us **sequence operations**. Our palindrome check wants **the real thing**.
 
-## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:15
+## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:35
 
 MARTIN: And then the big bang: **Scala 3**, 2021. After eight and a half years, **Dotty** graduates.
 ODD: A whole **new compiler**. What could possibly go wrong.
 MARTIN: **Surprisingly little**.
 
-## 42 · f3-0 — New in Scala 3.0 · 20 s · 15:30
+## 42 · f3-0 — New in Scala 3.0 · 20 s · 15:50
 
 MARTIN: **given** and using, **extension methods**, **optional braces**, **top-level** definitions.
 ODD: We use **all four**, and every one of them **reduces boilerplate**.
 MARTIN: Are you... **excited**?
 ODD: Show me the **diff**.
 
-## 43 · e2-12-again — given indentation and extensions · 5 s · 15:50
+## 43 · e2-12-again — given indentation and extensions · 5 s · 16:10
 
 MARTIN: Our Equality, Scala 2 style. **Watch**.
 
-## 44 · e3-0 — given indentation and extensions · 40 s · 15:55
+## 44 · e3-0 — given indentation and extensions · 40 s · 16:15
 
 > Four clicks, one per bubble.
 
@@ -399,11 +401,11 @@ ODD: **One extension**, and **every type** with an Equality can use the operator
 MARTIN: [click] And the lambdas shrink to **underscores**.
 ODD: Very readable. For **the one who wrote it**.
 
-## 45 · m2-13-again — using extensions · 10 s · 16:35
+## 45 · m2-13-again — using extensions · 10 s · 16:55
 
 MARTIN: Now the methods. And the **wrapper class** we've carried around since 2.10.
 
-## 46 · m3-0-is — using extensions · 20 s · 16:45
+## 46 · m3-0-is — using extensions · 20 s · 17:05
 
 > One click; the next click morphs palindromize.
 
@@ -411,7 +413,7 @@ MARTIN: isPalindrome becomes an **extension**. [click]
 ODD: **No object, no wrapper, no conversion**. And the implicit method is **commented out** since no one calls it anymore.
 MARTIN: Now **palindromize**.
 
-## 47 · m3-0-ops — using extensions · 35 s · 17:05
+## 47 · m3-0-ops — using extensions · 35 s · 17:25
 
 > One click.
 
@@ -420,7 +422,7 @@ ODD: [click] And **IsSeq gets a using clause of its own**, so the other using cl
 MARTIN: No extra type parameter. **No refinement**.
 ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed the wart**. I'm... **almost moved**.
 
-## 48 · m3-0 — using extensions · 15 s · 17:40
+## 48 · m3-0 — using extensions · 15 s · 18:00
 
 > The click commented the whole class out; one more click brings its bubble.
 
@@ -429,37 +431,37 @@ ODD: [click] **Nothing left** for it to do.
 MARTIN: Shall we **delete** it?
 ODD: **Please do**.
 
-## 49 · m3-0-clean — using extensions · 5 s · 17:55
+## 49 · m3-0-clean — using extensions · 5 s · 18:15
 
 > The click to this slide morphs the commented-out class away. Let it play; nobody speaks.
 
-## 50 · tc3-6 — Scala 3.6 · 2024 · 15 s · 18:00
+## 50 · tc3-6 — Scala 3.6 · 2024 · 15 s · 18:20
 
 MARTIN: 3.1 to 3.5 **change nothing** in our code. So: Scala **3.6, in 2024**.
 ODD: Technically **3.6.2**. 3.6.0 was published **by accident**.
 MARTIN: We **don't talk about** 3.6.0.
 
-## 51 · f3-6 — New in Scala 3.6 · 15 s · 18:15
+## 51 · f3-6 — New in Scala 3.6 · 15 s · 18:35
 
 MARTIN: The type class story gets finished: **named context bounds**, and a new **given syntax**.
 ODD: Six releases later, the **syntax finally catches up**.
 
-## 52 · e3-0-again — The new given syntax · 5 s · 18:30
+## 52 · e3-0-again — The new given syntax · 5 s · 18:50
 
 MARTIN: Our **given**, one more time.
 
-## 53 · e3-6 — The new given syntax · 15 s · 18:35
+## 53 · e3-6 — The new given syntax · 15 s · 18:55
 
 > One click.
 
 MARTIN: [click] Now read that **out loud**.
 ODD: "**Any type gets an equality**." It reads like you say it. That's nice.
 
-## 54 · m3-0-again — Context bounds get names · 5 s · 18:50
+## 54 · m3-0-again — Context bounds get names · 5 s · 19:10
 
 MARTIN: And the methods.
 
-## 55 · m3-6 — Context bounds get names · 30 s · 18:55
+## 55 · m3-6 — Context bounds get names · 30 s · 19:15
 
 > One click.
 
@@ -468,7 +470,7 @@ ODD: It **moved into the type parameter and kept its name**. I'm running out of 
 MARTIN: isPalindrome **doesn't change** at all. And 3.7, 3.8, 3.9 change nothing we use. Which means: we're **done**.
 ODD: **Are we, though?**
 
-## 56 · cloud4-0 — Scala 4.0 · 15 s · 19:25
+## 56 · cloud4-0 — Scala 4.0 · 15 s · 19:45
 
 > Deadpan. Let the two names sit there.
 
@@ -477,17 +479,17 @@ ODD: Only **two authors** this time.
 MARTIN: A very **exclusive** community.
 ODD: Two authors, **three opinions**.
 
-## 57 · f4-0 — New in Scala 4.0 · 20 s · 19:40
+## 57 · f4-0 — New in Scala 4.0 · 20 s · 20:00
 
 MARTIN: One feature. **Prolog extractors**.
 ODD: Use **one name twice in a pattern**, and both places have to **match the same value**.
 MARTIN: If you remember **Prolog** from university: you're **welcome**. If you don't: also welcome.
 
-## 58 · m3-6-again — Prolog extractors · 5 s · 20:00
+## 58 · m3-6-again — Prolog extractors · 5 s · 20:20
 
 MARTIN: Here's 3.6's isPalindrome. **Watch the match**.
 
-## 59 · m4-0 — Prolog extractors · 25 s · 20:05
+## 59 · m4-0 — Prolog extractors · 25 s · 20:25
 
 > One click.
 
@@ -495,7 +497,7 @@ MARTIN: The **same name** at both ends, and the **comparison disappears** into t
 ODD: Sure, but **which equality would it use**? We still want the **caller to decide**, remember?
 MARTIN: That's a **4.1 problem**...
 
-## 60 · takeaways — What the palindrome taught us · 40 s · 20:30
+## 60 · takeaways — What the palindrome taught us · 40 s · 20:50
 
 > Drop the comedy a notch. Slower, to the room.
 
@@ -506,7 +508,7 @@ ODD: **Not every step was a pure win**, though. CanBuildFrom did its job but **f
 MARTIN: And in Scala 3, the code finally **reads the way we'd explain it**.
 ODD: ... I finally **agree**.
 
-## 61 · thanks — Thank you · 15 s · 21:10
+## 61 · thanks — Thank you · 15 s · 21:30
 
 > Stand together. Leave the QR code up for the questions.
 
