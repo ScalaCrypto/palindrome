@@ -157,8 +157,9 @@ replace the assets:
 2. Upload `out/finale/finale.mp4` and `out/finale/finale.png` to the deck's artifact as assets, set `FINALE_CLIP` and
    `FINALE_STILL` to the urls they get, and copy each file to `5.20-deck/assets/<id>.mp4` or `.png`, deleting the old
    ones there and in the artifact. With Claude Code, ask it to.
-3. Copy the two assets into the bullets deck's artifact, set `FINALE_BULLETS` to the copies' urls, and delete the
-   old copies there.
+3. Copy the two assets into the bullets deck's artifact, set `FINALE_BULLETS` to the copies' urls, add a symlink in
+   `5.20-deck/assets/` from each copy's id to the deck's file (so a `--notes talk/bullets.md` build renders too), and
+   delete the old copies and links.
 4. Rebuild, check and publish as usual.
 
 The asset store takes uploads of a few MB at most (1 MB and 2.3 MB went up, 5 MB didn't), so keep the video small:

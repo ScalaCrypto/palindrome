@@ -126,9 +126,6 @@ def main() -> None:
     magic, fade = int(durations["MAGIC"]), int(durations["FADE"])
     count = len(json.loads((FRAMES / "deck.json").read_text())["order"])
 
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), present.handler(FRAMES))
-    threading.Thread(target=server.serve_forever, daemon=True).start()
-    base = f"http://127.0.0.1:{server.server_address[1]}/"
     shots = OUT / "frames"
     shutil.rmtree(shots, ignore_errors=True)
     shots.mkdir(parents=True)
@@ -148,7 +145,10 @@ def main() -> None:
             keep(chrome.shot(), hold if k == n else STEP)
 
     with tempfile.TemporaryDirectory() as profile:
-        chrome = Chrome(profile)
+        chrome = Chrome(profile)  # before the server's thread: starting Chrome forks, which isn't safe once one runs
+        server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), present.handler(FRAMES))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        base = f"http://127.0.0.1:{server.server_address[1]}/"
         try:
             chrome.open(f"{base}?at=0.0", "document.querySelector('.layer section')")
             keep(chrome.shot(), OVERVIEW)

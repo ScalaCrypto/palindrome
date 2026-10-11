@@ -71,6 +71,7 @@ function makeLayer(slide, step) {
                                 {src: img.dataset.video, poster: img.src, muted: true, loop: true, autoplay: true, playsInline: true});
     video.style.cssText = img.style.cssText;
     video.id = img.id;
+    video.setAttribute("aria-label", img.alt);
     img.replaceWith(video);
   }
   layer.append(section);

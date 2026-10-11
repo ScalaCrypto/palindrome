@@ -863,7 +863,8 @@ def finale() -> list[tuple[str, str]]:
 FINALE_FRAMES = ROOT / "out/finale/project"
 FINALE_CLIP = "/_blob/11f6cd0d9339dcd658cbd73cb24674a9"
 FINALE_STILL = "/_blob/aa3fc2747ae9ff0d0d12383e4521e367"
-# The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md.
+# The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md;
+# their local copies are symlinks to the deck's.
 FINALE_BULLETS = {FINALE_CLIP: "/_blob/28df7e797a32f5d162b46d82fc653a92",
                   FINALE_STILL: "/_blob/2ef61bdfbb66aea116d4832ad508f421"}
 
