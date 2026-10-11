@@ -416,7 +416,7 @@ MARTIN: Now **palindromize**.
 > One click.
 
 MARTIN: Everything reads like a **method call**.
-ODD: [click] And **IsSeq gets a using clause of its own**, so the other using clause **can refer to its element type**.
+ODD: [click] And **IsSeq gets a using clause of its own**, so we **can refer to its element type**.
 MARTIN: No extra type parameter. **No refinement**.
 ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed the wart**. I'm... **almost moved**.
 
