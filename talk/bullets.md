@@ -285,7 +285,7 @@ MARTIN: **IsSeq** and **BuildFrom** replace CanBuildFrom
 ODD: [click] Scala 2 allows only **one implicit parameter list**: the element type needs a **type refinement**
 MARTIN: That's why we need A0?
 ODD: Yes, and it's a **wart**
-MARTIN: [click] And why the **toSeq**?
+MARTIN: And why the **toSeq**?
 ODD: IsSeq only lends **sequence operations**; the check wants **the real thing**
 
 ## 41 · tc3-0 — Scala 3.0 · 2021 · 15 s · 15:35
@@ -426,8 +426,8 @@ ODD: **Questions?**
 ## 62 · finale — The whole code, 2.5 to 4.0
 
 > The finale, without words: one slide that plays by itself, the whole of 2.5, then each version morphing into the
-> next, 2.5 to 4.0, and round again. Click to it once the applause starts and let it run; for the questions, it can
-> stay up, or go back to 61 (the QR code).
+> next, 2.5 to 4.0, and round again, with the repository's QR code in a corner. Click to it once the applause starts
+> and let it run; it can stay up for the questions.
 
 ---
 

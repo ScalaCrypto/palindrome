@@ -154,12 +154,12 @@ def main() -> None:
             for i in range(count - 1):  # the overview grows into 2.8, then each version morphs into the next
                 transition(i, MORPH, magic, LAST if i == count - 2 else HOLD)
             # back to the start, through the empty slide: 4.0 fades out under a cover the slide's colour, then the
-            # overview fades in (frame n would be the overview, the loop's first)
+            # overview fades in (frame n would be the overview, the loop's first); the QR code stays, over the cover
             chrome.open(f"{base}?at={count - 1}.0", "document.querySelector('.layer section')")
             chrome.run("loadDeck().then(deck => { const s = document.querySelector('.layer section'); "
                        "const cover = document.createElement('div'); cover.style.cssText = "
                        "`position:absolute; inset:0; opacity:0; background:${getComputedStyle(s).backgroundColor}`; "
-                       "s.append(cover); const layer = makeLayer(deck.slides[0], 0); layer.style.opacity = 0; "
+                       "s.append(cover, s.querySelector('#fin-qr')); const layer = makeLayer(deck.slides[0], 0); layer.style.opacity = 0; "
                        "document.querySelector('.layer').after(layer); window.back = [cover, layer]; return true; })")
             n = BACK // STEP
             smooth = lambda t: t * t * (3 - 2 * t)
