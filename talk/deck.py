@@ -146,7 +146,7 @@ NOTES = {
           "⟨val seq = xs.toSeq⟩", "(0 to ⟨seq⟩.length)", "isPalindrome(⟨seq⟩.drop"],
          "Repr: the caller's own type,\nwith a builder factory for it;\ntoSeq reads it as a Seq"),
         (["⟨(bf(xs.repr) ++= seq ++= seq.take(start).reverseIterator).result⟩"],
-         "the input, then\nits reversed prefix:\nString in, String out"),
+         "String in, String out"),
     ],
     "2.9": [
         (["seq.⟨tails.indexWhere(isPalindrome(_))⟩"], "every suffix in turn; the first\npalindrome is where to\nstart mirroring"),
@@ -157,18 +157,17 @@ NOTES = {
          "one match replaces the loop,\nrecursing on the middle"),
     ],
     "2.13": [
-        (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨isSeq: IsSeq[Repr] { type A = A0 }⟩", "val seq = ⟨isSeq(xs)⟩.toSeq"],
-         "any Repr IsSeq can read, as isSeq(xs)"),
-        (["eq: Eq[⟨A0⟩]", "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(seq.iterator ++⟩ seq"],
+        (["palindromize⟨[Repr, A0](xs: Repr)⟩(", "⟨isSeq: IsSeq[Repr] { type A = A0 }⟩", "eq: Eq[⟨A0⟩]",
+          "⟨BuildFrom[Repr, A0, Repr]⟩", "⟨bf.fromSpecific(xs)(seq.iterator ++⟩ seq"],
          "BuildFrom replaces\nCanBuildFrom; fromSpecific\nbuilds in one call"),
+        (["val seq = ⟨isSeq(xs).toSeq⟩", "indexWhere(⟨isPalindrome⟩(_))"], "isPalindrome takes a Seq"),
     ],
     "3.0": [
         (["⟨extension [A: Eq](xs: Seq[A])⟩"],
          "extension and a context bound replace\nthe object, wrapper class and implicit"),
-        (["=> ⟨x === y⟩", "⟨middle.isPalindrome⟩", "indexWhere(⟨_.isPalindrome⟩)"],
-         "=== and isPalindrome:\nextensions, called\nlike methods"),
         (["⟨extension [Repr](xs: Repr)(using isSeq: IsSeq[Repr])⟩", "palindromize⟨(using eq: Eq[isSeq.A]⟩",
-          "BuildFrom[Repr, ⟨isSeq.A⟩, Repr]"],
+          "BuildFrom[Repr, ⟨isSeq.A⟩, Repr]", "=> ⟨x === y⟩",
+          "⟨middle.isPalindrome⟩", "indexWhere(⟨_.isPalindrome⟩)"],
          "IsSeq in the extension's\nusing; later clauses\nsee isSeq.A: no A0"),
     ],
     "3.6": [
@@ -199,7 +198,7 @@ EQ_NOTES = {
         (["⟨val caseInsensitive⟩"], "opt-in: pass it, or\nput it in scope"),
     ],
     "2.8": [
-        (["= ⟨x.toLower == y.toLower⟩"], "Char now has toLower"),
+        (["= ⟨x.toLower == y.toLower⟩"], "a shorter name\nfor toLowerCase"),
     ],
     "2.12": [
         (["Eq[A] = ⟨(x, y) => x == y⟩", "Eq[Char] = ⟨(x, y) => x.toLower == y.toLower⟩"],
