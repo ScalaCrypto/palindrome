@@ -154,7 +154,7 @@ ODD: **Two wrappers** for one method? I'll wait for Scala **to catch up**.
 
 MARTIN: Remember our **one-liners**? What's **wrong** with them?
 ODD: Where do I start. [click] **Copying** just to compare.
-MARTIN: [click] Palindromes **longer** than they need to be.
+ODD: [click] Palindromes **longer** than they need to be.
 ODD: [click] And **Strings only**. We want **any sequence**, of anything.
 MARTIN: All right. Scala 2.5, show us a **better way**.
 
@@ -162,23 +162,23 @@ MARTIN: All right. Scala 2.5, show us a **better way**.
 
 > One click.
 
-MARTIN: **Generic**, with an **implicit Eq**.
-ODD: [click] **Index arithmetic**, in a functional language.
+MARTIN: **Generic**, with an **implicit Eq**. [click]
+ODD: **Index arithmetic**, in a functional language.
 MARTIN: It's **tail-recursive**!
 ODD: Says who? **Nothing checks it**.
-MARTIN: And **palindromize**, done properly.
+MARTIN: And now **palindromize**, done properly.
 
 ## 11 · m2-5 — A better way · 45 s · 5:40
 
 > palindromize morphs in. Two clicks.
 
-MARTIN: [click] Find the **longest suffix** that is a palindrome, and **mirror** only what's before it.
-ODD: Nice. And if I give it a **String**, what do I **get back**? [click]
+MARTIN: Here it is! [click]
+ODD: Ok. And if I give it a **String**, what do I **get back**?
 MARTIN: A **Seq**.
 ODD: A **Seq of Char**, but I gave you a **String**...
-MARTIN: In 2007, that's the **best a generic signature can do**.
+MARTIN: In 2007, that's the **best a generic signature can do**. [click]
 ODD: That's a **bummer**
-MARTIN: Unfortunately, neither 2.6 nor 2.7 helps us.
+MARTIN: Unfortunately, neither 2.6 nor 2.7 helps us with this.
 
 ## 12 · tc2-8 — Scala 2.8 · 2010 · 15 s · 6:25
 
@@ -191,7 +191,7 @@ MARTIN: 2.8 was a **big one**. New **collections**, **@tailrec**, named and defa
 ODD: The release that **broke everyone's code**, and everyone **upgraded anyway**.
 MARTIN: But why would a palindromize **care** about a collections rewrite?
 ODD: Because palindromize **builds a collection**. And from 2.8, it can build the **kind you asked for**.
-MARTIN: Let's see what we can use.
+MARTIN: Let's see how we can use that.
 
 ## 14 · e2-5-again — Char gets toLower · 5 s · 7:10
 
@@ -213,16 +213,16 @@ MARTIN: Back to our methods. 2.8 brings **two upgrades**. First, **@tailrec**.
 
 > One click.
 
-ODD: [click] If the recursion ever stops being a **tail call**, it's a **compile time error**. **Same bytecode** as before.
-MARTIN: Same bytecode. But a **promise** you can't break.
+ODD: If the recursion ever stops being a **tail call**, it's a **compile time error**. **Same bytecode** as before.
+MARTIN: Same bytecode. But a **promise** you can't break. [click]
 ODD: A promise that the **compiler keeps**. I like that.
-MARTIN: On to the big one: **CanBuildFrom**.
+MARTIN: Now, on to the big one: **CanBuildFrom**.
 
 ## 18 · m2-8 — CanBuildFrom keeps the collection type · 50 s · 8:05
 
 > palindromize morphs in. Two clicks. Odd points at the signature and counts its type parameters on his fingers.
 
-ODD: [click] **Repr** is whatever **type the caller passed in**, and CanBuildFrom supplies a **builder for exactly that type**.
+ODD: **Repr** is whatever **type the caller passed in**, [click] and CanBuildFrom supplies a **builder for exactly that type**.
 MARTIN: [click] So a **String comes back as a String**!
 ODD: Because 2.8 wraps a String in **StringOps**, and its **Repr is String**.
 MARTIN: **reverse** gives you back a String too. No more **mkString**!
@@ -263,7 +263,7 @@ ODD: Every **build script** in those days did.
 ## 24 · f2-10 — New in Scala 2.10 · 20 s · 10:25
 
 MARTIN: 2.10 gives us three things: **implicit classes**, **value classes**, and **sequence extractors**.
-ODD: And **string interpolation**, the one feature everybody uses. And **macros**... I have feelings about macros...
+ODD: And **string interpolation**, the one feature everyone uses. And **macros**... I have feelings about macros...
 MARTIN: Not in this talk.
 
 ## 25 · o2-8-again — Implicit value classes · 5 s · 10:45
@@ -277,7 +277,7 @@ MARTIN: Remember our **wrapper**, and its conversion?
 MARTIN: [click] One declaration now, and **no allocation**!
 ODD: Usually. Use it as a **generic type**, or put it in an **array**, and **it boxes**.
 MARTIN: Usually beats always.
-ODD: And every Seq now has a **public xs member**.
+ODD: And every Seq now has a **public member**.
 MARTIN: That's **2.11's problem**.
 
 ## 27 · m2-9-again — +: and :+ extractors · 5 s · 11:20
@@ -297,7 +297,7 @@ ODD: Let's talk about it in the **Q&A**.
 
 ## 29 · tc2-11 — Scala 2.11 · 2014 · 10 s · 12:10
 
-MARTIN: **2.11**, in **2014** everything was about the ice bucket challenge.
+MARTIN: **2.11**, in **2014** the year of the ice bucket challenge.
 ODD: A good time for **privacy**.
 
 ## 30 · f2-11 — New in Scala 2.11 · 15 s · 12:20
@@ -326,7 +326,7 @@ ODD: Scala lambdas now compile to proper JVM **lambdas**. Scala, **catching up w
 ## 34 · f2-12 — New in Scala 2.12 · 10 s · 13:10
 
 MARTIN: **SAM conversion**, **traits as interfaces**, a right-biased Either.
-ODD: **Lambdas** instead of anonymous classes? That could be useful.
+ODD: **Lambdas** instead of anonymous classes? That sounds useful.
 
 ## 35 · e2-8-again — SAM conversion: lambdas implement traits · 5 s · 13:20
 
@@ -336,7 +336,7 @@ MARTIN: Eq, with its **anonymous classes**.
 
 > One click. Odd's first concession: take a breath before it.
 
-MARTIN: [click] And now they're just **lambdas**!
+MARTIN: And now they're just **lambdas**! [click]
 ODD: Two anonymous classes, **two lines**. ... All right. **I concede**. That's just better.
 MARTIN: Can I get that in **writing**?
 ODD: **No.**
@@ -395,7 +395,7 @@ ODD: **Python** developers, here we come.
 MARTIN: [click] And Eq gets an **operator**.
 ODD: **One extension**, and **every type** with an Eq can use the operator [click]. An implicit def is now a **given**. Same thing, better name.
 MARTIN: [click] And the lambdas shrink to **underscores**.
-ODD: Very readable. For **whoever wrote it**.
+ODD: Very readable. For **the one who wrote it**.
 
 ## 45 · m2-13-again — using extensions · 10 s · 16:35
 
@@ -406,7 +406,7 @@ MARTIN: Now the methods. And the **wrapper class** we've carried around since 2.
 > One click; the next click morphs palindromize.
 
 MARTIN: isPalindrome becomes an **extension**. [click]
-ODD: **No object, no wrapper**, no conversion. And the old is **commented out** since no one calls it anymore.
+ODD: **No object, no wrapper, no conversion**. And the implicit method is **commented out** since no one calls it anymore.
 MARTIN: Now **palindromize**.
 
 ## 47 · m3-0-ops — using extensions · 35 s · 17:05
@@ -422,10 +422,10 @@ ODD: Same IsSeq, same BuildFrom: the library didn't change, the **language fixed
 
 > The click commented the whole class out; one more click brings its bubble.
 
-MARTIN: And the **class**?
+MARTIN: And the **implicit class**?
 ODD: [click] **Nothing left** for it to do.
 MARTIN: Shall we **delete** it?
-ODD: **Please**.
+ODD: **Please do**.
 
 ## 49 · m3-0-clean — using extensions · 5 s · 17:55
 
@@ -433,14 +433,14 @@ ODD: **Please**.
 
 ## 50 · tc3-6 — Scala 3.6 · 2024 · 15 s · 18:00
 
-MARTIN: 3.1 to 3.5 **change nothing** our code uses. So: Scala **3.6, in 2024**.
+MARTIN: 3.1 to 3.5 **change nothing** in our code. So: Scala **3.6, in 2024**.
 ODD: Technically **3.6.2**. 3.6.0 was published **by accident**.
 MARTIN: We **don't talk about** 3.6.0.
 
 ## 51 · f3-6 — New in Scala 3.6 · 15 s · 18:15
 
 MARTIN: The type class story gets finished: **named context bounds**, and a new **given syntax**.
-ODD: Six releases later, the **syntax catches up**.
+ODD: Six releases later, the **syntax finally catches up**.
 
 ## 52 · e3-0-again — The new given syntax · 5 s · 18:30
 
@@ -451,7 +451,7 @@ MARTIN: Our **given**, one more time.
 > One click.
 
 MARTIN: [click] Now read that **out loud**.
-ODD: "**Any type gets an equality**." It reads like how you say it out loud. That's nice.
+ODD: "**Any type gets an equality**." It reads like you say it. That's nice.
 
 ## 54 · m3-0-again — Context bounds get names · 5 s · 18:50
 
@@ -498,7 +498,7 @@ MARTIN: That's a **4.1 problem**...
 > Drop the comedy a notch. Slower, to the room.
 
 MARTIN: So what did two tiny functions **teach** us?
-ODD: That the ideas were **all there in 2007**. **Generics, type classes, implicit conversions**.
+ODD: That the **machinery was there already** in 2007. **Generics, type classes, implicit conversions**.
 MARTIN: And every release made them **cheaper** to write.
 ODD: **Not every step was a pure win**, though. CanBuildFrom did its job but **frightened everyone**. 2.13's **refinement was a detour**.
 MARTIN: And in Scala 3, the code finally **reads the way we'd explain it**.
