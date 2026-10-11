@@ -9,8 +9,8 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ### What changed
 
-After the thank-you slide, before the reserve slides, `talk/deck.py` generates a finale of 11 slides (`finale`,
-`fin2-5-all` … `fin4-0`): the whole code as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5
+After the thank-you slide, before the reserve slides, `talk/deck.py` generates a finale of 11 slides
+(`fin2-5-all` … `fin4-0`): the whole code as one file (`Eq`, the methods, Scala 2's method syntax), first all of 2.5
 zoomed out to fit the slide (16px), then a slide per version that changes any of it (2.5, 2.8, 2.9, 2.10, 2.11, 2.12,
 2.13, 3.0, 3.6, 4.0) at the code slides' 25px. Each morphs from the last with a magic move: the tokens are chained
 through all ten states by `morph.chain`, as the tracks' slides are. While the code morphs, the view pans so that the
