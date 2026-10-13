@@ -128,13 +128,13 @@ TITLES = {
 
 
 # Per code state: the notes, in the order they appear. A note is its highlighted code (one or more anchors, the
-# tail pointing at whichever gives the best spot, or at the ones starting with TAIL) and its text. An anchor is exact
-# code text, first occurrence; with ⟨ ⟩ inside it, only the marked part is highlighted (the rest is context to find the
-# right place). From the second code state
-# on, the notes cover every change: the build fails if any code that's new in a version lies outside every
-# highlight. The first code state has nothing to compare with, so its notes pick the main points. The one-liner
-# ("0") has no code slide of its own (it's the hand-written oneliner), so its notes go on its "again" slide.
-TAIL = "→"
+# tail pointing at whichever gives the best spot) and its text. An anchor is exact code text, first occurrence; with
+# ⟨ ⟩ inside it, only the marked part is highlighted (the rest is context to find the right place). From the second
+# code state on, the notes cover every change: the build fails if any code that's new in a version lies outside every
+# highlight. An anchor starting with QUIET is code the note covers without highlighting it, to keep the eye on the
+# rest. The first code state has nothing to compare with, so its notes pick the main points. The one-liner ("0") has
+# no code slide of its own (it's the hand-written oneliner), so its notes go on its "again" slide.
+QUIET = "○"
 NOTES = {
     "2.5": [
         ("from >= to ||", "walk two indices inward"),
@@ -180,7 +180,8 @@ NOTES = {
         ("palindromize(s: ⟨String⟩", "Only String\nWe want Seq[A]"),
     ],
     "4.0": [
-        ([TAIL + "middle :+ ⟨x⟩ =>", "case ⟨Seq() | Seq(_)⟩", "⟨case _                 => false⟩"],
+        (["middle :+ ⟨x⟩ =>", QUIET + "case ⟨Seq() | Seq(_)⟩",
+          QUIET + "⟨case _                 => false⟩"],
          "x twice: both ends\nmust be the same"),
     ],
 }
@@ -283,7 +284,7 @@ def code_rects(runs, top=TOP):
 
 def anchor_span(lines, text, top=TOP):
     """The (x0, y0, x1, y1) box of the first occurrence of text in the code, plus where that line's text ends."""
-    text = text.removeprefix(TAIL)
+    text = text.removeprefix(QUIET)
     context = text.replace("⟨", "").replace("⟩", "")
     offset = text.index("⟨") if "⟨" in text else 0
     marked = text[offset:].split("⟩")[0].lstrip("⟨") if "⟨" in text else text
@@ -458,10 +459,9 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     for order, (anchors, text) in enumerate(notes, 1):
         if only is not None and order not in only:
             continue
-        anchors = [anchors] if isinstance(anchors, str) else anchors
+        anchors = [a for a in ([anchors] if isinstance(anchors, str) else anchors) if not a.startswith(QUIET)]
         spans = [anchor_span(state["lines"], a, top) for a in anchors]
-        tips = [sp for a, sp in zip(anchors, spans) if a.startswith(TAIL)] or spans
-        todo.append((order, text, spans, tips))
+        todo.append((order, text, spans))
     # If a note finds no room, it moves to the front of the queue and the layout starts over.
     size = lambda text: len(text.split("\n")) * max(len(l) for l in text.split("\n"))
     queue = sorted(todo, key=lambda n: -size(n[1]))
@@ -471,14 +471,14 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     queue = [n for n in queue if n not in [k[0] for k in kept]]
     for attempt in range(len(queue) + 1):
         bubbles, tails, placed, failed = [], [], [], None
-        for (order, text, spans, _), (box, side, base, tip, span) in kept:
+        for (order, text, spans), (box, side, base, tip, span) in kept:
             bubbles.append(box)
             tails.append(curve_points(base, tip))
             placed.append((order, text, span, box, side, base, tip, spans))
         for note in queue:
-            order, text, spans, tips = note
+            order, text, spans = note
             mine = [r for r in blocked if any(overlaps(r, sp) for sp in spans)]
-            options = [(o, sp) for sp in tips if (o := place(text, sp, blocked, bubbles, mine, area, tails))]
+            options = [(o, sp) for sp in spans if (o := place(text, sp, blocked, bubbles, mine, area, tails))]
             if not options:
                 failed = note
                 break
@@ -785,7 +785,8 @@ def finale_states() -> list[dict]:
 def finale_spans(state: dict, top: float) -> list[tuple]:
     """The highlights of a finale state: every note's anchors, each found in its own track's lines."""
     return [anchor_span(part, a, top + start * LH) for start, part, notes in state["parts"]
-            for anchors, _ in notes for a in ([anchors] if isinstance(anchors, str) else anchors)]
+            for anchors, _ in notes for a in ([anchors] if isinstance(anchors, str) else anchors)
+            if not a.startswith(QUIET)]
 
 
 def finale_shift(state: dict, spans: list[tuple]) -> int:
