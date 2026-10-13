@@ -178,7 +178,8 @@ NOTES = {
         ("palindromize(s: ⟨String⟩", "Only String\nWe want Seq[A]"),
     ],
     "4.0": [
-        (["middle :+ ⟨x⟩ =>"], "x twice: both ends\nmust be the same"),
+        (["middle :+ ⟨x⟩ =>", "case ⟨Seq() | Seq(_)⟩", "⟨case _                 => false⟩"],
+         "x twice: both ends\nmust be the same"),
     ],
 }
 
@@ -620,7 +621,8 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
 # Code states that come from no version directory: the one-liner the talk starts from (slide 2), as 2007 has to write
 # it (before 2.8 a String's reverse isn't a String, so it's turned back into one with mkString), morphed into 2.5's
 # methods; and an imagined Scala 4.0, the ending joke: 3.6's isPalindrome with a Prolog-style pattern that names x
-# twice, so the two ends must be equal. No real Scala compiles it.
+# twice, so the two ends must be equal. A Seq whose ends differ then matches neither that case nor the base case (empty
+# or one element), so it's not a palindrome. No real Scala compiles it.
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
     'def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")', "",
     'def palindromize(s: String): String = s + s.reverse.mkString("")']}
@@ -634,12 +636,17 @@ OPS_2_13 = [
     "}",
 ]
 OPS_NOTE = (["⟨implicit class PalindromeOps⟩"], "obsolete: the extensions\ndo its job, so it can go")
-PROLOG = ("case x +: middle :+ y => x === y && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
+PROLOG = (["case x +: middle :+ y => x === y && middle.isPalindrome", "case _ => true"],
+          ["case x +: middle :+ x => middle.isPalindrome", "case Seq() | Seq(_)    => true", "case _                 => false"])
 
 def code_states() -> list[dict]:
     states = morph.load_states("code")
-    lines = [line.replace(*PROLOG) for line in states[-1]["lines"]]
-    assert lines != states[-1]["lines"], "3.6's match case changed: update PROLOG"
+    lines, old, new = states[-1]["lines"], *PROLOG
+    stripped = [line.strip() for line in lines]
+    at = next((i for i in range(len(lines)) if stripped[i:i + len(old)] == old), None)
+    assert at is not None, "3.6's match changed: update PROLOG"
+    indent = lines[at][:len(lines[at]) - len(lines[at].lstrip())]
+    lines = lines[:at] + [indent + line for line in new] + lines[at + len(old):]
     return [ONE_LINER] + states + [{"dir": None, "versions": ["4.0"], "lines": lines}]
 
 
@@ -882,7 +889,7 @@ def finale() -> list[tuple[str, str]]:
 # Slides format plays, looping, while the slide is shown. Their copies in talk/5.20-deck/assets/, each named after its
 # asset's id, are what talk/present.py and talk/render.py show for them.
 FINALE_FRAMES = ROOT / "out/finale/project"
-FINALE_CLIP = "/_blob/7ea46e81aac5270845d10c46cad1d77c"
+FINALE_CLIP = "/_blob/a8ed2ac6bec27991a2fb7f39c3011aee"
 FINALE_STILL = "/_blob/00ffd4e8fd60be4596002a3720353148"
 # The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md;
 # their local copies are symlinks to the deck's.
