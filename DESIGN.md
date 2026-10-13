@@ -11,8 +11,9 @@ how it was verified. Current project facts live in `STATE.md`.
 
 The made-up 4.0 `isPalindrome` (`m4-0`, `PROLOG` in `talk/deck.py`) now has three cases: the Prolog pattern
 `case x +: middle :+ x => middle.isPalindrome`, a base case `case Seq() | Seq(_) => true`, and `case _ => false`.
-The bubble's highlights cover the two new cases, and the finale's video was recorded again (its still, the 2.5
-overview, didn't change).
+The bubble highlights only the pattern's second `x`, and points at it: the two new cases are covered for the build's
+check by `QUIET` anchors, which aren't highlighted, so the eye stays on what the bubble says. The finale's video was
+recorded again with it (its still, the 2.5 overview, didn't change).
 
 ### Why
 
@@ -25,6 +26,9 @@ keeps the joke correct.
 
 - **Only `case _ => false`**: shorter, but every input, `""` and `"a"` included, ends in `false`.
 - **`case _ => xs.sizeIs <= 1`**: two cases and correct, but the fallback hides the base case in a size check.
+- **Highlighting the new cases too**: the build's rule, every change highlighted, but the bubble's tail went to the
+  last case, and three highlights under one bubble about `x` pulled the eye away from it.
+- **A second bubble for the base case**: another click, on the talk's punchline slide.
 
 ### Verification
 

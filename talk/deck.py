@@ -895,7 +895,7 @@ def finale() -> list[tuple[str, str]]:
 # Slides format plays, looping, while the slide is shown. Their copies in talk/5.20-deck/assets/, each named after its
 # asset's id, are what talk/present.py and talk/render.py show for them.
 FINALE_FRAMES = ROOT / "out/finale/project"
-FINALE_CLIP = "/_blob/a8ed2ac6bec27991a2fb7f39c3011aee"
+FINALE_CLIP = "/_blob/305302906ceadaea040bb01874c25e75"
 FINALE_STILL = "/_blob/00ffd4e8fd60be4596002a3720353148"
 # The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md;
 # their local copies are symlinks to the deck's.
