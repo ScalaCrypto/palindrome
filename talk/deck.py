@@ -128,11 +128,13 @@ TITLES = {
 
 
 # Per code state: the notes, in the order they appear. A note is its highlighted code (one or more anchors, the
-# tail pointing at the first) and its text. An anchor is exact code text, first occurrence; with ⟨ ⟩ inside it,
-# only the marked part is highlighted (the rest is context to find the right place). From the second code state
-# on, the notes cover every change: the build fails if any code that's new in a version lies outside every
-# highlight. The first code state has nothing to compare with, so its notes pick the main points. The one-liner
-# ("0") has no code slide of its own (it's the hand-written oneliner), so its notes go on its "again" slide.
+# tail pointing at whichever gives the best spot) and its text. An anchor is exact code text, first occurrence; with
+# ⟨ ⟩ inside it, only the marked part is highlighted (the rest is context to find the right place). From the second
+# code state on, the notes cover every change: the build fails if any code that's new in a version lies outside every
+# highlight. An anchor starting with QUIET is code the note covers without highlighting it, to keep the eye on the
+# rest. The first code state has nothing to compare with, so its notes pick the main points. The one-liner ("0") has
+# no code slide of its own (it's the hand-written oneliner), so its notes go on its "again" slide.
+QUIET = "○"
 NOTES = {
     "2.5": [
         ("from >= to ||", "walk two indices inward"),
@@ -178,7 +180,9 @@ NOTES = {
         ("palindromize(s: ⟨String⟩", "Only String\nWe want Seq[A]"),
     ],
     "4.0": [
-        (["middle :+ ⟨x⟩ =>"], "x twice: both ends\nmust be the same"),
+        (["middle :+ ⟨x⟩ =>", QUIET + "case ⟨Seq() | Seq(_)⟩",
+          QUIET + "⟨case _                 => false⟩"],
+         "x twice: both ends\nmust be the same"),
     ],
 }
 
@@ -280,6 +284,7 @@ def code_rects(runs, top=TOP):
 
 def anchor_span(lines, text, top=TOP):
     """The (x0, y0, x1, y1) box of the first occurrence of text in the code, plus where that line's text ends."""
+    text = text.removeprefix(QUIET)
     context = text.replace("⟨", "").replace("⟩", "")
     offset = text.index("⟨") if "⟨" in text else 0
     marked = text[offset:].split("⟩")[0].lstrip("⟨") if "⟨" in text else text
@@ -454,7 +459,8 @@ def code_slide(slide_id, state, runs, transition, notes, aside, title, prefix="t
     for order, (anchors, text) in enumerate(notes, 1):
         if only is not None and order not in only:
             continue
-        spans = [anchor_span(state["lines"], a, top) for a in ([anchors] if isinstance(anchors, str) else anchors)]
+        anchors = [a for a in ([anchors] if isinstance(anchors, str) else anchors) if not a.startswith(QUIET)]
+        spans = [anchor_span(state["lines"], a, top) for a in anchors]
         todo.append((order, text, spans))
     # If a note finds no room, it moves to the front of the queue and the layout starts over.
     size = lambda text: len(text.split("\n")) * max(len(l) for l in text.split("\n"))
@@ -620,7 +626,8 @@ def leaving(n: int, default: str | None = "fade") -> str | None:
 # Code states that come from no version directory: the one-liner the talk starts from (slide 2), as 2007 has to write
 # it (before 2.8 a String's reverse isn't a String, so it's turned back into one with mkString), morphed into 2.5's
 # methods; and an imagined Scala 4.0, the ending joke: 3.6's isPalindrome with a Prolog-style pattern that names x
-# twice, so the two ends must be equal. No real Scala compiles it.
+# twice, so the two ends must be equal. A Seq whose ends differ then matches neither that case nor the base case (empty
+# or one element), so it's not a palindrome. No real Scala compiles it.
 ONE_LINER = {"dir": None, "versions": ["0"], "lines": [
     'def isPalindrome(s: String): Boolean = s == s.reverse.mkString("")', "",
     'def palindromize(s: String): String = s + s.reverse.mkString("")']}
@@ -634,12 +641,17 @@ OPS_2_13 = [
     "}",
 ]
 OPS_NOTE = (["⟨implicit class PalindromeOps⟩"], "obsolete: the extensions\ndo its job, so it can go")
-PROLOG = ("case x +: middle :+ y => x === y && middle.isPalindrome", "case x +: middle :+ x => middle.isPalindrome")
+PROLOG = (["case x +: middle :+ y => x === y && middle.isPalindrome", "case _ => true"],
+          ["case x +: middle :+ x => middle.isPalindrome", "case Seq() | Seq(_)    => true", "case _                 => false"])
 
 def code_states() -> list[dict]:
     states = morph.load_states("code")
-    lines = [line.replace(*PROLOG) for line in states[-1]["lines"]]
-    assert lines != states[-1]["lines"], "3.6's match case changed: update PROLOG"
+    lines, old, new = states[-1]["lines"], *PROLOG
+    stripped = [line.strip() for line in lines]
+    at = next((i for i in range(len(lines)) if stripped[i:i + len(old)] == old), None)
+    assert at is not None, "3.6's match changed: update PROLOG"
+    indent = lines[at][:len(lines[at]) - len(lines[at].lstrip())]
+    lines = lines[:at] + [indent + line for line in new] + lines[at + len(old):]
     return [ONE_LINER] + states + [{"dir": None, "versions": ["4.0"], "lines": lines}]
 
 
@@ -773,7 +785,8 @@ def finale_states() -> list[dict]:
 def finale_spans(state: dict, top: float) -> list[tuple]:
     """The highlights of a finale state: every note's anchors, each found in its own track's lines."""
     return [anchor_span(part, a, top + start * LH) for start, part, notes in state["parts"]
-            for anchors, _ in notes for a in ([anchors] if isinstance(anchors, str) else anchors)]
+            for anchors, _ in notes for a in ([anchors] if isinstance(anchors, str) else anchors)
+            if not a.startswith(QUIET)]
 
 
 def finale_shift(state: dict, spans: list[tuple]) -> int:
@@ -882,7 +895,7 @@ def finale() -> list[tuple[str, str]]:
 # Slides format plays, looping, while the slide is shown. Their copies in talk/5.20-deck/assets/, each named after its
 # asset's id, are what talk/present.py and talk/render.py show for them.
 FINALE_FRAMES = ROOT / "out/finale/project"
-FINALE_CLIP = "/_blob/7ea46e81aac5270845d10c46cad1d77c"
+FINALE_CLIP = "/_blob/305302906ceadaea040bb01874c25e75"
 FINALE_STILL = "/_blob/00ffd4e8fd60be4596002a3720353148"
 # The same two in the bullets deck's artifact (copies, with their own ids), for a build with --notes talk/bullets.md;
 # their local copies are symlinks to the deck's.

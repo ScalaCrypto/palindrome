@@ -5,6 +5,38 @@ how it was verified. Current project facts live in `STATE.md`.
 
 ---
 
+## 2026-10-13 — Scala 4.0's match ends in `case _ => false`
+
+### What changed
+
+The made-up 4.0 `isPalindrome` (`m4-0`, `PROLOG` in `talk/deck.py`) now has three cases: the Prolog pattern
+`case x +: middle :+ x => middle.isPalindrome`, a base case `case Seq() | Seq(_) => true`, and `case _ => false`.
+The bubble highlights only the pattern's second `x`, and points at it: the two new cases are covered for the build's
+check by `QUIET` anchors, which aren't highlighted, so the eye stays on what the bubble says. The finale's video was
+recorded again with it (its still, the 2.5 overview, didn't change).
+
+### Why
+
+The user asked for the last case to be `case _ => false`: with the comparison gone into the pattern, a sequence whose
+ends differ falls through, and 3.6's `case _ => true` would call it a palindrome. `false` alone would be wrong the
+other way, since an empty or one-element sequence doesn't match `x +: middle :+ x` either; the base case before it
+keeps the joke correct.
+
+### Alternatives rejected
+
+- **Only `case _ => false`**: shorter, but every input, `""` and `"a"` included, ends in `false`.
+- **`case _ => xs.sizeIs <= 1`**: two cases and correct, but the fallback hides the base case in a size check.
+- **Highlighting the new cases too**: the build's rule, every change highlighted, but the bubble's tail went to the
+  last case, and three highlights under one bubble about `x` pulled the eye away from it.
+- **A second bubble for the base case**: another click, on the talk's punchline slide.
+
+### Verification
+
+`talk/deck.py` (the highlights cover the new code), `talk/render.py --screenshots` (`m4-0` checked by eye),
+`talk/present.py --check`, `talk/finale.py`.
+
+---
+
 ## 2026-10-11 — The presenter view on another computer
 
 ### What changed
@@ -915,7 +947,8 @@ unchanged.
   first and last states, with all its notes. 2.5's heading becomes "A better way?".
 - **Scala 4.0.** A made-up release closes the tour: a tag-cloud slide of its two "authors", the presenters
   (`cloud4-0`), a "New in Scala 4.0" slide with Prolog extractors in amber (`f4-0`), and 3.6's `isPalindrome` with
-  `case x +: middle :+ x => middle.isPalindrome` (`m4-0`). The timeline runs to 4.0 on every slide. The speaker
+  `case x +: middle :+ x => middle.isPalindrome` (`m4-0`; a base case and `case _ => false` follow it since
+  2026-10-13). The timeline runs to 4.0 on every slide. The speaker
   notes say it's a joke: Scala rejects a variable bound twice in a pattern.
 - **Hand-written slides.** The goal slide adds case-insensitive calls of both methods under a `given Eq[Char] =
   Eq.caseInsensitive` (an explicit `(using Eq.caseInsensitive)` on `palindromize` doesn't compile: the `IsSeq`
